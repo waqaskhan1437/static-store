@@ -1,6 +1,6 @@
 /**
  * Professional Form Builder (Globo Style 2025)
- * Features: Groups (Headings), Options with Price, Visual Editor, File Upload Logic
+ * Features: Groups, Options with Price, File Upload & Text Logic per Option
  */
 
 export function renderCustomFields(data = {}) {
@@ -14,10 +14,9 @@ export function renderCustomFields(data = {}) {
 
             <!-- Toolbar -->
             <div class="toolbar" style="display:flex; gap:8px; flex-wrap:wrap; margin-bottom:20px; padding:10px; background:#f8f9fa; border:1px solid #e9ecef; border-radius:8px;">
-                <button type="button" class="btn-tool" data-type="header"><i class="fas fa-heading"></i> Heading/Group</button>
+                <button type="button" class="btn-tool" data-type="header"><i class="fas fa-heading"></i> Heading</button>
                 <button type="button" class="btn-tool" data-type="text"><i class="fas fa-font"></i> Text</button>
                 <button type="button" class="btn-tool" data-type="email"><i class="fas fa-envelope"></i> Email</button>
-                <button type="button" class="btn-tool" data-type="textarea"><i class="fas fa-align-left"></i> Long Text</button>
                 <button type="button" class="btn-tool" data-type="select"><i class="fas fa-list-ul"></i> Dropdown</button>
                 <button type="button" class="btn-tool" data-type="radio"><i class="fas fa-dot-circle"></i> Radio</button>
                 <button type="button" class="btn-tool" data-type="checkbox_group"><i class="fas fa-check-square"></i> Checkboxes</button>
@@ -32,9 +31,20 @@ export function renderCustomFields(data = {}) {
         <style>
             .btn-tool { background:white; border:1px solid #ced4da; padding:6px 12px; border-radius:4px; cursor:pointer; font-size:0.85rem; transition:0.2s; }
             .btn-tool:hover { background:#e2e6ea; border-color:#adb5bd; transform:translateY(-1px); }
+            
             .field-card { background:white; border:1px solid #dfe6e9; padding:15px; border-radius:6px; position:relative; animation:fadeIn 0.2s; border-left:4px solid transparent; }
             .field-card.type-header { background:#f1f2f6; border-left-color:#2d3436; }
             .field-card:hover { box-shadow:0 2px 8px rgba(0,0,0,0.05); }
+            
+            /* Logic Config Styling */
+            .logic-config { display:flex; align-items:center; gap:5px; background:#f1f2f6; padding:0 8px; border-radius:4px; border:1px solid #dcdde1; height:34px; transition:0.2s; font-size:0.75rem; }
+            .logic-config:hover { border-color:#b2bec3; }
+            .logic-config.active { background:#e3f2fd; border-color:#2196f3; }
+            .logic-config.active-text { background:#e8f5e9; border-color:#4caf50; }
+            
+            .logic-config label { font-weight:bold; color:#636e72; cursor:pointer; display:flex; align-items:center; gap:4px; margin:0; white-space:nowrap; }
+            .logic-input { font-size:0.75rem; padding:2px 5px; height:24px; border:1px solid #bdc3c7; border-radius:3px; }
+            
             @keyframes fadeIn { from{opacity:0; transform:translateY(5px);} to{opacity:1; transform:translateY(0);} }
         </style>
     `;
@@ -50,37 +60,54 @@ function renderFieldCard(field = {}, index = Date.now()) {
     if (isOptionType) {
         const opts = field.options_list || [];
         const rows = opts.map(o => {
-            // Check if this option requires a file
             const hasFile = o.file_qty && o.file_qty > 0;
+            const hasText = !!o.text_label; // Check if text label exists
             
-            // Logic: Only show File Upload toggle if it's a Dropdown (select)
-            const fileUploadUI = type === 'select' ? `
-                <div style="display:flex; align-items:center; gap:5px; background:#f1f2f6; padding:0 8px; border-radius:4px; border:1px solid #dcdde1; height:36px;" title="Require File Upload for this option">
-                    <label style="font-size:0.75rem; font-weight:bold; color:#636e72; cursor:pointer; display:flex; align-items:center; gap:4px; margin:0;">
+            // Logic: Show Toggles ONLY for Dropdown (select)
+            // 1. File Upload Logic
+            const fileLogicUI = type === 'select' ? `
+                <div class="logic-config ${hasFile ? 'active' : ''}" title="Require File Upload?">
+                    <label>
                         <input type="checkbox" class="file-req-toggle" ${hasFile ? 'checked' : ''}> 
-                        <i class="fas fa-cloud-upload-alt"></i>
+                        <i class="fas fa-cloud-upload-alt"></i> File
                     </label>
-                    <input type="number" class="form-control file-qty-input" name="opt_file_qty" 
-                           value="${o.file_qty || 1}" min="1" placeholder="Qty" 
-                           style="width:50px; font-size:0.8rem; padding:2px 5px; height:24px; display:${hasFile ? 'block' : 'none'}; border:1px solid #bdc3c7;">
+                    <input type="number" class="logic-input file-qty-input" name="opt_file_qty" 
+                           value="${o.file_qty || 1}" min="1" max="10" placeholder="Qty" 
+                           style="width:40px; display:${hasFile ? 'block' : 'none'};">
+                </div>
+            ` : '';
+
+            // 2. Text Input Logic (New)
+            const textLogicUI = type === 'select' ? `
+                <div class="logic-config ${hasText ? 'active-text' : ''}" title="Require Text Input?">
+                    <label>
+                        <input type="checkbox" class="text-req-toggle" ${hasText ? 'checked' : ''}> 
+                        <i class="fas fa-font"></i> Text
+                    </label>
+                    <input type="text" class="logic-input text-label-input" name="opt_text_label" 
+                           value="${o.text_label || ''}" placeholder="Label (e.g. Name)" 
+                           style="width:100px; display:${hasText ? 'block' : 'none'};">
                 </div>
             ` : '';
 
             return `
             <div class="opt-row" style="display:flex; gap:5px; margin-bottom:5px; align-items:center;">
-                <input type="text" class="form-control" name="opt_label" placeholder="Option Name" value="${o.label}" style="flex:2;">
-                <input type="number" class="form-control" name="opt_price" placeholder="Price" value="${o.price}" style="flex:1;">
-                ${fileUploadUI}
+                <input type="text" class="form-control" name="opt_label" placeholder="Option Name" value="${o.label}" style="flex:1.5;">
+                <input type="number" class="form-control" name="opt_price" placeholder="Price" value="${o.price}" style="flex:0.8;">
+                
+                ${fileLogicUI}
+                ${textLogicUI}
+                
                 <button type="button" onclick="this.closest('.opt-row').remove()" style="color:#e74c3c; border:none; background:none; cursor:pointer; padding:0 8px;"><i class="fas fa-times"></i></button>
             </div>
         `}).join('');
         
         optionsHtml = `
             <div class="options-wrapper" style="margin-top:10px; background:#f8f9fa; padding:10px; border-radius:4px;">
-                <label style="font-size:0.8rem; font-weight:bold;">OPTIONS & PRICES</label>
+                <label style="font-size:0.8rem; font-weight:bold; color:#2d3436;">OPTIONS LIST</label>
                 <div class="opts-container">${rows}</div>
-                <button type="button" class="btn-add-opt" style="font-size:0.8rem; color:#3498db; background:none; border:none; cursor:pointer; margin-top:5px;">
-                    <i class="fas fa-plus-circle"></i> Add Option
+                <button type="button" class="btn-add-opt" style="font-size:0.8rem; color:#3498db; background:none; border:none; cursor:pointer; margin-top:5px; font-weight:600;">
+                    <i class="fas fa-plus-circle"></i> Add New Option
                 </button>
             </div>
         `;
@@ -89,18 +116,18 @@ function renderFieldCard(field = {}, index = Date.now()) {
     return `
         <div class="field-card type-${type}" data-type="${type}">
             <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px;">
-                <span class="badge" style="background:#dfe6e9; color:#2d3436; padding:2px 8px; font-size:0.75rem; border-radius:4px;">${type.toUpperCase()}</span>
+                <span class="badge" style="background:#dfe6e9; color:#2d3436; padding:2px 8px; font-size:0.75rem; border-radius:4px; font-weight:bold;">${type.toUpperCase()}</span>
                 <button type="button" onclick="this.closest('.field-card').remove()" style="color:#ff7675; border:none; background:none; cursor:pointer;"><i class="fas fa-trash"></i></button>
             </div>
             
             <div class="row" style="display:flex; gap:10px;">
                 <div style="flex:1;">
-                    <label style="font-size:0.85rem; font-weight:bold;">${isHeader ? 'Section Heading' : 'Label'}</label>
-                    <input type="text" name="f_label" class="form-control" value="${field.label || ''}" placeholder="${isHeader ? 'e.g. Personal Details' : 'e.g. Your Name'}" style="${isHeader ? 'font-weight:bold; font-size:1.1rem;' : ''}">
+                    <label style="font-size:0.85rem; font-weight:bold;">${isHeader ? 'Section Heading' : 'Label / Question'}</label>
+                    <input type="text" name="f_label" class="form-control" value="${field.label || ''}" placeholder="${isHeader ? 'e.g. Personal Details' : 'e.g. Select Size'}" style="${isHeader ? 'font-weight:bold; font-size:1.1rem;' : ''}">
                 </div>
                 ${!isHeader ? `
                 <div style="width:100px; padding-top:25px;">
-                    <label style="cursor:pointer; font-size:0.85rem;"><input type="checkbox" name="f_req" ${field.required ? 'checked' : ''}> Required</label>
+                    <label style="cursor:pointer; font-size:0.85rem; user-select:none;"><input type="checkbox" name="f_req" ${field.required ? 'checked' : ''}> Required</label>
                 </div>` : ''}
             </div>
             
@@ -121,18 +148,19 @@ export function setupCustomFieldsEvents() {
             
             const type = btn.dataset.type;
             const tempDiv = document.createElement('div');
+            // Empty field structure
             tempDiv.innerHTML = renderFieldCard({ _type: type, label: '', options_list: [] });
             const newCard = tempDiv.firstElementChild;
             container.appendChild(newCard);
             
-            // Auto-add first option for list types
+            // Auto-add first option row for Dropdown/Radio/Checkbox
             if(['select','radio','checkbox_group'].includes(type)) {
                 addOptionRow(newCard.querySelector('.opts-container'));
             }
         });
     });
 
-    // 2. Event Delegation for "Add Option" inside cards
+    // 2. Add Option Button Listener
     container.addEventListener('click', (e) => {
         if (e.target.closest('.btn-add-opt')) {
             const wrapper = e.target.closest('.options-wrapper');
@@ -140,37 +168,54 @@ export function setupCustomFieldsEvents() {
         }
     });
 
-    // 3. Event Delegation for "File Toggle" checkbox
+    // 3. Logic Toggle Listener (File & Text)
     container.addEventListener('change', (e) => {
+        // A. File Toggle
         if (e.target.classList.contains('file-req-toggle')) {
-            const wrapper = e.target.closest('div');
-            const qtyInput = wrapper.querySelector('.file-qty-input');
+            const wrapper = e.target.closest('.logic-config');
+            const input = wrapper.querySelector('.file-qty-input');
+            toggleLogicInput(e.target.checked, wrapper, input, '1');
+        }
+        
+        // B. Text Toggle
+        if (e.target.classList.contains('text-req-toggle')) {
+            const wrapper = e.target.closest('.logic-config');
+            const input = wrapper.querySelector('.text-label-input');
+            // Add 'active-text' class for green color
+            if(e.target.checked) wrapper.classList.add('active-text'); 
+            else wrapper.classList.remove('active-text');
             
-            if (e.target.checked) {
-                qtyInput.style.display = 'block';
-                qtyInput.value = qtyInput.value || 1; // Default to 1
-            } else {
-                qtyInput.style.display = 'none';
-                qtyInput.value = 0; // Reset to 0 so it doesn't save as required
-            }
+            toggleLogicInput(e.target.checked, wrapper, input, '');
         }
     });
 }
 
+function toggleLogicInput(isChecked, wrapper, input, defaultValue) {
+    if (isChecked) {
+        wrapper.classList.add('active');
+        input.style.display = 'block';
+        if(defaultValue) input.value = input.value || defaultValue;
+        input.focus();
+    } else {
+        wrapper.classList.remove('active');
+        input.style.display = 'none';
+        input.value = defaultValue === '1' ? 0 : ''; // Reset value to avoid saving
+    }
+}
+
 function addOptionRow(container) {
-    // Find the parent field type to decide if we show File Upload
     const fieldCard = container.closest('.field-card');
     const type = fieldCard ? fieldCard.dataset.type : 'select';
 
-    const fileUploadUI = type === 'select' ? `
-        <div style="display:flex; align-items:center; gap:5px; background:#f1f2f6; padding:0 8px; border-radius:4px; border:1px solid #dcdde1; height:36px;" title="Require File Upload for this option">
-            <label style="font-size:0.75rem; font-weight:bold; color:#636e72; cursor:pointer; display:flex; align-items:center; gap:4px; margin:0;">
-                <input type="checkbox" class="file-req-toggle"> 
-                <i class="fas fa-cloud-upload-alt"></i>
-            </label>
-            <input type="number" class="form-control file-qty-input" name="opt_file_qty" 
-                   value="1" min="1" placeholder="Qty" 
-                   style="width:50px; font-size:0.8rem; padding:2px 5px; height:24px; display:none; border:1px solid #bdc3c7;">
+    // Show Logics ONLY for Select
+    const logicHTML = type === 'select' ? `
+        <div class="logic-config" title="Require File?">
+            <label><input type="checkbox" class="file-req-toggle"><i class="fas fa-cloud-upload-alt"></i> File</label>
+            <input type="number" class="logic-input file-qty-input" name="opt_file_qty" value="1" min="1" max="10" placeholder="Qty" style="width:40px; display:none;">
+        </div>
+        <div class="logic-config" title="Require Text?">
+            <label><input type="checkbox" class="text-req-toggle"><i class="fas fa-font"></i> Text</label>
+            <input type="text" class="logic-input text-label-input" name="opt_text_label" placeholder="Label" style="width:100px; display:none;">
         </div>
     ` : '';
 
@@ -178,9 +223,9 @@ function addOptionRow(container) {
     div.className = 'opt-row';
     div.style.cssText = 'display:flex; gap:5px; margin-bottom:5px; align-items:center; animation:fadeIn 0.2s;';
     div.innerHTML = `
-        <input type="text" class="form-control" name="opt_label" placeholder="New Option" style="flex:2;">
-        <input type="number" class="form-control" name="opt_price" placeholder="0" style="flex:1;">
-        ${fileUploadUI}
+        <input type="text" class="form-control" name="opt_label" placeholder="Option Name" style="flex:1.5;">
+        <input type="number" class="form-control" name="opt_price" placeholder="Price" style="flex:0.8;">
+        ${logicHTML}
         <button type="button" onclick="this.closest('.opt-row').remove()" style="color:#e74c3c; border:none; background:none; cursor:pointer; padding:0 8px;"><i class="fas fa-times"></i></button>
     `;
     container.appendChild(div);
