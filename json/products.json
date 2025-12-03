@@ -731,5 +731,48 @@
         "required": false
       }
     ]
+  },
+  {
+    "slug": "custom-photo-frame",
+    "id": "custom-photo-frame",
+    "title": "Custom Photo Frame",
+    "price": 1500,
+    "old_price": 0,
+    "description": "High quality wooden frame.",
+    "seoDescription": "",
+    "images": [
+      "https://placehold.co/600x400"
+    ],
+    "video_url": "",
+    "delivery_instant": false,
+    "delivery_physical": false,
+    "stock_status": "in_stock",
+    "min_photos": 0,
+    "customForm": [
+      {
+        "_type": "text",
+        "label": "Engraving Name",
+        "required": true,
+        "rows": 3,
+        "options_list": []
+      },
+      {
+        "_type": "checkbox_group",
+        "label": "Extras",
+        "required": false,
+        "rows": 3,
+        "options_list": [
+          {
+            "label": "Gift Wrap",
+            "price": 200,
+            "file_qty": 1,
+            "text_label": "",
+            "text_placeholder": ""
+          }
+        ]
+      }
+    ],
+    "photoOptions": [],
+    "tags": []
   }
 ]
