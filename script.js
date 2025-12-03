@@ -15,15 +15,15 @@
     const title = p.title || "";
     const desc = p.description || "";
     const price = priceToNumber(p.price);
-    const slug = toSlug(p.slug);
-    const href = `./products/${slug}.html`; // ✅ relative path for GitHub Pages subdirectory
+    const slug = toSlug(p.slug || p.id); // Support both slug and id
+    const href = `./products/${slug}.html`;
 
     return (
       '<div class="product-card">' +
         `<img src="${img}" alt="${title}">` +
         `<h3>${title}</h3>` +
         `<p>${desc}</p>` +
-        `<p>Price: $${price}</p>` +
+        `<p>Price: ${price} PKR</p>` +
         `<a href="${href}">View Product</a>` +
       '</div>'
     );
@@ -32,32 +32,41 @@
   async function loadProducts() {
     const container = document.getElementById("products");
     if (!container) return;
-    container.innerHTML = "";
+    container.innerHTML = "<p>Loading products...</p>";
 
-    // Prefer embedded JSON (faster + no CORS)
-    const embedded = document.getElementById("products-json");
     let products = [];
-    if (embedded && embedded.textContent && embedded.textContent.trim().length > 0) {
-      try {
-        products = JSON.parse(embedded.textContent.trim());
-      } catch (e) {
-        console.error("Failed to parse embedded products JSON:", e);
+
+    // DIRECT FETCH: Hamesha fresh file maangein (Cache avoid karne ke liye timestamp lagaya)
+    try {
+      const res = await fetch("./json/products.json?v=" + Date.now());
+      if (res.ok) {
+        products = await res.json();
+      } else {
+        console.error("Products file fetch failed");
       }
+    } catch (e) {
+      console.error("Failed to fetch products.json:", e);
     }
 
-    // Fallback: try fetching /json/products.json if not embedded
+    // Agar fetch fail ho jaye, tab hi purana embedded data use karein (Fallback)
     if (!products || products.length === 0) {
-      try {
-        const res = await fetch("./json/products.json", { cache: "no-store" });
-        if (res.ok) {
-          products = await res.json();
-        }
-      } catch (e) {
-        console.error("Failed to fetch products.json:", e);
+      const embedded = document.getElementById("products-json");
+      if (embedded && embedded.textContent && embedded.textContent.trim().length > 0) {
+        try {
+          products = JSON.parse(embedded.textContent.trim());
+        } catch (e) {}
       }
     }
 
-    if (!Array.isArray(products)) products = [];
+    container.innerHTML = ""; // Clear loading message
+
+    if (!Array.isArray(products) || products.length === 0) {
+      container.innerHTML = "<p>No products found.</p>";
+      return;
+    }
+
+    // Newest products first
+    products.reverse(); 
 
     for (const p of products) {
       const wrapper = document.createElement("div");
