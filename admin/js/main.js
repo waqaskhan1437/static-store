@@ -3,112 +3,87 @@ import { renderProductForm, setupFormEvents } from './components/product-form.js
 import { renderOrdersList } from './components/orders.js';
 import { fetchProducts } from './api.js';
 
-/**
- * MAIN.JS
- * Application ka Brain. Yeh URL Hash change hone par content badalta hai.
- */
-
 const appContainer = document.getElementById('app-container');
 const pageTitle = document.getElementById('page-title');
 
-// App start hone par listener lagayen
 window.addEventListener('DOMContentLoaded', initApp);
 window.addEventListener('hashchange', handleRouting);
 
 function initApp() {
-    // Sidebar navigation active state manage karein
     setupSidebar();
-    
-    // Pehli baar route check karein
     handleRouting();
 }
 
-/**
- * Routing Logic
- * Hash (#products, #orders) ke hisab se component load karta hai.
- */
 async function handleRouting() {
     const hash = window.location.hash || '#dashboard';
-    
-    // Default Title
     let title = 'Dashboard';
     
     // 1. PRODUCTS LIST
     if (hash === '#products') {
         title = 'Product Management';
-        // HTML Inject karein
         appContainer.innerHTML = await renderProductsList();
-        // Add Button dikhayein
         toggleAddButton(true);
     } 
     
-    // 2. NEW PRODUCT FORM
+    // 2. NEW PRODUCT
     else if (hash === '#products/new') {
         title = 'Add New Product';
-        appContainer.innerHTML = renderProductForm({}); // Empty form
-        setupFormEvents(); // Events attach karein (Save, Tabs)
+        appContainer.innerHTML = renderProductForm({});
+        setupFormEvents();
         toggleAddButton(false);
     } 
     
-    // 3. EDIT PRODUCT FORM (#products/edit/123)
+    // 3. EDIT PRODUCT (Fix: Find by Slug)
     else if (hash.startsWith('#products/edit/')) {
         title = 'Edit Product';
-        const id = hash.split('/')[2];
+        const slug = hash.split('/')[2]; // Get slug from URL
         
         appContainer.innerHTML = '<div class="loading-spinner">Loading Product Data...</div>';
         
-        // Product data layein taakay form fill kar sakein
-        const products = await fetchProducts();
-        const product = products.find(p => p.id == id);
-        
-        if (product) {
-            appContainer.innerHTML = renderProductForm(product);
-            setupFormEvents();
-        } else {
-            appContainer.innerHTML = '<div style="color:red; text-align:center;">Product not found!</div>';
+        try {
+            const products = await fetchProducts();
+            // Check both slug and id properties
+            const product = products.find(p => (p.slug === slug) || (p.id === slug));
+            
+            if (product) {
+                appContainer.innerHTML = renderProductForm(product);
+                setupFormEvents();
+            } else {
+                appContainer.innerHTML = `<div style="color:red; text-align:center; padding:20px;">
+                    <h3>Product Not Found!</h3>
+                    <p>Could not find product with slug: <b>${slug}</b></p>
+                    <button class="btn" onclick="location.hash='#products'">Go Back</button>
+                </div>`;
+            }
+        } catch (e) {
+            appContainer.innerHTML = 'Error loading data.';
         }
         toggleAddButton(false);
     }
     
-    // 4. ORDERS LIST
+    // 4. ORDERS
     else if (hash === '#orders') {
         title = 'Customer Orders';
         appContainer.innerHTML = await renderOrdersList();
         toggleAddButton(false);
     }
     
-    // 5. DASHBOARD (Default)
+    // 5. DASHBOARD
     else {
         title = 'Dashboard';
         appContainer.innerHTML = `
             <div style="text-align:center; padding: 50px;">
                 <h1>Welcome to Admin Panel</h1>
                 <p>Select an option from the sidebar to manage your store.</p>
-                <div style="margin-top:20px; display:flex; justify-content:center; gap:20px;">
-                    <div style="background:white; padding:20px; width:200px; border-radius:8px; box-shadow:0 1px 3px rgba(0,0,0,0.1);">
-                        <h3>Products</h3>
-                        <p style="color:#3498db; font-size:1.5rem;">Manage</p>
-                    </div>
-                    <div style="background:white; padding:20px; width:200px; border-radius:8px; box-shadow:0 1px 3px rgba(0,0,0,0.1);">
-                        <h3>Orders</h3>
-                        <p style="color:#2ecc71; font-size:1.5rem;">View</p>
-                    </div>
-                </div>
             </div>
         `;
         toggleAddButton(false);
     }
 
-    // Page Title Update
     if (pageTitle) pageTitle.innerText = title;
-    
-    // Sidebar Active State Update
     updateSidebarActiveState(hash);
 }
 
-/**
- * Sidebar Logic
- */
 function setupSidebar() {
     const logoutBtn = document.getElementById('logout-btn');
     if(logoutBtn) {
@@ -121,23 +96,16 @@ function setupSidebar() {
 function updateSidebarActiveState(hash) {
     document.querySelectorAll('.nav-link').forEach(link => {
         link.classList.remove('active');
-        if (link.getAttribute('href') === hash) {
-            link.classList.add('active');
-        }
-        // Sub-routes (e.g., #products/new) ke liye bhi parent active rahe
-        if (hash.startsWith('#products') && link.getAttribute('href') === '#products') {
+        const href = link.getAttribute('href');
+        if (href === hash || (hash.startsWith(href) && href !== '#dashboard')) {
             link.classList.add('active');
         }
     });
 }
 
-/**
- * Helper: Add New Button Visibility
- */
 function toggleAddButton(show) {
     const btn = document.getElementById('add-new-btn');
     if (!btn) return;
-    
     if (show) {
         btn.style.display = 'inline-flex';
         btn.onclick = () => window.location.hash = '#products/new';
