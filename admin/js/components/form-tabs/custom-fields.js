@@ -1,6 +1,6 @@
 /**
- * Advanced Form Builder (2025 Standard)
- * Zimmedari: Complex fields generate karna (Addons, Pricing, Logic).
+ * Advanced Form Builder (Globo Style - 2025)
+ * Zimmedari: 'Smart Presets' ke zariye form banana asaan karna.
  */
 
 export function renderCustomFields(data = {}) {
@@ -8,93 +8,143 @@ export function renderCustomFields(data = {}) {
 
     return `
         <div class="form-group">
-            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:15px;">
-                <label style="font-size:1.1rem; color:#2c3e50;">Dynamic Form Builder</label>
-                <button type="button" id="btn-add-field" class="btn btn-primary" style="font-size:0.8rem;">
-                    <i class="fas fa-plus"></i> Add New Field
+            <label style="font-size:1.1rem; color:#2c3e50; display:block; margin-bottom:10px;">
+                <i class="fas fa-magic"></i> Smart Form Builder
+            </label>
+            
+            <!-- Quick Action Toolbar -->
+            <div style="display:flex; gap:10px; margin-bottom:20px; flex-wrap:wrap; background:#f8f9fa; padding:15px; border-radius:8px; border:1px solid #e9ecef;">
+                <button type="button" class="btn-preset btn-outline" data-type="text" data-label="Full Name">
+                    <i class="fas fa-font"></i> Text
+                </button>
+                <button type="button" class="btn-preset btn-outline" data-type="dropdown" data-preset="size">
+                    <i class="fas fa-tshirt"></i> Size
+                </button>
+                <button type="button" class="btn-preset btn-outline" data-type="radio" data-preset="color">
+                    <i class="fas fa-palette"></i> Color
+                </button>
+                <button type="button" class="btn-preset btn-outline" data-type="file" data-label="Upload Photo">
+                    <i class="fas fa-cloud-upload-alt"></i> Upload
+                </button>
+                <button type="button" class="btn-preset btn-outline" data-type="checkbox_group" data-preset="gift">
+                    <i class="fas fa-gift"></i> Add-ons
                 </button>
             </div>
-            
-            <p class="helper-text" style="margin-bottom:15px; background:#eef; padding:10px; border-radius:4px;">
-                <strong>Tip:</strong> For options with price, use format <code>Name:Price</code>. Example: <code>Red:0, Blue:500</code>.
-            </p>
 
             <div id="builder-container" style="display:flex; flex-direction:column; gap:15px;">
+                ${customForm.length === 0 ? '<p class="empty-msg" style="text-align:center; color:#999;">Click a button above to add fields.</p>' : ''}
                 ${customForm.map((field, idx) => generateFieldRow(field, idx)).join('')}
             </div>
         </div>
+        
+        <style>
+            .btn-outline { background:white; border:1px solid #ddd; padding:8px 15px; cursor:pointer; border-radius:20px; font-size:0.9rem; transition:0.2s; }
+            .btn-outline:hover { background:var(--primary-color); color:white; border-color:var(--primary-color); transform:translateY(-2px); box-shadow:0 3px 5px rgba(0,0,0,0.1); }
+            .builder-row { animation: slideDown 0.3s ease-out; }
+            @keyframes slideDown { from { opacity:0; transform:translateY(-10px); } to { opacity:1; transform:translateY(0); } }
+        </style>
     `;
 }
 
 function generateFieldRow(field = {}, index = Date.now()) {
     const type = field._type || 'text';
     
+    // Auto-detect if options should be shown
+    const showOptions = ['dropdown', 'radio', 'checkbox_group', 'photo_quantity'].includes(type);
+
     return `
-        <div class="builder-row" style="background:white; border:1px solid #ddd; padding:15px; border-radius:6px; border-left:4px solid var(--primary-color);">
-            <div style="display:flex; gap:10px; margin-bottom:10px;">
-                <select name="field_type[]" class="form-control field-type-selector" style="font-weight:bold;">
-                    <optgroup label="Basic Inputs">
-                        <option value="text" ${type === 'text' ? 'selected' : ''}>Text Input</option>
-                        <option value="textarea" ${type === 'textarea' ? 'selected' : ''}>Text Area (Long)</option>
-                        <option value="file" ${type === 'file' ? 'selected' : ''}>File Upload</option>
-                    </optgroup>
-                    <optgroup label="Advanced & Pricing">
-                        <option value="dropdown" ${type === 'dropdown' ? 'selected' : ''}>Dropdown List</option>
-                        <option value="radio" ${type === 'radio' ? 'selected' : ''}>Radio Buttons (Single)</option>
-                        <option value="checkbox_group" ${type === 'checkbox_group' ? 'selected' : ''}>Add-ons Group (Multi + Price)</option>
-                        <option value="photo_quantity" ${type === 'photo_quantity' ? 'selected' : ''}>Photo Quantity Selector</option>
-                    </optgroup>
-                </select>
-                <button type="button" onclick="this.closest('.builder-row').remove()" style="color:red; border:none; background:none; cursor:pointer;">
-                    <i class="fas fa-trash-alt"></i>
-                </button>
-            </div>
+        <div class="builder-row" style="background:white; border:1px solid #dfe6e9; padding:20px; border-radius:8px; position:relative; box-shadow:0 2px 5px rgba(0,0,0,0.02);">
+            <!-- Top Right Delete -->
+            <button type="button" onclick="this.closest('.builder-row').remove()" 
+                    style="position:absolute; top:15px; right:15px; color:#ff7675; border:none; background:none; cursor:pointer; font-size:1.1rem;">
+                <i class="fas fa-times-circle"></i>
+            </button>
 
-            <div class="row" style="display:flex; gap:10px;">
-                <input type="text" name="field_label[]" class="form-control" placeholder="Label (e.g. Choose Color)" value="${field.label || ''}" required style="flex:1;">
-                <input type="text" name="field_placeholder[]" class="form-control" placeholder="Hint text" value="${field.placeholder || ''}" style="flex:1;">
-            </div>
+            <div style="display:flex; gap:15px; align-items:flex-start;">
+                <!-- Icon based on type -->
+                <div style="background:#f1f2f6; width:40px; height:40px; border-radius:50%; display:flex; align-items:center; justify-content:center; color:#636e72;">
+                    <i class="fas ${getFieldIcon(type)}"></i>
+                </div>
 
-            <!-- Options Input (Hidden for simple text fields) -->
-            <div class="options-container" style="margin-top:10px; display:${['text','textarea','file'].includes(type) ? 'none' : 'block'};">
-                <label style="font-size:0.8rem; color:#666;">Options (Format: <code>OptionName:Price</code> comma separated):</label>
-                <input type="text" name="field_options[]" class="form-control" 
-                       placeholder="e.g. Small:0, Medium:200, Large:500" value="${field.options || ''}">
-            </div>
+                <div style="flex:1;">
+                    <div class="row" style="display:flex; gap:10px; margin-bottom:10px;">
+                        <div style="flex:2;">
+                            <label style="font-size:0.8rem; font-weight:bold; color:#b2bec3;">LABEL</label>
+                            <input type="text" name="field_label[]" class="form-control" value="${field.label || ''}" style="font-weight:600;">
+                        </div>
+                        <div style="flex:1;">
+                            <label style="font-size:0.8rem; font-weight:bold; color:#b2bec3;">TYPE</label>
+                            <input type="hidden" name="field_type[]" value="${type}">
+                            <div style="padding:10px; background:#f8f9fa; border-radius:4px; font-size:0.9rem; color:#2d3436;">
+                                ${formatTypeLabel(type)}
+                            </div>
+                        </div>
+                    </div>
 
-            <div style="margin-top:10px;">
-                <label style="font-size:0.9rem; cursor:pointer;">
-                    <input type="checkbox" name="field_required[]" value="true" ${field.required ? 'checked' : ''}> Required Field?
-                </label>
+                    <!-- Options Area (Condition based) -->
+                    <div class="options-container" style="display:${showOptions ? 'block' : 'none'}; background:#f0f3f7; padding:10px; border-radius:6px; margin-bottom:10px;">
+                        <label style="font-size:0.8rem; font-weight:bold; color:#636e72;">OPTIONS (Format: Name:Price)</label>
+                        <input type="text" name="field_options[]" class="form-control" 
+                               value="${field.options || ''}" placeholder="Option 1:0, Option 2:500">
+                    </div>
+
+                    <div style="display:flex; justify-content:space-between; align-items:center;">
+                        <input type="text" name="field_placeholder[]" class="form-control" 
+                               value="${field.placeholder || ''}" placeholder="Hint text for customer..." style="width:60%; font-size:0.9rem;">
+                        
+                        <label style="cursor:pointer; font-size:0.9rem; display:flex; align-items:center; gap:5px;">
+                            <input type="checkbox" name="field_required[]" value="true" ${field.required ? 'checked' : ''}> Required
+                        </label>
+                    </div>
+                </div>
             </div>
         </div>
     `;
 }
 
-export function setupCustomFieldsEvents() {
-    const addBtn = document.getElementById('btn-add-field');
-    const container = document.getElementById('builder-container');
-
-    if (addBtn && container) {
-        addBtn.addEventListener('click', () => {
-            container.insertAdjacentHTML('beforeend', generateFieldRow({_type:'text'}, Date.now()));
-            setupTypeListener(container.lastElementChild);
-        });
-    }
-    // Attach listeners to existing
-    document.querySelectorAll('.builder-row').forEach(row => setupTypeListener(row));
+// Helpers for Icons & Labels
+function getFieldIcon(type) {
+    const icons = { text: 'fa-font', dropdown: 'fa-list', radio: 'fa-dot-circle', checkbox_group: 'fa-check-square', file: 'fa-cloud-upload-alt' };
+    return icons[type] || 'fa-cog';
 }
 
-function setupTypeListener(row) {
-    const select = row.querySelector('.field-type-selector');
-    const optDiv = row.querySelector('.options-container');
-    select.addEventListener('change', (e) => {
-        const val = e.target.value;
-        optDiv.style.display = ['text', 'textarea', 'file'].includes(val) ? 'none' : 'block';
-        
-        // Auto-placeholder for guidance
-        const optInput = optDiv.querySelector('input');
-        if(val === 'photo_quantity') optInput.placeholder = "1 Photo:0, 2 Photos:500, 5 Photos:1000";
-        else if(val === 'checkbox_group') optInput.placeholder = "Gift Wrap:100, Fast Delivery:500";
-    });
+function formatTypeLabel(type) {
+    return type.replace(/_/g, ' ').toUpperCase();
+}
+
+/**
+ * Smart Event Listeners
+ */
+export function setupCustomFieldsEvents() {
+    const container = document.getElementById('builder-container');
+    const presets = document.querySelectorAll('.btn-preset');
+
+    if (presets.length > 0 && container) {
+        presets.forEach(btn => {
+            btn.addEventListener('click', () => {
+                // Clear empty message
+                const emptyMsg = container.querySelector('.empty-msg');
+                if(emptyMsg) emptyMsg.remove();
+
+                // Logic for Presets
+                const type = btn.dataset.type;
+                const preset = btn.dataset.preset;
+                let data = { _type: type, label: btn.dataset.label || 'New Field', required: false };
+
+                // Auto-Fill Magic
+                if (preset === 'size') {
+                    data.label = 'Select Size';
+                    data.options = 'Small:0, Medium:0, Large:0, XL:50';
+                } else if (preset === 'color') {
+                    data.label = 'Select Color';
+                    data.options = 'Red:0, Blue:0, Black:0';
+                } else if (preset === 'gift') {
+                    data.label = 'Add-ons';
+                    data.options = 'Gift Wrap:150, Express Delivery:300';
+                }
+
+                container.insertAdjacentHTML('beforeend', generateFieldRow(data, Date.now()));
+            });
+        });
+    }
 }
