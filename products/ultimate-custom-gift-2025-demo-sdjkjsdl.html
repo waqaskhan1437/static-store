@@ -1,0 +1,435 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ultimate Custom Gift 2025 (Demo)sdjkjsdl</title>
+    
+    <link rel="stylesheet" href="../style.css">
+    <link rel="stylesheet" href="../product.css">
+
+    <style>
+        /* Base Reset */
+        * { box-sizing: border-box; }
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; margin: 0; padding: 0; background: #f9f9f9; }
+        
+        /* Main Container */
+        .product-page-container {
+            max-width: 1200px;
+            margin: 40px auto;
+            display: grid;
+            grid-template-columns: 1fr 1fr; /* 2 Columns */
+            gap: 40px;
+            padding: 20px;
+            background: #fff;
+            border-radius: 12px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.05);
+        }
+
+        /* Left Column: Media */
+        .media-column { display: flex; flex-direction: column; gap: 15px; }
+        .main-image-frame {
+            width: 100%;
+            aspect-ratio: 1/1;
+            background: #f0f0f0;
+            border-radius: 10px;
+            overflow: hidden;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border: 1px solid #ddd;
+        }
+        .main-image-frame img, .main-image-frame video {
+            max-width: 100%;
+            max-height: 100%;
+            object-fit: contain;
+        }
+
+        /* Thumbnails Styling */
+        .thumbs-container {
+            display: flex;
+            gap: 10px;
+            overflow-x: auto;
+            padding: 5px 0;
+        }
+        .thumb-item {
+            width: 80px;
+            height: 80px;
+            flex-shrink: 0;
+            border: 2px solid transparent;
+            border-radius: 8px;
+            overflow: hidden;
+            cursor: pointer;
+            opacity: 0.7;
+            transition: all 0.2s;
+        }
+        .thumb-item.active, .thumb-item:hover {
+            border-color: #4f46e5;
+            opacity: 1;
+        }
+        .thumb-item img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        /* Right Column: Form */
+        .details-column { display: flex; flex-direction: column; gap: 20px; }
+        .product-title { font-size: 2rem; margin: 0; color: #111; line-height: 1.2; }
+        
+        .price-tag { font-size: 1.8rem; color: #4f46e5; font-weight: 800; display: flex; align-items: center; gap: 15px; }
+        .old-price { font-size: 1.1rem; color: #999; text-decoration: line-through; font-weight: normal; }
+
+        /* Form Styling */
+        .custom-form-group { margin-bottom: 15px; }
+        .form-label { display: block; font-weight: 600; margin-bottom: 6px; color: #333; }
+        .form-input { 
+            width: 100%; padding: 12px; 
+            border: 1px solid #ddd; border-radius: 6px; 
+            font-size: 1rem; transition: 0.2s;
+        }
+        .form-input:focus { border-color: #4f46e5; outline: none; }
+
+        /* Options (Radio/Checkbox) */
+        .options-grid { display: flex; flex-direction: column; gap: 8px; }
+        .option-card {
+            display: flex; justify-content: space-between; align-items: center;
+            padding: 10px 15px;
+            border: 1px solid #eee; border-radius: 6px;
+            cursor: pointer; transition: 0.1s;
+        }
+        .option-card:hover { background: #f5f7ff; border-color: #4f46e5; }
+        .option-card input { transform: scale(1.2); margin-right: 10px; }
+        .extra-price { color: #4f46e5; font-weight: 700; font-size: 0.9rem; }
+
+        /* Conditional Fields (Hidden by default) */
+        .conditional-field {
+            margin-top: 10px;
+            padding: 15px;
+            background: #f0f7ff;
+            border-radius: 8px;
+            border-left: 4px solid #4f46e5;
+            display: none; 
+        }
+        .conditional-field.visible { display: block; animation: fadeIn 0.3s; }
+
+        /* Buttons */
+        .btn-checkout {
+            width: 100%;
+            padding: 18px;
+            background: #4f46e5;
+            color: white;
+            font-size: 1.2rem;
+            font-weight: bold;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            margin-top: 20px;
+            transition: 0.2s;
+        }
+        .btn-checkout:hover { background: #3730a3; transform: translateY(-2px); }
+
+        @keyframes fadeIn { from { opacity:0; transform:translateY(-5px); } to { opacity:1; transform:translateY(0); } }
+        
+        /* Mobile Responsive */
+        @media (max-width: 768px) {
+            .product-page-container { grid-template-columns: 1fr; padding: 15px; margin: 10px; }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="product-page-container">
+        <div class="media-column">
+            <div class="main-image-frame" id="mainDisplay">
+                <video src="https://res.cloudinary.com/demo/video/upload/v1590484059/dog.mp4" controls poster="https://res.cloudinary.com/demo/image/upload/v1590483864/fashion_product.jpg" style="width:100%;height:100%"></video>
+            </div>
+            
+            <div class="thumbs-container">
+                
+                <div class="thumb-item" onclick="playMainVideo('https://res.cloudinary.com/demo/video/upload/v1590484059/dog.mp4')">
+                    <div style="width:100%; height:100%; display:flex; align-items:center; justify-content:center; background:#eee; font-size:24px;">▶</div>
+                </div>
+                
+        <div class="thumb-item active" onclick="changeImage('https://res.cloudinary.com/demo/image/upload/v1590483864/fashion_product.jpg', this)">
+            <img src="https://res.cloudinary.com/demo/image/upload/v1590483864/fashion_product.jpg" alt="Thumb 1">
+        </div>
+    
+        <div class="thumb-item " onclick="changeImage('https://res.cloudinary.com/demo/image/upload/v1590483329/sample.jpg', this)">
+            <img src="https://res.cloudinary.com/demo/image/upload/v1590483329/sample.jpg" alt="Thumb 2">
+        </div>
+    
+        <div class="thumb-item " onclick="changeImage('https://res.cloudinary.com/demo/image/upload/v1312461204/sample.jpg', this)">
+            <img src="https://res.cloudinary.com/demo/image/upload/v1312461204/sample.jpg" alt="Thumb 3">
+        </div>
+    
+            </div>
+
+            <div style="margin-top: 20px; color: #555; line-height: 1.6;">
+                <h3>Description</h3>
+                <p>This is a comprehensive demo to showcase the Advanced Form Builder 2025.<br><br>It features:<br>- Cloudinary Integration (Video + Images)<br>- Conditional Logic (File/Text requirements)<br>- Complex Add-ons & Pricing<br>- Long Text Areas</p>
+            </div>
+        </div>
+
+        <div class="details-column">
+            <div>
+                <h1 class="product-title">Ultimate Custom Gift 2025 (Demo)sdjkjsdl</h1>
+                <div class="price-tag">
+                    <span id="displayPrice">5500</span> PKR
+                    <span class="old-price">7000 PKR</span>
+                </div>
+            </div>
+
+            <form id="productForm" onsubmit="handleOrder(event)">
+                <h3 style="border-bottom:2px solid #eee; padding-bottom:5px; margin-top:25px;">Step 1: Personalization</h3>
+            <div class="custom-form-group">
+                <label class="form-label">Recipient Full Name <span style="color:red">*</span></label>
+                <input type="text" name="Recipient Full Name" class="form-input" required>
+            </div>
+            <div class="custom-form-group">
+                <label class="form-label">Contact Email <span style="color:red">*</span></label>
+                <input type="email" name="Contact Email" class="form-input" required>
+            </div><h3 style="border-bottom:2px solid #eee; padding-bottom:5px; margin-top:25px;">Step 2: Customization Options</h3>
+            <div class="custom-form-group">
+                <label class="form-label">Choose Material Type <span style="color:red">*</span></label>
+                <select name="Choose Material Type" class="form-input calc-trigger" data-cond-target="cond_select_4" required>
+                    <option value="" data-price="0">Select Option</option>
+                    
+                <option value="Standard Wood" 
+                    data-price="0"
+                    data-file-qty="1"
+                    data-text-label="">
+                    Standard Wood 
+                </option>
+            
+                <option value="Premium Metal (+Logo File)" 
+                    data-price="500"
+                    data-file-qty="1"
+                    data-text-label="">
+                    Premium Metal (+Logo File) (+500)
+                </option>
+            
+                <option value="Gold Plated (+Engraving)" 
+                    data-price="1500"
+                    data-file-qty="1"
+                    data-text-label="Name to Engrave">
+                    Gold Plated (+Engraving) (+1500)
+                </option>
+            
+                </select>
+                <div id="cond_select_4" class="conditional-field"></div>
+            </div>
+            <div class="custom-form-group">
+                <label class="form-label">Packaging Preference </label>
+                <div class="options-grid">
+                <div>
+                    <label class="option-card">
+                        <div style="display:flex; align-items:center;">
+                            <input type="radio" 
+                                   name="Packaging Preference" 
+                                   class="calc-trigger"
+                                   data-price="0"
+                                   data-cond-id="cond_opt_5_0"
+                                   >
+                            <span>Eco-Friendly Pouch</span>
+                        </div>
+                        
+                    </label>
+                    <div id="cond_opt_5_0" class="conditional-field"><div style="margin-bottom:5px"><small>Upload File 1 *</small><input type="file" class="form-input" disabled required></div></div>
+                </div>
+                <div>
+                    <label class="option-card">
+                        <div style="display:flex; align-items:center;">
+                            <input type="radio" 
+                                   name="Packaging Preference" 
+                                   class="calc-trigger"
+                                   data-price="300"
+                                   data-cond-id="cond_opt_5_1"
+                                   >
+                            <span>Velvet Gift Box</span>
+                        </div>
+                        <span class="extra-price">+300</span>
+                    </label>
+                    <div id="cond_opt_5_1" class="conditional-field"><div style="margin-bottom:5px"><small>Upload File 1 *</small><input type="file" class="form-input" disabled required></div></div>
+                </div>
+                <div>
+                    <label class="option-card">
+                        <div style="display:flex; align-items:center;">
+                            <input type="radio" 
+                                   name="Packaging Preference" 
+                                   class="calc-trigger"
+                                   data-price="800"
+                                   data-cond-id="cond_opt_5_2"
+                                   >
+                            <span>Luxury Wooden Crate</span>
+                        </div>
+                        <span class="extra-price">+800</span>
+                    </label>
+                    <div id="cond_opt_5_2" class="conditional-field"><div style="margin-bottom:5px"><small>Upload File 1 *</small><input type="file" class="form-input" disabled required></div></div>
+                </div></div>
+            </div><h3 style="border-bottom:2px solid #eee; padding-bottom:5px; margin-top:25px;">Step 3: Final Touches</h3>
+            <div class="custom-form-group">
+                <label class="form-label">Gift Message Card </label>
+                <textarea name="Gift Message Card" rows="5" class="form-input" ></textarea>
+            </div>
+            <div class="custom-form-group">
+                <label class="form-label">Premium Add-ons </label>
+                <div class="options-grid">
+                <div>
+                    <label class="option-card">
+                        <div style="display:flex; align-items:center;">
+                            <input type="checkbox" 
+                                   name="Premium Add-ons[]" 
+                                   class="calc-trigger"
+                                   data-price="1000"
+                                   data-cond-id="cond_opt_8_0"
+                                   >
+                            <span>Urgent Delivery (24 Hours)</span>
+                        </div>
+                        <span class="extra-price">+1000</span>
+                    </label>
+                    <div id="cond_opt_8_0" class="conditional-field"><div style="margin-bottom:5px"><small>Upload File 1 *</small><input type="file" class="form-input" disabled required></div></div>
+                </div>
+                <div>
+                    <label class="option-card">
+                        <div style="display:flex; align-items:center;">
+                            <input type="checkbox" 
+                                   name="Premium Add-ons[]" 
+                                   class="calc-trigger"
+                                   data-price="50"
+                                   data-cond-id="cond_opt_8_1"
+                                   >
+                            <span>Remove Price Tag</span>
+                        </div>
+                        <span class="extra-price">+50</span>
+                    </label>
+                    <div id="cond_opt_8_1" class="conditional-field"><div style="margin-bottom:5px"><small>Upload File 1 *</small><input type="file" class="form-input" disabled required></div></div>
+                </div>
+                <div>
+                    <label class="option-card">
+                        <div style="display:flex; align-items:center;">
+                            <input type="checkbox" 
+                                   name="Premium Add-ons[]" 
+                                   class="calc-trigger"
+                                   data-price="500"
+                                   data-cond-id="cond_opt_8_2"
+                                   >
+                            <span>Extended Warranty (1 Year)</span>
+                        </div>
+                        <span class="extra-price">+500</span>
+                    </label>
+                    <div id="cond_opt_8_2" class="conditional-field"><div style="margin-bottom:5px"><small>Upload File 1 *</small><input type="file" class="form-input" disabled required></div></div>
+                </div></div>
+            </div>
+            <div class="custom-form-group">
+                <label class="form-label">Reference Image (Optional) </label>
+                <input type="file" name="Reference Image (Optional)" class="form-input" >
+            </div>
+
+                <button type="submit" class="btn-checkout">
+                    Order Now - <span id="btnPrice">5500</span> PKR
+                </button>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        const BASE_PRICE = 5500;
+
+        // 1. Image Switcher Function
+        function changeImage(src, thumbEl) {
+            const display = document.getElementById('mainDisplay');
+            display.innerHTML = '<img src="' + src + '" style="max-width:100%; max-height:100%; object-fit:contain;">';
+            
+            // Active class update karein
+            document.querySelectorAll('.thumb-item').forEach(t => t.classList.remove('active'));
+            if(thumbEl) thumbEl.classList.add('active');
+        }
+
+        // Video Player Function
+        function playMainVideo(url) {
+            const display = document.getElementById('mainDisplay');
+            display.innerHTML = '<video src="' + url + '" controls autoplay style="width:100%; height:100%"></video>';
+        }
+
+        // 2. Price & Logic Calculation Function
+        function updateCalculations() {
+            let total = BASE_PRICE;
+            
+            // Select (Dropdown) Inputs Check karein
+            document.querySelectorAll('select.calc-trigger').forEach(sel => {
+                const opt = sel.options[sel.selectedIndex];
+                total += parseFloat(opt.getAttribute('data-price')) || 0;
+                
+                // Conditional Fields Show/Hide logic
+                const targetId = sel.getAttribute('data-cond-target');
+                if(targetId) {
+                    const wrap = document.getElementById(targetId);
+                    wrap.innerHTML = ''; // Pehle clear karein
+                    
+                    const fQty = parseInt(opt.getAttribute('data-file-qty')) || 0;
+                    const tLbl = opt.getAttribute('data-text-label');
+                    
+                    if(fQty > 0 || tLbl) {
+                        let h = '';
+                        if(fQty) for(let i=1; i<=fQty; i++) h += '<div style="margin-bottom:10px"><label>Upload File '+i+' *</label><input type="file" required class="form-input"></div>';
+                        if(tLbl) h += '<div><label>'+tLbl+' *</label><input type="text" required class="form-input"></div>';
+                        
+                        wrap.innerHTML = h;
+                        wrap.classList.add('visible');
+                    } else {
+                        wrap.classList.remove('visible');
+                    }
+                }
+            });
+
+            // Radio/Checkbox Inputs Check karein
+            document.querySelectorAll('input.calc-trigger').forEach(inp => {
+                const condId = inp.getAttribute('data-cond-id');
+                const wrap = document.getElementById(condId);
+
+                if(inp.checked) {
+                    total += parseFloat(inp.getAttribute('data-price')) || 0;
+                    if(wrap) {
+                        wrap.classList.add('visible');
+                        wrap.querySelectorAll('input').forEach(i => i.disabled = false);
+                    }
+                } else {
+                    // Sirf Checkbox ke liye hide karein, Radio ka alag handle hota hai
+                    if(wrap && inp.type !== 'radio') {
+                         wrap.classList.remove('visible');
+                         wrap.querySelectorAll('input').forEach(i => i.disabled = true);
+                    }
+                    // Agar radio unchecked ho jaye (doosra select hone par)
+                    if(inp.type === 'radio' && !inp.checked && wrap) {
+                         wrap.classList.remove('visible');
+                         wrap.querySelectorAll('input').forEach(i => i.disabled = true);
+                    }
+                }
+            });
+
+            // UI Update karein
+            document.getElementById('displayPrice').innerText = total;
+            document.getElementById('btnPrice').innerText = total;
+        }
+
+        // Change Listener attach karein
+        document.addEventListener('change', (e) => {
+            if(e.target.classList.contains('calc-trigger')) updateCalculations();
+        });
+
+        // 3. Order Submit Handler
+        function handleOrder(e) {
+            e.preventDefault();
+            const btn = document.querySelector('.btn-checkout');
+            const originalText = btn.innerText;
+            btn.innerText = 'Processing...';
+            
+            setTimeout(() => {
+                alert('Order Placed Successfully! Total: ' + document.getElementById('btnPrice').innerText + ' PKR');
+                btn.innerText = originalText;
+            }, 1000);
+        }
+    </script>
+</body>
+</html>
