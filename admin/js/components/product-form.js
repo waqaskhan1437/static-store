@@ -2,6 +2,7 @@ import { renderBasicInfo, setupBasicInfoEvents } from './form-tabs/basic-info.js
 import { renderMedia, setupMediaEvents } from './form-tabs/media.js';
 import { renderAddons, setupAddonsEvents } from './form-tabs/addons.js';
 import { renderDelivery, setupDeliveryEvents } from './form-tabs/delivery.js';
+import { renderCustomFields, setupCustomFieldsEvents } from './form-tabs/custom-fields.js'; // New Import
 import { getFormData, showToast } from '../utils.js';
 import { saveData } from '../api.js';
 
@@ -18,10 +19,11 @@ export function renderProductForm(product = {}) {
             <button class="tab-btn" data-tab="tab-media">Media</button>
             <button class="tab-btn" data-tab="tab-addons">Add-ons</button>
             <button class="tab-btn" data-tab="tab-delivery">Delivery</button>
+            <button class="tab-btn" data-tab="tab-custom">Form Builder</button> <!-- New Tab -->
         </div>
     `;
 
-    // 2. Tab Contents HTML (har tab alag file se aa raha hai)
+    // 2. Tab Contents HTML
     const contentHtml = `
         <div id="tab-basic" class="tab-content active">
             ${renderBasicInfo(product)}
@@ -34,6 +36,9 @@ export function renderProductForm(product = {}) {
         </div>
         <div id="tab-delivery" class="tab-content">
             ${renderDelivery(product)}
+        </div>
+        <div id="tab-custom" class="tab-content">
+            ${renderCustomFields(product)} <!-- New Content -->
         </div>
     `;
 
@@ -67,30 +72,27 @@ export function setupFormEvents() {
     const form = document.getElementById('product-form');
     if (!form) return;
 
-    // 1. Setup Child Events (Add-on rows add karna, Slug update etc)
+    // 1. Setup Child Events
     setupBasicInfoEvents();
     setupMediaEvents();
     setupAddonsEvents();
     setupDeliveryEvents();
+    setupCustomFieldsEvents(); // New Events
 
     // 2. Tab Switching Logic
     const tabBtns = form.querySelectorAll('.tab-btn');
     tabBtns.forEach(btn => {
         btn.addEventListener('click', (e) => {
-            e.preventDefault(); // Form submit hone se rokein
-            
-            // Remove active class from all
+            e.preventDefault();
             tabBtns.forEach(b => b.classList.remove('active'));
             form.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
-
-            // Add active to current
             btn.classList.add('active');
             const targetId = btn.dataset.tab;
             document.getElementById(targetId).classList.add('active');
         });
     });
 
-    // 3. Form Submit Logic
+    // 3. Form Submit Logic (Complex Mapping)
     form.addEventListener('submit', async (e) => {
         e.preventDefault();
         
@@ -99,30 +101,82 @@ export function setupFormEvents() {
         submitBtn.innerText = 'Saving...';
 
         try {
-            const formData = getFormData(form);
-            
-            // Data ko format karein (Arrays handle karein)
-            // Note: `utils.js` ka getFormData basic hai, agar complex structure chahiye
-            // to yahan manual mapping ki ja sakti hai.
-            
-            console.log("Saving Data:", formData);
+            // Raw form data
+            const formData = new FormData(form);
+            const rawData = Object.fromEntries(formData.entries());
 
-            // API Call (Filhal password hardcoded hai testing ke liye)
+            // --- Manual Mapping for Arrays (Addons & Custom Fields) ---
+            
+            // 1. Map Addons
+            const addonNames = formData.getAll('addon_name[]');
+            const addonPrices = formData.getAll('addon_price[]');
+            const addons = addonNames.map((name, i) => ({
+                name: name,
+                price: parseFloat(addonPrices[i]) || 0
+            })).filter(a => a.name);
+
+            // 2. Map Custom Fields (Builder)
+            const fieldTypes = formData.getAll('field_type[]');
+            const fieldLabels = formData.getAll('field_label[]');
+            const fieldPlaceholders = formData.getAll('field_placeholder[]');
+            const fieldOptions = formData.getAll('field_options[]');
+            // Checkboxes are tricky in FormData, so we might need a workaround or assume order matches if all fields are present
+            // Simplified approach: Iterate over DOM elements to ensure order
+            const builderRows = document.querySelectorAll('.builder-row');
+            const customForm = Array.from(builderRows).map(row => {
+                return {
+                    _type: row.querySelector('[name="field_type[]"]').value,
+                    label: row.querySelector('[name="field_label[]"]').value,
+                    placeholder: row.querySelector('[name="field_placeholder[]"]').value,
+                    options: row.querySelector('[name="field_options[]"]').value,
+                    required: row.querySelector('[name="field_required[]"]').checked
+                };
+            }).filter(f => f.label);
+
+            // 3. Map Photo Options
+            const photoOpts = rawData.photoOptions ? rawData.photoOptions.split(',').map(s => s.trim()) : [];
+
+            // 4. Map Images (Split by newline)
+            const images = rawData.images ? rawData.images.split('\n').map(s => s.trim()).filter(s => s) : [];
+
+            // Final Object Construction
+            const finalProduct = {
+                id: rawData.id || rawData.title.toLowerCase().replace(/\s+/g, '-'),
+                title: rawData.title,
+                price: parseFloat(rawData.price) || 0,
+                old_price: parseFloat(rawData.old_price) || 0,
+                description: rawData.description,
+                seoDescription: rawData.seoDescription,
+                images: images,
+                video_url: rawData.video_url,
+                
+                // Delivery
+                delivery_instant: !!rawData.delivery_instant,
+                delivery_physical: !!rawData.delivery_physical,
+                stock_status: rawData.stock_status,
+                min_photos: parseInt(rawData.min_photos) || 0,
+
+                // Arrays
+                addons: addons,
+                customForm: customForm,
+                photoOptions: photoOpts,
+                
+                tags: rawData.tags ? rawData.tags.split(',').map(s => s.trim()) : []
+            };
+
+            console.log("Saving Final Data:", finalProduct);
+
             await saveData({
                 action: 'save_product',
-                product: formData
+                product: finalProduct
             }, 'admin123');
 
             showToast('Product saved successfully!');
-            
-            // Thora wait kar ke wapis list par jayein
-            setTimeout(() => {
-                window.location.hash = '#products';
-            }, 1000);
+            setTimeout(() => { window.location.hash = '#products'; }, 1000);
 
         } catch (error) {
             console.error(error);
-            showToast('Error saving product: ' + error.message, 'error');
+            showToast('Error: ' + error.message, 'error');
             submitBtn.disabled = false;
             submitBtn.innerText = 'Save Product';
         }
