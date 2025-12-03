@@ -1,6 +1,6 @@
 /**
  * Professional Form Builder (Globo Style 2025)
- * Features: Groups, Options with Price, File Upload & Text Logic per Option
+ * Features: Groups, Options with Price, File Upload & Text Logic (with Placeholders) per Option
  */
 
 export function renderCustomFields(data = {}) {
@@ -61,11 +61,13 @@ function renderFieldCard(field = {}, index = Date.now()) {
         const opts = field.options_list || [];
         const rows = opts.map(o => {
             const hasFile = o.file_qty && o.file_qty > 0;
-            const hasText = !!o.text_label; // Check if text label exists
+            const hasText = !!o.text_label; 
             
-            // Logic: Show Toggles ONLY for Dropdown (select)
-            // 1. File Upload Logic
-            const fileLogicUI = type === 'select' ? `
+            // Logic: Show Toggles for Select, Radio AND Checkbox now
+            const showLogic = ['select', 'radio', 'checkbox_group'].includes(type);
+            
+            // 1. File Upload Logic UI
+            const fileLogicUI = showLogic ? `
                 <div class="logic-config ${hasFile ? 'active' : ''}" title="Require File Upload?">
                     <label>
                         <input type="checkbox" class="file-req-toggle" ${hasFile ? 'checked' : ''}> 
@@ -77,16 +79,19 @@ function renderFieldCard(field = {}, index = Date.now()) {
                 </div>
             ` : '';
 
-            // 2. Text Input Logic (New)
-            const textLogicUI = type === 'select' ? `
+            // 2. Text Input Logic UI (Added Placeholder)
+            const textLogicUI = showLogic ? `
                 <div class="logic-config ${hasText ? 'active-text' : ''}" title="Require Text Input?">
                     <label>
                         <input type="checkbox" class="text-req-toggle" ${hasText ? 'checked' : ''}> 
                         <i class="fas fa-font"></i> Text
                     </label>
-                    <input type="text" class="logic-input text-label-input" name="opt_text_label" 
-                           value="${o.text_label || ''}" placeholder="Label (e.g. Name)" 
-                           style="width:100px; display:${hasText ? 'block' : 'none'};">
+                    <div class="text-inputs-group" style="display:${hasText ? 'flex' : 'none'}; gap:3px;">
+                        <input type="text" class="logic-input text-label-input" name="opt_text_label" 
+                               value="${o.text_label || ''}" placeholder="Label (e.g. Name)" style="width:90px;">
+                        <input type="text" class="logic-input text-ph-input" name="opt_text_ph" 
+                               value="${o.text_placeholder || ''}" placeholder="Placeholder" style="width:90px;">
+                    </div>
                 </div>
             ` : '';
 
@@ -148,12 +153,10 @@ export function setupCustomFieldsEvents() {
             
             const type = btn.dataset.type;
             const tempDiv = document.createElement('div');
-            // Empty field structure
             tempDiv.innerHTML = renderFieldCard({ _type: type, label: '', options_list: [] });
             const newCard = tempDiv.firstElementChild;
             container.appendChild(newCard);
             
-            // Auto-add first option row for Dropdown/Radio/Checkbox
             if(['select','radio','checkbox_group'].includes(type)) {
                 addOptionRow(newCard.querySelector('.opts-container'));
             }
@@ -174,32 +177,44 @@ export function setupCustomFieldsEvents() {
         if (e.target.classList.contains('file-req-toggle')) {
             const wrapper = e.target.closest('.logic-config');
             const input = wrapper.querySelector('.file-qty-input');
-            toggleLogicInput(e.target.checked, wrapper, input, '1');
+            toggleLogicInput(e.target.checked, wrapper, input, 'block', '1');
         }
         
         // B. Text Toggle
         if (e.target.classList.contains('text-req-toggle')) {
             const wrapper = e.target.closest('.logic-config');
-            const input = wrapper.querySelector('.text-label-input');
+            const group = wrapper.querySelector('.text-inputs-group');
             // Add 'active-text' class for green color
             if(e.target.checked) wrapper.classList.add('active-text'); 
             else wrapper.classList.remove('active-text');
             
-            toggleLogicInput(e.target.checked, wrapper, input, '');
+            toggleLogicInput(e.target.checked, wrapper, group, 'flex', '');
         }
     });
 }
 
-function toggleLogicInput(isChecked, wrapper, input, defaultValue) {
+function toggleLogicInput(isChecked, wrapper, element, displayType, defaultValue) {
     if (isChecked) {
         wrapper.classList.add('active');
-        input.style.display = 'block';
-        if(defaultValue) input.value = input.value || defaultValue;
-        input.focus();
+        element.style.display = displayType; // 'block' or 'flex'
+        
+        // Only set default value if input is empty and it's a simple input
+        if(defaultValue && element.tagName === 'INPUT' && !element.value) {
+            element.value = defaultValue;
+        }
+        
+        // Focus logic
+        const inputToFocus = element.tagName === 'INPUT' ? element : element.querySelector('input');
+        if(inputToFocus) inputToFocus.focus();
     } else {
         wrapper.classList.remove('active');
-        input.style.display = 'none';
-        input.value = defaultValue === '1' ? 0 : ''; // Reset value to avoid saving
+        element.style.display = 'none';
+        
+        // Clear values so they don't get saved
+        if(element.tagName === 'INPUT') element.value = defaultValue === '1' ? 0 : ''; 
+        else {
+            element.querySelectorAll('input').forEach(inp => inp.value = '');
+        }
     }
 }
 
@@ -207,15 +222,20 @@ function addOptionRow(container) {
     const fieldCard = container.closest('.field-card');
     const type = fieldCard ? fieldCard.dataset.type : 'select';
 
-    // Show Logics ONLY for Select
-    const logicHTML = type === 'select' ? `
+    // Show Logics for Select, Radio AND Checkbox_group
+    const showLogic = ['select', 'radio', 'checkbox_group'].includes(type);
+
+    const logicHTML = showLogic ? `
         <div class="logic-config" title="Require File?">
             <label><input type="checkbox" class="file-req-toggle"><i class="fas fa-cloud-upload-alt"></i> File</label>
             <input type="number" class="logic-input file-qty-input" name="opt_file_qty" value="1" min="1" max="10" placeholder="Qty" style="width:40px; display:none;">
         </div>
         <div class="logic-config" title="Require Text?">
             <label><input type="checkbox" class="text-req-toggle"><i class="fas fa-font"></i> Text</label>
-            <input type="text" class="logic-input text-label-input" name="opt_text_label" placeholder="Label" style="width:100px; display:none;">
+            <div class="text-inputs-group" style="display:none; gap:3px;">
+                <input type="text" class="logic-input text-label-input" name="opt_text_label" placeholder="Label" style="width:90px;">
+                <input type="text" class="logic-input text-ph-input" name="opt_text_ph" placeholder="Placeholder" style="width:90px;">
+            </div>
         </div>
     ` : '';
 
