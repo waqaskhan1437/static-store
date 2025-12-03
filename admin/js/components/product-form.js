@@ -8,16 +8,14 @@ import { generateProductHTML } from '../generator.js';
 
 export function renderProductForm(product = {}) {
     const productId = product.slug || product.id || '';
-    
-    // Existing date uthao ya nahi hai to khali rakho (Save waqt new dalenge)
     const createdDate = product.date || ''; 
 
     const tabsHtml = `
         <div class="tabs-header">
             <button class="tab-btn active" data-tab="tab-basic">Basic Info</button>
             <button class="tab-btn" data-tab="tab-media">Media</button>
-            <button class="tab-btn" data-tab="tab-delivery">Delivery & Stock</button>
-            <button class="tab-btn" data-tab="tab-custom">Form Builder & Addons</button>
+            <button class="tab-btn" data-tab="tab-delivery">Delivery</button>
+            <button class="tab-btn" data-tab="tab-custom">Form Builder</button>
         </div>
     `;
 
@@ -30,23 +28,14 @@ export function renderProductForm(product = {}) {
         <div id="tab-custom" class="tab-content">${renderCustomFields(product)}</div>
     `;
 
-    // Demo Button only for New Products
-    const demoBtn = !productId ? 
-        `<button type="button" id="btn-demo" class="btn" style="background:#8e44ad; color:white; font-weight:bold;">
-            <i class="fas fa-magic"></i> Load Demo Data
-         </button>` 
-        : '';
-
     return `
         <div class="form-container">
             <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:20px;">
                 <h2 style="margin:0;">${productId ? 'Edit Product' : 'New Product'}</h2>
-                ${demoBtn}
             </div>
             
             <form id="product-form">
                 <input type="hidden" name="existing_id" value="${productId}">
-                <!-- Hidden Field to keep original Date -->
                 <input type="hidden" name="existing_date" value="${createdDate}">
                 
                 ${tabsHtml}
@@ -81,86 +70,6 @@ export function setupFormEvents() {
         });
     });
 
-    // Demo Loader
-    const demoBtn = document.getElementById('btn-demo');
-    if (demoBtn) {
-        demoBtn.addEventListener('click', () => {
-            if(!confirm('Load heavy demo data?')) return;
-            
-            const demoData = {
-                title: "Ultimate Custom Gift 2025 (Demo)",
-                price: 5500,
-                old_price: 7000,
-                description: "This is a comprehensive demo to showcase the Advanced Form Builder 2025.\n\nIt features:\n- Cloudinary Integration (Video + Images)\n- Conditional Logic (File/Text requirements)\n- Complex Add-ons & Pricing\n- Long Text Areas",
-                seoDescription: "A perfect demo for testing admin panel capabilities.",
-                images: [
-                    "https://res.cloudinary.com/demo/image/upload/v1590483864/fashion_product.jpg",
-                    "https://res.cloudinary.com/demo/image/upload/v1590483329/sample.jpg",
-                    "https://res.cloudinary.com/demo/image/upload/v1312461204/sample.jpg"
-                ],
-                video_url: "https://res.cloudinary.com/demo/video/upload/v1590484059/dog.mp4",
-                delivery_instant: false,
-                delivery_physical: true,
-                stock_status: "in_stock",
-                tags: ["demo", "2025", "test"],
-                customForm: [
-                    { _type: 'header', label: 'Step 1: Personalization' },
-                    { _type: 'text', label: 'Recipient Full Name', required: true },
-                    { _type: 'email', label: 'Contact Email', required: true },
-                    
-                    { _type: 'header', label: 'Step 2: Customization Options' },
-                    { 
-                        _type: 'select', 
-                        label: 'Choose Material Type', 
-                        required: true, 
-                        options_list: [
-                            { label: 'Standard Wood', price: 0 },
-                            { label: 'Premium Metal (+Logo File)', price: 500, file_qty: 1 },
-                            { label: 'Gold Plated (+Engraving)', price: 1500, text_label: 'Name to Engrave', text_placeholder: 'Type name here...' }
-                        ]
-                    },
-                    { 
-                        _type: 'radio', 
-                        label: 'Packaging Preference', 
-                        options_list: [
-                            { label: 'Eco-Friendly Pouch', price: 0 },
-                            { label: 'Velvet Gift Box', price: 300 },
-                            { label: 'Luxury Wooden Crate', price: 800 }
-                        ]
-                    },
-                    
-                    { _type: 'header', label: 'Step 3: Final Touches' },
-                    { 
-                        _type: 'textarea', 
-                        label: 'Gift Message Card', 
-                        rows: 5,
-                        placeholder: 'Write your heartfelt message here...'
-                    },
-                    { 
-                        _type: 'checkbox_group', 
-                        label: 'Premium Add-ons', 
-                        options_list: [
-                            { label: 'Urgent Delivery (24 Hours)', price: 1000 },
-                            { label: 'Remove Price Tag', price: 50 },
-                            { label: 'Extended Warranty (1 Year)', price: 500 }
-                        ]
-                    },
-                    { _type: 'file', label: 'Reference Image (Optional)' }
-                ]
-            };
-
-            const container = document.getElementById('app-container');
-            container.innerHTML = renderProductForm(demoData);
-            setupFormEvents();
-            
-            // Switch to Form Builder tab to show off features
-            const customTabBtn = document.querySelector('[data-tab="tab-custom"]');
-            if(customTabBtn) customTabBtn.click();
-
-            showToast('Demo Data Loaded Successfully!');
-        });
-    }
-
     form.addEventListener('submit', async (e) => {
         e.preventDefault();
         const btn = form.querySelector('button[type="submit"]');
@@ -176,8 +85,6 @@ export function setupFormEvents() {
                 const type = card.dataset.type;
                 const label = card.querySelector('[name="f_label"]').value;
                 const required = card.querySelector('[name="f_req"]')?.checked || false;
-                
-                // Textarea Rows Capture
                 const rows = card.querySelector('[name="f_rows"]')?.value || 3;
 
                 let options_list = [];
@@ -192,13 +99,7 @@ export function setupFormEvents() {
                     })).filter(o => o.label);
                 }
 
-                return { 
-                    _type: type, 
-                    label, 
-                    required, 
-                    rows: parseInt(rows), 
-                    options_list 
-                };
+                return { _type: type, label, required, rows: parseInt(rows), options_list };
             }).filter(f => f.label);
 
             let finalSlug = raw.existing_id;
@@ -206,13 +107,12 @@ export function setupFormEvents() {
                 finalSlug = raw.title.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '');
             }
 
-            // DATE LOGIC: Agar purani date hai to wohi rakho, warna abhi ki date dalo
             const publishDate = raw.existing_date || new Date().toISOString();
 
             const finalProduct = {
                 slug: finalSlug, 
                 id: finalSlug,
-                date: publishDate, // Saved Date
+                date: publishDate,
                 title: raw.title,
                 price: parseFloat(raw.price) || 0,
                 old_price: parseFloat(raw.old_price) || 0,
@@ -220,13 +120,12 @@ export function setupFormEvents() {
                 seoDescription: raw.seoDescription,
                 images: raw.images ? raw.images.split('\n').map(s => s.trim()).filter(s => s) : [],
                 video_url: raw.video_url,
-                delivery_instant: !!raw.delivery_instant,
-                delivery_physical: !!raw.delivery_physical,
+                
+                // --- NEW SIMPLE DELIVERY FIELD ---
+                delivery_time: raw.delivery_time || 'Instant', 
+                
                 stock_status: raw.stock_status,
-                min_photos: parseInt(raw.min_photos) || 0,
-                customForm: customForm,
-                photoOptions: raw.photoOptions ? raw.photoOptions.split(',').map(s => s.trim()) : [],
-                tags: raw.tags ? raw.tags.split(',').map(s => s.trim()) : []
+                customForm: customForm
             };
 
             const htmlContent = generateProductHTML(finalProduct);
