@@ -28,9 +28,20 @@ export function renderProductForm(product = {}) {
         <div id="tab-custom" class="tab-content">${renderCustomFields(product)}</div>
     `;
 
+    // Demo Button only for New Products
+    const demoBtn = !productId ? 
+        `<button type="button" id="btn-demo" class="btn" style="background:#8e44ad; color:white; font-weight:bold;">
+            <i class="fas fa-magic"></i> Load Demo Data
+         </button>` 
+        : '';
+
     return `
         <div class="form-container">
-            <h2 style="margin-bottom:20px;">${productId ? 'Edit Product' : 'New Product'}</h2>
+            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:20px;">
+                <h2 style="margin:0;">${productId ? 'Edit Product' : 'New Product'}</h2>
+                ${demoBtn}
+            </div>
+            
             <form id="product-form">
                 <!-- Important: Store the Slug as existing_id -->
                 <input type="hidden" name="existing_id" value="${productId}">
@@ -54,6 +65,7 @@ export function setupFormEvents() {
     setupDeliveryEvents();
     setupCustomFieldsEvents();
 
+    // Tab Switching
     const tabBtns = form.querySelectorAll('.tab-btn');
     tabBtns.forEach(btn => {
         btn.addEventListener('click', (e) => {
@@ -64,6 +76,88 @@ export function setupFormEvents() {
             document.getElementById(btn.dataset.tab).classList.add('active');
         });
     });
+
+    // --- DEMO DATA LOADER LOGIC ---
+    const demoBtn = document.getElementById('btn-demo');
+    if (demoBtn) {
+        demoBtn.addEventListener('click', () => {
+            if(!confirm('Load heavy demo data? This will overwrite current fields.')) return;
+
+            const demoData = {
+                title: "Ultimate Custom Gift 2025 (Demo)",
+                price: 5500,
+                old_price: 7000,
+                description: "This is a comprehensive demo to showcase the Advanced Form Builder 2025.\n\nIt features:\n- Cloudinary Integration (Video + Images)\n- Conditional Logic (File/Text requirements)\n- Complex Add-ons & Pricing\n- Long Text Areas",
+                seoDescription: "A perfect demo for testing admin panel capabilities.",
+                images: [
+                    "https://res.cloudinary.com/demo/image/upload/v1590483864/fashion_product.jpg",
+                    "https://res.cloudinary.com/demo/image/upload/v1590483329/sample.jpg",
+                    "https://res.cloudinary.com/demo/image/upload/v1312461204/sample.jpg"
+                ],
+                video_url: "https://res.cloudinary.com/demo/video/upload/v1590484059/dog.mp4",
+                delivery_instant: false,
+                delivery_physical: true,
+                stock_status: "in_stock",
+                tags: ["demo", "2025", "test"],
+                customForm: [
+                    { _type: 'header', label: 'Step 1: Personalization' },
+                    { _type: 'text', label: 'Recipient Full Name', required: true },
+                    { _type: 'email', label: 'Contact Email', required: true },
+                    
+                    { _type: 'header', label: 'Step 2: Customization Options' },
+                    { 
+                        _type: 'select', 
+                        label: 'Choose Material Type', 
+                        required: true, 
+                        options_list: [
+                            { label: 'Standard Wood', price: 0 },
+                            { label: 'Premium Metal (+Logo File)', price: 500, file_qty: 1 },
+                            { label: 'Gold Plated (+Engraving)', price: 1500, text_label: 'Name to Engrave', text_placeholder: 'Type name here...' }
+                        ]
+                    },
+                    { 
+                        _type: 'radio', 
+                        label: 'Packaging Preference', 
+                        options_list: [
+                            { label: 'Eco-Friendly Pouch', price: 0 },
+                            { label: 'Velvet Gift Box', price: 300 },
+                            { label: 'Luxury Wooden Crate', price: 800 }
+                        ]
+                    },
+                    
+                    { _type: 'header', label: 'Step 3: Final Touches' },
+                    { 
+                        _type: 'textarea', 
+                        label: 'Gift Message Card', 
+                        rows: 5,
+                        placeholder: 'Write your heartfelt message here...'
+                    },
+                    { 
+                        _type: 'checkbox_group', 
+                        label: 'Premium Add-ons', 
+                        options_list: [
+                            { label: 'Urgent Delivery (24 Hours)', price: 1000 },
+                            { label: 'Remove Price Tag', price: 50 },
+                            { label: 'Extended Warranty (1 Year)', price: 500 }
+                        ]
+                    },
+                    { _type: 'file', label: 'Reference Image (Optional)' }
+                ]
+            };
+
+            // Re-render the form with demo data
+            const container = document.getElementById('app-container');
+            container.innerHTML = renderProductForm(demoData);
+            setupFormEvents(); // Re-attach events
+            
+            // Switch to Form Builder tab to show off features
+            const customTabBtn = document.querySelector('[data-tab="tab-custom"]');
+            if(customTabBtn) customTabBtn.click();
+            
+            showToast('Demo Data Loaded Successfully!');
+        });
+    }
+    // -----------------------------
 
     form.addEventListener('submit', async (e) => {
         e.preventDefault();
@@ -98,16 +192,14 @@ export function setupFormEvents() {
             }).filter(f => f.label);
 
             // Construct Final Object
-            // Important: Slug logic
             let finalSlug = raw.existing_id;
             if (!finalSlug) {
-                // If new product, create slug from title
                 finalSlug = raw.title.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '');
             }
 
             const finalProduct = {
-                slug: finalSlug, // Use slug consistently
-                id: finalSlug,   // Keep ID for compatibility
+                slug: finalSlug, 
+                id: finalSlug,   
                 title: raw.title,
                 price: parseFloat(raw.price) || 0,
                 old_price: parseFloat(raw.old_price) || 0,
@@ -123,8 +215,6 @@ export function setupFormEvents() {
                 photoOptions: raw.photoOptions ? raw.photoOptions.split(',').map(s => s.trim()) : [],
                 tags: raw.tags ? raw.tags.split(',').map(s => s.trim()) : []
             };
-
-            console.log("Saving:", finalProduct);
 
             await saveData({ action: 'save_product', product: finalProduct }, 'admin123');
             showToast('Product Saved!');
