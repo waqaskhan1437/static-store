@@ -1,7 +1,7 @@
 /**
  * admin/js/generator.js
- * FIXED: Matches 'demo-product-1.html' layout perfectly using internal styles.
- * Integrates: Layout + New Form Builder
+ * EXACT COPY of demo-product-1.html Layout
+ * Uses external ../product.css and ../style.css
  */
 
 export function generateProductHTML(product) {
@@ -13,272 +13,200 @@ export function generateProductHTML(product) {
         : ['https://placehold.co/600x600?text=No+Image'];
     
     const title = product.title || 'Untitled Product';
-    const price = product.price || 0;
-    const oldPrice = product.old_price || 0;
+    const price = parseFloat(product.price) || 0;
+    const oldPrice = parseFloat(product.old_price) || 0;
     const desc = product.description || '';
 
-    // 2. Thumbnails Logic
+    // 2. Thumbnails Generate (Original Style)
     const thumbsHtml = images.map((img, idx) => `
-        <img src="${img}" 
-             class="thumb-img ${idx === 0 ? 'active' : ''}" 
-             onclick="changeMedia('${img}', this)" 
-             alt="Thumbnail">
+        <img src="${img}" onclick="switchMedia('image','${img}')">
     `).join('');
 
-    // 3. Form Logic
+    // 3. Form Fields Generate (Dynamic Data inside Original Containers)
     const formHtml = generateDynamicForm(product.customForm || []);
 
-    // 4. Return Final HTML
+    // 4. Final HTML Structure (Exactly matches demo-product-1.html)
     return `<!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>${title}</title>
-    
-    <link rel="stylesheet" href="../style.css">
-    <link rel="stylesheet" href="../product.css">
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>${title}</title>
+<link rel="stylesheet" href="../style.css">
+<link rel="stylesheet" href="../product.css">
+<style>
+/* Thora sa inline CSS taake agar external file load na ho to bhi bura na lagay */
+.product-container { display:grid; grid-template-columns: 1fr 1fr; gap:2rem; margin:2rem auto; max-width:1200px; padding:0 15px; }
+.media-col { flex:1 1 55%; min-width:280px; }
+.form-col { display:flex; flex-direction:column; gap:1rem; box-sizing:border-box; }
+.media-frame { position:relative; width:100%; aspect-ratio:16/9; background:#000; border-radius:12px; overflow:hidden; }
+.media-frame img, .media-frame video { position:absolute; width:100%; height:100%; object-fit:contain; }
+.thumbs { display:flex; gap:8px; margin-top:0.75rem; flex-wrap:wrap; }
+.thumbs img { width:80px; height:60px; border-radius:6px; cursor:pointer; object-fit:cover; border:2px solid transparent; }
+.thumbs img:hover { border-color: #6366f1; }
 
-    <style>
-        :root { --primary: #4f46e5; --text: #1f2937; --bg: #f9fafb; --border: #e5e7eb; }
-        * { box-sizing: border-box; }
-        body { font-family: system-ui, -apple-system, sans-serif; margin: 0; padding: 0; background: var(--bg); color: var(--text); }
+.price-card2 { background:#8b5cf6; color:white; padding:1rem; border-radius:12px; display:flex; flex-direction:column; align-items:center; justify-content:center; gap:0.25rem; }
+.price-card2 .price { font-size:1.8rem; font-weight:bold; }
+.price-card2 .old-price { text-decoration:line-through; opacity:0.7; font-size:1rem; }
+.price-card2 .discount { background:white; color:#8b5cf6; padding:2px 6px; border-radius:9999px; font-size:0.75rem; font-weight:700; }
 
-        /* --- MAIN LAYOUT (Matches Old Product) --- */
-        .product-container {
-            max-width: 1200px;
-            margin: 2rem auto;
-            padding: 0 1rem;
-            display: grid;
-            grid-template-columns: 1.2fr 1fr; /* Image gets slightly more space */
-            gap: 3rem;
-            align-items: start;
-        }
+.form-section { border:1px solid #e5e7eb; border-radius:12px; padding:1rem; background:#f9fafb; display:flex; flex-direction:column; gap:1rem; }
+.form-section label { font-weight:600; font-size:0.9rem; display:block; margin-bottom:0.25rem; }
+.form-control { width:100%; padding:0.6rem; border:1px solid #d1d5db; border-radius:8px; font-size:0.9rem; box-sizing:border-box; }
 
-        /* --- LEFT: MEDIA SECTION --- */
-        .media-col { display: flex; flex-direction: column; gap: 1rem; }
-        
-        .media-frame {
-            width: 100%;
-            aspect-ratio: 1/1; /* Square Image like demo */
-            background: #fff;
-            border-radius: 12px;
-            border: 1px solid var(--border);
-            overflow: hidden;
-            display: flex; align-items: center; justify-content: center;
-        }
-        .media-frame img, .media-frame video { width: 100%; height: 100%; object-fit: contain; }
+/* Custom Form Builder Styles */
+.opt-row { display:flex; justify-content:space-between; align-items:center; padding:10px; background:white; border:1px solid #e5e7eb; border-radius:8px; margin-bottom:5px; cursor:pointer; }
+.opt-row:hover { border-color:#8b5cf6; }
+.conditional-wrap { background:#eff6ff; padding:10px; border-radius:8px; border-left:3px solid #8b5cf6; margin-top:5px; display:none; }
+.conditional-wrap.show { display:block; animation:fadeIn 0.3s; }
+@keyframes fadeIn { from{opacity:0;transform:translateY(-5px)} to{opacity:1;transform:translateY(0)} }
 
-        .thumbs-row { display: flex; gap: 0.8rem; overflow-x: auto; padding-bottom: 5px; }
-        .thumb-img {
-            width: 70px; height: 70px;
-            border-radius: 8px;
-            cursor: pointer;
-            border: 2px solid transparent;
-            object-fit: cover;
-            background: #fff;
-            transition: 0.2s;
-        }
-        .thumb-img:hover, .thumb-img.active { border-color: var(--primary); transform: translateY(-2px); }
+.checkout-btn { width:100%; background:#047857; color:white; border:none; padding:1rem; border-radius:12px; font-size:1.1rem; font-weight:700; cursor:pointer; margin-top:10px; display:flex; justify-content:space-between; align-items:center; }
+.checkout-btn:hover { background:#065f46; }
 
-        .desc-box { margin-top: 1.5rem; line-height: 1.6; color: #4b5563; background: #fff; padding: 1.5rem; border-radius: 12px; border: 1px solid var(--border); }
-
-        /* --- RIGHT: FORM SECTION --- */
-        .form-col { 
-            background: #fff; 
-            padding: 2rem; 
-            border-radius: 16px; 
-            border: 1px solid var(--border);
-            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
-            position: sticky; top: 2rem; /* Floats nicely */
-        }
-
-        h1 { font-size: 1.8rem; font-weight: 800; margin: 0 0 0.5rem 0; line-height: 1.2; }
-        
-        .price-wrapper { display: flex; align-items: baseline; gap: 1rem; margin-bottom: 1.5rem; border-bottom: 1px solid var(--border); padding-bottom: 1rem; }
-        .current-price { font-size: 2rem; font-weight: 800; color: var(--primary); }
-        .old-price { font-size: 1.1rem; color: #9ca3af; text-decoration: line-through; }
-
-        /* Form Inputs */
-        .field-group { margin-bottom: 1.2rem; }
-        .field-label { display: block; font-weight: 600; margin-bottom: 0.4rem; font-size: 0.95rem; }
-        .form-control { 
-            width: 100%; padding: 0.8rem; 
-            border: 1px solid #d1d5db; border-radius: 8px; 
-            font-size: 1rem; transition: 0.2s;
-        }
-        .form-control:focus { border-color: var(--primary); outline: none; ring: 2px solid #e0e7ff; }
-
-        /* Options (Radio/Checkbox) */
-        .opts-list { display: flex; flex-direction: column; gap: 0.6rem; }
-        .opt-item {
-            display: flex; align-items: center; justify-content: space-between;
-            padding: 0.8rem 1rem;
-            border: 1px solid var(--border); border-radius: 8px;
-            cursor: pointer; transition: 0.1s;
-        }
-        .opt-item:hover { background: #f9fafb; border-color: #9ca3af; }
-        .opt-item input { accent-color: var(--primary); width: 1.2rem; height: 1.2rem; }
-
-        /* Conditionals */
-        .cond-box { 
-            margin-top: 0.8rem; padding: 1rem; 
-            background: #eff6ff; border-radius: 8px; 
-            border-left: 4px solid var(--primary);
-            display: none; 
-        }
-        .cond-box.show { display: block; animation: fadeUp 0.3s; }
-
-        /* Button */
-        .btn-main {
-            width: 100%; padding: 1rem;
-            background: var(--primary); color: white;
-            font-size: 1.1rem; font-weight: 700;
-            border: none; border-radius: 10px;
-            cursor: pointer; margin-top: 1.5rem;
-            transition: 0.2s; display: flex; justify-content: center; gap: 0.5rem;
-        }
-        .btn-main:hover { background: #4338ca; transform: translateY(-1px); }
-
-        @keyframes fadeUp { from { opacity:0; transform:translateY(5px); } to { opacity:1; transform:translateY(0); } }
-        
-        /* Mobile */
-        @media (max-width: 768px) {
-            .product-container { grid-template-columns: 1fr; gap: 2rem; margin: 1rem auto; }
-            .form-col { padding: 1.5rem; position: static; }
-        }
-    </style>
+@media(max-width:768px){ .product-container{grid-template-columns:1fr;} }
+</style>
 </head>
 <body>
 
-    <div class="product-container">
-        <div class="media-col">
-            <div class="media-frame" id="main-display">
-                ${product.video_url 
-                  ? `<video src="${product.video_url}" controls poster="${images[0]}"></video>` 
-                  : `<img src="${images[0]}" alt="Product Image">`
-                }
-            </div>
-            
-            <div class="thumbs-row">
-                ${product.video_url ? `<img src="https://img.icons8.com/ios-filled/50/000000/video.png" class="thumb-img" onclick="playVideo('${product.video_url}')" style="padding:15px; background:#eee">` : ''}
-                ${thumbsHtml}
-            </div>
+<div class="product-container">
+  <div class="media-col">
+    <div class="media-frame" id="main-media">
+       ${product.video_url 
+         ? `<video controls src="${product.video_url}" poster="${images[0]}"></video>` 
+         : `<img src="${images[0]}" alt="${title}">`
+       }
+    </div>
+    <div class="thumbs">
+      ${product.video_url ? `<img src="https://img.icons8.com/ios-filled/50/000000/video.png" onclick="switchMedia('video','${product.video_url}')" style="padding:15px;background:#eee">` : ''}
+      ${thumbsHtml}
+    </div>
+    
+    <div style="margin-top:20px; padding:15px; background:white; border:1px solid #e5e7eb; border-radius:12px;">
+      <h3 style="margin-top:0">Description</h3>
+      <p style="color:#666; line-height:1.6">${desc.replace(/\n/g, '<br>')}</p>
+    </div>
+  </div>
 
-            <div class="desc-box">
-                <h3 style="margin-top:0">Product Details</h3>
-                <p>${desc.replace(/\n/g, '<br>')}</p>
-            </div>
-        </div>
+  <div class="form-col">
+    <h1 style="font-size:1.8rem; margin:0">${title}</h1>
+    <div style="color:#fbbf24; font-weight:bold; font-size:0.9rem">★ 5.0 (New Arrival)</div>
 
-        <div class="form-col">
-            <h1>${title}</h1>
-            
-            <div class="price-wrapper">
-                <span class="current-price" id="display-price">${price}</span> <span style="font-weight:bold; color:var(--primary)">PKR</span>
-                ${oldPrice > 0 ? `<span class="old-price">${oldPrice} PKR</span>` : ''}
-            </div>
-
-            <form id="order-form" onsubmit="handleSubmit(event)">
-                ${formHtml}
-                
-                <button type="submit" class="btn-main">
-                    Order Now - <span id="btn-price">${price}</span> PKR
-                </button>
-            </form>
-        </div>
+    <div class="price-card2">
+      <span class="price" id="display-price">${price} PKR</span>
+      ${oldPrice > 0 ? `<span class="old-price">${oldPrice} PKR</span>` : ''}
+      <span class="discount">Special Offer</span>
     </div>
 
-    <script>
-        const BASE_PRICE = ${price};
+    <div style="background:#d1fae5; padding:0.75rem; border-radius:8px; font-size:0.9rem; color:#065f46;">
+       Digital Delivery: Receive via WhatsApp/Email immediately.
+    </div>
 
-        // 1. Media Switcher
-        function changeMedia(src, el) {
-            document.getElementById('main-display').innerHTML = '<img src="'+src+'">';
-            document.querySelectorAll('.thumb-img').forEach(t => t.classList.remove('active'));
-            if(el) el.classList.add('active');
-        }
+    <div class="form-section">
+      <h3 style="color:#6366f1; margin:0; font-size:1.2rem;">Customize Your Order</h3>
+      
+      <form id="orderForm" onsubmit="submitOrder(event)">
+        ${formHtml}
+
+        <button type="submit" class="checkout-btn">
+            <span>Checkout</span>
+            <span id="btn-price">${price} PKR</span>
+        </button>
+      </form>
+    </div>
+  </div>
+</div>
+
+<script>
+let BASE_PRICE = ${price};
+
+function switchMedia(type, url){
+  const main = document.getElementById('main-media');
+  if(type === 'video'){
+    main.innerHTML = '<video controls autoplay src="'+url+'" style="position:absolute;width:100%;height:100%;object-fit:contain;"></video>';
+  } else {
+    main.innerHTML = '<img src="'+url+'" style="position:absolute;width:100%;height:100%;object-fit:contain;" />';
+  }
+}
+
+function updatePrice(){
+  let total = BASE_PRICE;
+  
+  // 1. Selects
+  document.querySelectorAll('select.price-ref').forEach(sel => {
+    const opt = sel.options[sel.selectedIndex];
+    total += parseFloat(opt.dataset.price) || 0;
+    
+    // Conditionals
+    const target = sel.dataset.condTarget;
+    if(target){
+        const wrap = document.getElementById(target);
+        const fQty = parseInt(opt.dataset.fileQty)||0;
+        const tLbl = opt.dataset.textLabel;
         
-        function playVideo(url) {
-            document.getElementById('main-display').innerHTML = '<video src="'+url+'" controls autoplay></video>';
+        if(fQty > 0 || tLbl){
+            let h = '';
+            if(fQty) for(let i=1;i<=fQty;i++) h+= '<div style="margin-top:5px"><label>Upload File '+i+' <span style="color:red">*</span></label><input type="file" required class="form-control"></div>';
+            if(tLbl) h+= '<div style="margin-top:5px"><label>'+tLbl+' <span style="color:red">*</span></label><input type="text" required class="form-control"></div>';
+            wrap.innerHTML = h;
+            wrap.classList.add('show');
+        } else {
+            wrap.classList.remove('show');
+            wrap.innerHTML = '';
         }
+    }
+  });
 
-        // 2. Calculator Logic
-        function updatePrice() {
-            let total = BASE_PRICE;
-            
-            // Selects
-            document.querySelectorAll('select.calc-ref').forEach(sel => {
-                const opt = sel.options[sel.selectedIndex];
-                total += parseFloat(opt.dataset.price) || 0;
-                
-                // Conditionals
-                const target = sel.dataset.condTarget;
-                if(target) {
-                    const wrap = document.getElementById(target);
-                    wrap.innerHTML = '';
-                    const fQty = parseInt(opt.dataset.fileQty)||0;
-                    const tLbl = opt.dataset.textLabel;
-                    
-                    if(fQty > 0 || tLbl) {
-                        let h = '';
-                        if(fQty) for(let i=1; i<=fQty; i++) h+= '<div style="margin-bottom:10px"><small>Upload File '+i+' *</small><input type="file" required class="form-control"></div>';
-                        if(tLbl) h+= '<div><small>'+tLbl+' *</small><input type="text" required class="form-control"></div>';
-                        wrap.innerHTML = h;
-                        wrap.classList.add('show');
-                    } else { wrap.classList.remove('show'); }
-                }
-            });
+  // 2. Radios / Checkboxes
+  document.querySelectorAll('input.price-ref').forEach(inp => {
+    const condId = inp.dataset.condId;
+    const wrap = document.getElementById(condId);
 
-            // Radios/Checks
-            document.querySelectorAll('input.calc-ref').forEach(inp => {
-                const condId = inp.dataset.condId;
-                const wrap = document.getElementById(condId);
-
-                if(inp.checked) {
-                    total += parseFloat(inp.dataset.price) || 0;
-                    if(wrap) {
-                        wrap.classList.add('show');
-                        wrap.querySelectorAll('input').forEach(i=>i.disabled=false);
-                    }
-                } else {
-                    if(wrap && inp.type !== 'radio') {
-                        wrap.classList.remove('show');
-                        wrap.querySelectorAll('input').forEach(i=>i.disabled=true);
-                    }
-                    if(inp.type === 'radio' && !inp.checked && wrap) {
-                        wrap.classList.remove('show');
-                        wrap.querySelectorAll('input').forEach(i=>i.disabled=true);
-                    }
-                }
-            });
-
-            document.getElementById('display-price').innerText = total;
-            document.getElementById('btn-price').innerText = total;
+    if(inp.checked){
+        total += parseFloat(inp.dataset.price) || 0;
+        if(wrap) {
+            wrap.classList.add('show');
+            wrap.querySelectorAll('input').forEach(i => i.disabled = false);
         }
-
-        document.addEventListener('change', (e) => {
-            if(e.target.classList.contains('calc-ref')) updatePrice();
-        });
-
-        // 3. Submit
-        function handleSubmit(e) {
-            e.preventDefault();
-            const btn = document.querySelector('.btn-main');
-            btn.innerHTML = 'Processing...';
-            setTimeout(() => { 
-                alert('Order Placed! Total: ' + document.getElementById('btn-price').innerText); 
-                window.location.reload();
-            }, 1000);
+    } else {
+        if(wrap && inp.type !== 'radio') {
+             wrap.classList.remove('show');
+             wrap.querySelectorAll('input').forEach(i => i.disabled = true);
         }
-    </script>
+        // Radio unchecked case
+        if(inp.type === 'radio' && !inp.checked && wrap){
+             wrap.classList.remove('show');
+             wrap.querySelectorAll('input').forEach(i => i.disabled = true);
+        }
+    }
+  });
+
+  document.getElementById('display-price').innerText = total + ' PKR';
+  document.getElementById('btn-price').innerText = total + ' PKR';
+}
+
+document.addEventListener('change', (e) => {
+    if(e.target.classList.contains('price-ref')) updatePrice();
+});
+
+function submitOrder(e){
+    e.preventDefault();
+    const btn = document.querySelector('.checkout-btn');
+    btn.innerHTML = 'Processing...';
+    setTimeout(() => {
+        alert('Order Placed Successfully! Amount: ' + document.getElementById('btn-price').innerText);
+        window.location.reload();
+    }, 1500);
+}
+</script>
 </body>
 </html>`;
 }
 
-// --- HELPER: FORM BUILDER ---
+// --- HELPER FUNCTION: Matches Old Form Styling ---
+
 function generateDynamicForm(fields) {
-    if(!fields || fields.length === 0) return '';
+    if (!fields || fields.length === 0) return '<p>No options available.</p>';
 
     return fields.map((f, i) => {
         const type = f._type;
@@ -286,41 +214,68 @@ function generateDynamicForm(fields) {
         const req = f.required ? 'required' : '';
         const star = f.required ? '<span style="color:red">*</span>' : '';
 
-        if(type === 'header') return `<h3 style="border-bottom:1px solid #eee; padding-bottom:5px; margin-top:1.5rem;">${label}</h3>`;
+        // Header
+        if(type === 'header') return `<h3 style="margin:1.5rem 0 0.5rem 0; border-bottom:1px solid #ddd; padding-bottom:5px;">${label}</h3>`;
 
+        // Text / Email / Number
         if(['text','email','number','date'].includes(type)) {
-            return `<div class="field-group"><label class="field-label">${label} ${star}</label><input type="${type}" class="form-control" ${req}></div>`;
+            return `<div style="margin-top:1rem"><label>${label} ${star}</label><input type="${type}" class="form-control" ${req}></div>`;
         }
 
-        if(type === 'file') {
-            return `<div class="field-group"><label class="field-label">${label} ${star}</label><input type="file" class="form-control" ${req}></div>`;
-        }
-        
+        // Textarea
         if(type === 'textarea') {
-            return `<div class="field-group"><label class="field-label">${label} ${star}</label><textarea class="form-control" rows="3" ${req}></textarea></div>`;
+            return `<div style="margin-top:1rem"><label>${label} ${star}</label><textarea class="form-control" rows="${f.rows||3}" ${req}></textarea></div>`;
         }
 
+        // File
+        if(type === 'file') {
+            return `<div style="margin-top:1rem"><label>${label} ${star}</label><input type="file" class="form-control" ${req}></div>`;
+        }
+
+        // Select
         if(type === 'select') {
-            const target = `cond_sel_${i}`;
-            const opts = f.options_list.map(o => `<option value="${o.label}" data-price="${o.price||0}" data-file-qty="${o.file_qty||0}" data-text-label="${o.text_label||''}">${o.label} ${o.price>0?`(+${o.price})`:''}</option>`).join('');
-            return `<div class="field-group"><label class="field-label">${label} ${star}</label><select class="form-control calc-ref" data-cond-target="${target}" ${req}><option value="" data-price="0">Select Option</option>${opts}</select><div id="${target}" class="cond-box"></div></div>`;
+            const condTarget = `cond_sel_${i}`;
+            const opts = f.options_list.map(o => `<option value="${o.label}" data-price="${o.price||0}" data-file-qty="${o.file_qty||0}" data-text-label="${o.text_label||''}">${o.label} ${o.price>0 ? '(+'+o.price+')' : ''}</option>`).join('');
+            return `
+            <div style="margin-top:1rem">
+                <label>${label} ${star}</label>
+                <select class="form-control price-ref" data-cond-target="${condTarget}" ${req}>
+                    <option value="" data-price="0">Select Option</option>
+                    ${opts}
+                </select>
+                <div id="${condTarget}" class="conditional-wrap"></div>
+            </div>`;
         }
 
+        // Radio / Checkbox
         if(type === 'radio' || type === 'checkbox_group') {
             const isRadio = type === 'radio';
             const opts = f.options_list.map((o, idx) => {
-                const cId = `c_${i}_${idx}`;
-                const hasCond = (o.file_qty>0 || o.text_label);
-                let cHtml = '';
+                const condId = `cond_opt_${i}_${idx}`;
+                const hasCond = (o.file_qty > 0 || o.text_label);
+                
+                let condHtml = '';
                 if(hasCond) {
-                    cHtml = `<div id="${cId}" class="cond-box">`;
-                    if(o.file_qty) for(let k=1;k<=o.file_qty;k++) cHtml += `<div style="margin-bottom:5px"><small>File ${k} *</small><input type="file" class="form-control" disabled required></div>`;
-                    if(o.text_label) cHtml += `<div><small>${o.text_label} *</small><input type="text" class="form-control" disabled required></div>`;
-                    cHtml += `</div>`;
+                    condHtml = `<div id="${condId}" class="conditional-wrap">`;
+                    if(o.file_qty) for(let k=1; k<=o.file_qty; k++) condHtml += `<div style="margin-bottom:5px"><small>Upload File ${k} *</small><input type="file" class="form-control" disabled required></div>`;
+                    if(o.text_label) condHtml += `<div><small>${o.text_label} *</small><input type="text" class="form-control" disabled required></div>`;
+                    condHtml += `</div>`;
                 }
-                return `<div><label class="opt-item"><div style="display:flex;align-items:center;gap:10px"><input type="${isRadio?'radio':'checkbox'}" name="${label}${isRadio?'':'[]'}" class="calc-ref" data-price="${o.price||0}" data-cond-id="${hasCond?cId:''}" ${isRadio&&f.required?'required':''}><span>${o.label}</span></div>${o.price>0?`<span style="font-weight:bold;color:var(--primary)">+${o.price}</span>`:''}</label>${cHtml}</div>`;
+
+                return `
+                <div style="margin-bottom:8px">
+                    <label class="opt-row">
+                        <span style="display:flex;align-items:center;gap:10px">
+                            <input type="${isRadio?'radio':'checkbox'}" name="${label}${isRadio?'':'[]'}" class="price-ref" data-price="${o.price||0}" data-cond-id="${hasCond?condId:''}" ${isRadio&&f.required?'required':''}>
+                            ${o.label}
+                        </span>
+                        <span style="font-weight:bold;color:#8b5cf6">${o.price>0 ? '+'+o.price : ''}</span>
+                    </label>
+                    ${condHtml}
+                </div>`;
             }).join('');
-            return `<div class="field-group"><label class="field-label">${label} ${star}</label><div class="opts-list">${opts}</div></div>`;
+            
+            return `<div style="margin-top:1rem"><label style="margin-bottom:10px; display:block;">${label} ${star}</label>${opts}</div>`;
         }
         return '';
     }).join('');
