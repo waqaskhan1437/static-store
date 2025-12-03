@@ -1,6 +1,6 @@
 /**
  * Professional Form Builder (Globo Style 2025)
- * Features: Groups (Headings), Options with Price, Visual Editor
+ * Features: Groups (Headings), Options with Price, Visual Editor, File Upload Logic
  */
 
 export function renderCustomFields(data = {}) {
@@ -49,13 +49,31 @@ function renderFieldCard(field = {}, index = Date.now()) {
     let optionsHtml = '';
     if (isOptionType) {
         const opts = field.options_list || [];
-        const rows = opts.map(o => `
-            <div class="opt-row" style="display:flex; gap:5px; margin-bottom:5px;">
-                <input type="text" class="form-control" name="opt_label" placeholder="Option Name (e.g. Red)" value="${o.label}" style="flex:2;">
+        const rows = opts.map(o => {
+            // Check if this option requires a file
+            const hasFile = o.file_qty && o.file_qty > 0;
+            
+            // Logic: Only show File Upload toggle if it's a Dropdown (select)
+            const fileUploadUI = type === 'select' ? `
+                <div style="display:flex; align-items:center; gap:5px; background:#f1f2f6; padding:0 8px; border-radius:4px; border:1px solid #dcdde1; height:36px;" title="Require File Upload for this option">
+                    <label style="font-size:0.75rem; font-weight:bold; color:#636e72; cursor:pointer; display:flex; align-items:center; gap:4px; margin:0;">
+                        <input type="checkbox" class="file-req-toggle" ${hasFile ? 'checked' : ''}> 
+                        <i class="fas fa-cloud-upload-alt"></i>
+                    </label>
+                    <input type="number" class="form-control file-qty-input" name="opt_file_qty" 
+                           value="${o.file_qty || 1}" min="1" placeholder="Qty" 
+                           style="width:50px; font-size:0.8rem; padding:2px 5px; height:24px; display:${hasFile ? 'block' : 'none'}; border:1px solid #bdc3c7;">
+                </div>
+            ` : '';
+
+            return `
+            <div class="opt-row" style="display:flex; gap:5px; margin-bottom:5px; align-items:center;">
+                <input type="text" class="form-control" name="opt_label" placeholder="Option Name" value="${o.label}" style="flex:2;">
                 <input type="number" class="form-control" name="opt_price" placeholder="Price" value="${o.price}" style="flex:1;">
-                <button type="button" onclick="this.parentElement.remove()" style="color:#e74c3c; border:none; background:none; cursor:pointer;"><i class="fas fa-times"></i></button>
+                ${fileUploadUI}
+                <button type="button" onclick="this.closest('.opt-row').remove()" style="color:#e74c3c; border:none; background:none; cursor:pointer; padding:0 8px;"><i class="fas fa-times"></i></button>
             </div>
-        `).join('');
+        `}).join('');
         
         optionsHtml = `
             <div class="options-wrapper" style="margin-top:10px; background:#f8f9fa; padding:10px; border-radius:4px;">
@@ -121,16 +139,49 @@ export function setupCustomFieldsEvents() {
             addOptionRow(wrapper.querySelector('.opts-container'));
         }
     });
+
+    // 3. Event Delegation for "File Toggle" checkbox
+    container.addEventListener('change', (e) => {
+        if (e.target.classList.contains('file-req-toggle')) {
+            const wrapper = e.target.closest('div');
+            const qtyInput = wrapper.querySelector('.file-qty-input');
+            
+            if (e.target.checked) {
+                qtyInput.style.display = 'block';
+                qtyInput.value = qtyInput.value || 1; // Default to 1
+            } else {
+                qtyInput.style.display = 'none';
+                qtyInput.value = 0; // Reset to 0 so it doesn't save as required
+            }
+        }
+    });
 }
 
 function addOptionRow(container) {
+    // Find the parent field type to decide if we show File Upload
+    const fieldCard = container.closest('.field-card');
+    const type = fieldCard ? fieldCard.dataset.type : 'select';
+
+    const fileUploadUI = type === 'select' ? `
+        <div style="display:flex; align-items:center; gap:5px; background:#f1f2f6; padding:0 8px; border-radius:4px; border:1px solid #dcdde1; height:36px;" title="Require File Upload for this option">
+            <label style="font-size:0.75rem; font-weight:bold; color:#636e72; cursor:pointer; display:flex; align-items:center; gap:4px; margin:0;">
+                <input type="checkbox" class="file-req-toggle"> 
+                <i class="fas fa-cloud-upload-alt"></i>
+            </label>
+            <input type="number" class="form-control file-qty-input" name="opt_file_qty" 
+                   value="1" min="1" placeholder="Qty" 
+                   style="width:50px; font-size:0.8rem; padding:2px 5px; height:24px; display:none; border:1px solid #bdc3c7;">
+        </div>
+    ` : '';
+
     const div = document.createElement('div');
     div.className = 'opt-row';
-    div.style.cssText = 'display:flex; gap:5px; margin-bottom:5px; animation:fadeIn 0.2s;';
+    div.style.cssText = 'display:flex; gap:5px; margin-bottom:5px; align-items:center; animation:fadeIn 0.2s;';
     div.innerHTML = `
         <input type="text" class="form-control" name="opt_label" placeholder="New Option" style="flex:2;">
         <input type="number" class="form-control" name="opt_price" placeholder="0" style="flex:1;">
-        <button type="button" onclick="this.parentElement.remove()" style="color:#e74c3c; border:none; background:none; cursor:pointer;"><i class="fas fa-times"></i></button>
+        ${fileUploadUI}
+        <button type="button" onclick="this.closest('.opt-row').remove()" style="color:#e74c3c; border:none; background:none; cursor:pointer; padding:0 8px;"><i class="fas fa-times"></i></button>
     `;
     container.appendChild(div);
     div.querySelector('input').focus();
