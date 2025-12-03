@@ -1,34 +1,34 @@
 /**
  * admin/js/generator.js
- * COMPLETE FIX: Self-contained Layout + Dynamic Form Builder Support
- * Ye file Product HTML generate karti hai jo "Deploy Canceled" issue se effect nahi hoti.
+ * FIXED: Matches 'demo-product-1.html' layout perfectly using internal styles.
+ * Integrates: Layout + New Form Builder
  */
 
 export function generateProductHTML(product) {
     if (!product) return '';
 
-    // 1. Data Setup (Agar images nahi hain to placeholder lagaye)
+    // 1. Data Setup
     const images = (product.images && product.images.length > 0) 
         ? product.images 
         : ['https://placehold.co/600x600?text=No+Image'];
     
-    // Default Data setup
     const title = product.title || 'Untitled Product';
     const price = product.price || 0;
     const oldPrice = product.old_price || 0;
-    const desc = product.description || 'No description available.';
+    const desc = product.description || '';
 
-    // 2. Thumbnails HTML Generate karna
+    // 2. Thumbnails Logic
     const thumbsHtml = images.map((img, idx) => `
-        <div class="thumb-item ${idx === 0 ? 'active' : ''}" onclick="changeImage('${img}', this)">
-            <img src="${img}" alt="Thumb ${idx + 1}">
-        </div>
+        <img src="${img}" 
+             class="thumb-img ${idx === 0 ? 'active' : ''}" 
+             onclick="changeMedia('${img}', this)" 
+             alt="Thumbnail">
     `).join('');
 
-    // 3. Form Fields Generate karna (Helper function se)
+    // 3. Form Logic
     const formHtml = generateDynamicForm(product.customForm || []);
 
-    // 4. Final HTML Page Return karna
+    // 4. Return Final HTML
     return `<!DOCTYPE html>
 <html lang="en">
 <head>
@@ -40,173 +40,150 @@ export function generateProductHTML(product) {
     <link rel="stylesheet" href="../product.css">
 
     <style>
-        /* Base Reset */
+        :root { --primary: #4f46e5; --text: #1f2937; --bg: #f9fafb; --border: #e5e7eb; }
         * { box-sizing: border-box; }
-        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; margin: 0; padding: 0; background: #f9f9f9; }
-        
-        /* Main Container */
-        .product-page-container {
+        body { font-family: system-ui, -apple-system, sans-serif; margin: 0; padding: 0; background: var(--bg); color: var(--text); }
+
+        /* --- MAIN LAYOUT (Matches Old Product) --- */
+        .product-container {
             max-width: 1200px;
-            margin: 40px auto;
+            margin: 2rem auto;
+            padding: 0 1rem;
             display: grid;
-            grid-template-columns: 1fr 1fr; /* 2 Columns */
-            gap: 40px;
-            padding: 20px;
+            grid-template-columns: 1.2fr 1fr; /* Image gets slightly more space */
+            gap: 3rem;
+            align-items: start;
+        }
+
+        /* --- LEFT: MEDIA SECTION --- */
+        .media-col { display: flex; flex-direction: column; gap: 1rem; }
+        
+        .media-frame {
+            width: 100%;
+            aspect-ratio: 1/1; /* Square Image like demo */
             background: #fff;
             border-radius: 12px;
-            box-shadow: 0 5px 15px rgba(0,0,0,0.05);
-        }
-
-        /* Left Column: Media */
-        .media-column { display: flex; flex-direction: column; gap: 15px; }
-        .main-image-frame {
-            width: 100%;
-            aspect-ratio: 1/1;
-            background: #f0f0f0;
-            border-radius: 10px;
+            border: 1px solid var(--border);
             overflow: hidden;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            border: 1px solid #ddd;
+            display: flex; align-items: center; justify-content: center;
         }
-        .main-image-frame img, .main-image-frame video {
-            max-width: 100%;
-            max-height: 100%;
-            object-fit: contain;
-        }
+        .media-frame img, .media-frame video { width: 100%; height: 100%; object-fit: contain; }
 
-        /* Thumbnails Styling */
-        .thumbs-container {
-            display: flex;
-            gap: 10px;
-            overflow-x: auto;
-            padding: 5px 0;
-        }
-        .thumb-item {
-            width: 80px;
-            height: 80px;
-            flex-shrink: 0;
+        .thumbs-row { display: flex; gap: 0.8rem; overflow-x: auto; padding-bottom: 5px; }
+        .thumb-img {
+            width: 70px; height: 70px;
+            border-radius: 8px;
+            cursor: pointer;
             border: 2px solid transparent;
-            border-radius: 8px;
-            overflow: hidden;
-            cursor: pointer;
-            opacity: 0.7;
-            transition: all 0.2s;
-        }
-        .thumb-item.active, .thumb-item:hover {
-            border-color: #4f46e5;
-            opacity: 1;
-        }
-        .thumb-item img {
-            width: 100%;
-            height: 100%;
             object-fit: cover;
-        }
-
-        /* Right Column: Form */
-        .details-column { display: flex; flex-direction: column; gap: 20px; }
-        .product-title { font-size: 2rem; margin: 0; color: #111; line-height: 1.2; }
-        
-        .price-tag { font-size: 1.8rem; color: #4f46e5; font-weight: 800; display: flex; align-items: center; gap: 15px; }
-        .old-price { font-size: 1.1rem; color: #999; text-decoration: line-through; font-weight: normal; }
-
-        /* Form Styling */
-        .custom-form-group { margin-bottom: 15px; }
-        .form-label { display: block; font-weight: 600; margin-bottom: 6px; color: #333; }
-        .form-input { 
-            width: 100%; padding: 12px; 
-            border: 1px solid #ddd; border-radius: 6px; 
-            font-size: 1rem; transition: 0.2s;
-        }
-        .form-input:focus { border-color: #4f46e5; outline: none; }
-
-        /* Options (Radio/Checkbox) */
-        .options-grid { display: flex; flex-direction: column; gap: 8px; }
-        .option-card {
-            display: flex; justify-content: space-between; align-items: center;
-            padding: 10px 15px;
-            border: 1px solid #eee; border-radius: 6px;
-            cursor: pointer; transition: 0.1s;
-        }
-        .option-card:hover { background: #f5f7ff; border-color: #4f46e5; }
-        .option-card input { transform: scale(1.2); margin-right: 10px; }
-        .extra-price { color: #4f46e5; font-weight: 700; font-size: 0.9rem; }
-
-        /* Conditional Fields (Hidden by default) */
-        .conditional-field {
-            margin-top: 10px;
-            padding: 15px;
-            background: #f0f7ff;
-            border-radius: 8px;
-            border-left: 4px solid #4f46e5;
-            display: none; 
-        }
-        .conditional-field.visible { display: block; animation: fadeIn 0.3s; }
-
-        /* Buttons */
-        .btn-checkout {
-            width: 100%;
-            padding: 18px;
-            background: #4f46e5;
-            color: white;
-            font-size: 1.2rem;
-            font-weight: bold;
-            border: none;
-            border-radius: 8px;
-            cursor: pointer;
-            margin-top: 20px;
+            background: #fff;
             transition: 0.2s;
         }
-        .btn-checkout:hover { background: #3730a3; transform: translateY(-2px); }
+        .thumb-img:hover, .thumb-img.active { border-color: var(--primary); transform: translateY(-2px); }
 
-        @keyframes fadeIn { from { opacity:0; transform:translateY(-5px); } to { opacity:1; transform:translateY(0); } }
+        .desc-box { margin-top: 1.5rem; line-height: 1.6; color: #4b5563; background: #fff; padding: 1.5rem; border-radius: 12px; border: 1px solid var(--border); }
+
+        /* --- RIGHT: FORM SECTION --- */
+        .form-col { 
+            background: #fff; 
+            padding: 2rem; 
+            border-radius: 16px; 
+            border: 1px solid var(--border);
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
+            position: sticky; top: 2rem; /* Floats nicely */
+        }
+
+        h1 { font-size: 1.8rem; font-weight: 800; margin: 0 0 0.5rem 0; line-height: 1.2; }
         
-        /* Mobile Responsive */
+        .price-wrapper { display: flex; align-items: baseline; gap: 1rem; margin-bottom: 1.5rem; border-bottom: 1px solid var(--border); padding-bottom: 1rem; }
+        .current-price { font-size: 2rem; font-weight: 800; color: var(--primary); }
+        .old-price { font-size: 1.1rem; color: #9ca3af; text-decoration: line-through; }
+
+        /* Form Inputs */
+        .field-group { margin-bottom: 1.2rem; }
+        .field-label { display: block; font-weight: 600; margin-bottom: 0.4rem; font-size: 0.95rem; }
+        .form-control { 
+            width: 100%; padding: 0.8rem; 
+            border: 1px solid #d1d5db; border-radius: 8px; 
+            font-size: 1rem; transition: 0.2s;
+        }
+        .form-control:focus { border-color: var(--primary); outline: none; ring: 2px solid #e0e7ff; }
+
+        /* Options (Radio/Checkbox) */
+        .opts-list { display: flex; flex-direction: column; gap: 0.6rem; }
+        .opt-item {
+            display: flex; align-items: center; justify-content: space-between;
+            padding: 0.8rem 1rem;
+            border: 1px solid var(--border); border-radius: 8px;
+            cursor: pointer; transition: 0.1s;
+        }
+        .opt-item:hover { background: #f9fafb; border-color: #9ca3af; }
+        .opt-item input { accent-color: var(--primary); width: 1.2rem; height: 1.2rem; }
+
+        /* Conditionals */
+        .cond-box { 
+            margin-top: 0.8rem; padding: 1rem; 
+            background: #eff6ff; border-radius: 8px; 
+            border-left: 4px solid var(--primary);
+            display: none; 
+        }
+        .cond-box.show { display: block; animation: fadeUp 0.3s; }
+
+        /* Button */
+        .btn-main {
+            width: 100%; padding: 1rem;
+            background: var(--primary); color: white;
+            font-size: 1.1rem; font-weight: 700;
+            border: none; border-radius: 10px;
+            cursor: pointer; margin-top: 1.5rem;
+            transition: 0.2s; display: flex; justify-content: center; gap: 0.5rem;
+        }
+        .btn-main:hover { background: #4338ca; transform: translateY(-1px); }
+
+        @keyframes fadeUp { from { opacity:0; transform:translateY(5px); } to { opacity:1; transform:translateY(0); } }
+        
+        /* Mobile */
         @media (max-width: 768px) {
-            .product-page-container { grid-template-columns: 1fr; padding: 15px; margin: 10px; }
+            .product-container { grid-template-columns: 1fr; gap: 2rem; margin: 1rem auto; }
+            .form-col { padding: 1.5rem; position: static; }
         }
     </style>
 </head>
 <body>
 
-    <div class="product-page-container">
-        <div class="media-column">
-            <div class="main-image-frame" id="mainDisplay">
+    <div class="product-container">
+        <div class="media-col">
+            <div class="media-frame" id="main-display">
                 ${product.video_url 
-                  ? `<video src="${product.video_url}" controls poster="${images[0]}" style="width:100%;height:100%"></video>` 
-                  : `<img src="${images[0]}" alt="Main Product Image">`
+                  ? `<video src="${product.video_url}" controls poster="${images[0]}"></video>` 
+                  : `<img src="${images[0]}" alt="Product Image">`
                 }
             </div>
             
-            <div class="thumbs-container">
-                ${product.video_url ? `
-                <div class="thumb-item" onclick="playMainVideo('${product.video_url}')">
-                    <div style="width:100%; height:100%; display:flex; align-items:center; justify-content:center; background:#eee; font-size:24px;">▶</div>
-                </div>` : ''}
+            <div class="thumbs-row">
+                ${product.video_url ? `<img src="https://img.icons8.com/ios-filled/50/000000/video.png" class="thumb-img" onclick="playVideo('${product.video_url}')" style="padding:15px; background:#eee">` : ''}
                 ${thumbsHtml}
             </div>
 
-            <div style="margin-top: 20px; color: #555; line-height: 1.6;">
-                <h3>Description</h3>
+            <div class="desc-box">
+                <h3 style="margin-top:0">Product Details</h3>
                 <p>${desc.replace(/\n/g, '<br>')}</p>
             </div>
         </div>
 
-        <div class="details-column">
-            <div>
-                <h1 class="product-title">${title}</h1>
-                <div class="price-tag">
-                    <span id="displayPrice">${price}</span> PKR
-                    ${oldPrice > 0 ? `<span class="old-price">${oldPrice} PKR</span>` : ''}
-                </div>
+        <div class="form-col">
+            <h1>${title}</h1>
+            
+            <div class="price-wrapper">
+                <span class="current-price" id="display-price">${price}</span> <span style="font-weight:bold; color:var(--primary)">PKR</span>
+                ${oldPrice > 0 ? `<span class="old-price">${oldPrice} PKR</span>` : ''}
             </div>
 
-            <form id="productForm" onsubmit="handleOrder(event)">
+            <form id="order-form" onsubmit="handleSubmit(event)">
                 ${formHtml}
-
-                <button type="submit" class="btn-checkout">
-                    Order Now - <span id="btnPrice">${price}</span> PKR
+                
+                <button type="submit" class="btn-main">
+                    Order Now - <span id="btn-price">${price}</span> PKR
                 </button>
             </form>
         </div>
@@ -215,98 +192,83 @@ export function generateProductHTML(product) {
     <script>
         const BASE_PRICE = ${price};
 
-        // 1. Image Switcher Function
-        function changeImage(src, thumbEl) {
-            const display = document.getElementById('mainDisplay');
-            display.innerHTML = '<img src="' + src + '" style="max-width:100%; max-height:100%; object-fit:contain;">';
-            
-            // Active class update karein
-            document.querySelectorAll('.thumb-item').forEach(t => t.classList.remove('active'));
-            if(thumbEl) thumbEl.classList.add('active');
+        // 1. Media Switcher
+        function changeMedia(src, el) {
+            document.getElementById('main-display').innerHTML = '<img src="'+src+'">';
+            document.querySelectorAll('.thumb-img').forEach(t => t.classList.remove('active'));
+            if(el) el.classList.add('active');
+        }
+        
+        function playVideo(url) {
+            document.getElementById('main-display').innerHTML = '<video src="'+url+'" controls autoplay></video>';
         }
 
-        // Video Player Function
-        function playMainVideo(url) {
-            const display = document.getElementById('mainDisplay');
-            display.innerHTML = '<video src="' + url + '" controls autoplay style="width:100%; height:100%"></video>';
-        }
-
-        // 2. Price & Logic Calculation Function
-        function updateCalculations() {
+        // 2. Calculator Logic
+        function updatePrice() {
             let total = BASE_PRICE;
             
-            // Select (Dropdown) Inputs Check karein
-            document.querySelectorAll('select.calc-trigger').forEach(sel => {
+            // Selects
+            document.querySelectorAll('select.calc-ref').forEach(sel => {
                 const opt = sel.options[sel.selectedIndex];
-                total += parseFloat(opt.getAttribute('data-price')) || 0;
+                total += parseFloat(opt.dataset.price) || 0;
                 
-                // Conditional Fields Show/Hide logic
-                const targetId = sel.getAttribute('data-cond-target');
-                if(targetId) {
-                    const wrap = document.getElementById(targetId);
-                    wrap.innerHTML = ''; // Pehle clear karein
-                    
-                    const fQty = parseInt(opt.getAttribute('data-file-qty')) || 0;
-                    const tLbl = opt.getAttribute('data-text-label');
+                // Conditionals
+                const target = sel.dataset.condTarget;
+                if(target) {
+                    const wrap = document.getElementById(target);
+                    wrap.innerHTML = '';
+                    const fQty = parseInt(opt.dataset.fileQty)||0;
+                    const tLbl = opt.dataset.textLabel;
                     
                     if(fQty > 0 || tLbl) {
                         let h = '';
-                        if(fQty) for(let i=1; i<=fQty; i++) h += '<div style="margin-bottom:10px"><label>Upload File '+i+' *</label><input type="file" required class="form-input"></div>';
-                        if(tLbl) h += '<div><label>'+tLbl+' *</label><input type="text" required class="form-input"></div>';
-                        
+                        if(fQty) for(let i=1; i<=fQty; i++) h+= '<div style="margin-bottom:10px"><small>Upload File '+i+' *</small><input type="file" required class="form-control"></div>';
+                        if(tLbl) h+= '<div><small>'+tLbl+' *</small><input type="text" required class="form-control"></div>';
                         wrap.innerHTML = h;
-                        wrap.classList.add('visible');
-                    } else {
-                        wrap.classList.remove('visible');
-                    }
+                        wrap.classList.add('show');
+                    } else { wrap.classList.remove('show'); }
                 }
             });
 
-            // Radio/Checkbox Inputs Check karein
-            document.querySelectorAll('input.calc-trigger').forEach(inp => {
-                const condId = inp.getAttribute('data-cond-id');
+            // Radios/Checks
+            document.querySelectorAll('input.calc-ref').forEach(inp => {
+                const condId = inp.dataset.condId;
                 const wrap = document.getElementById(condId);
 
                 if(inp.checked) {
-                    total += parseFloat(inp.getAttribute('data-price')) || 0;
+                    total += parseFloat(inp.dataset.price) || 0;
                     if(wrap) {
-                        wrap.classList.add('visible');
-                        wrap.querySelectorAll('input').forEach(i => i.disabled = false);
+                        wrap.classList.add('show');
+                        wrap.querySelectorAll('input').forEach(i=>i.disabled=false);
                     }
                 } else {
-                    // Sirf Checkbox ke liye hide karein, Radio ka alag handle hota hai
                     if(wrap && inp.type !== 'radio') {
-                         wrap.classList.remove('visible');
-                         wrap.querySelectorAll('input').forEach(i => i.disabled = true);
+                        wrap.classList.remove('show');
+                        wrap.querySelectorAll('input').forEach(i=>i.disabled=true);
                     }
-                    // Agar radio unchecked ho jaye (doosra select hone par)
                     if(inp.type === 'radio' && !inp.checked && wrap) {
-                         wrap.classList.remove('visible');
-                         wrap.querySelectorAll('input').forEach(i => i.disabled = true);
+                        wrap.classList.remove('show');
+                        wrap.querySelectorAll('input').forEach(i=>i.disabled=true);
                     }
                 }
             });
 
-            // UI Update karein
-            document.getElementById('displayPrice').innerText = total;
-            document.getElementById('btnPrice').innerText = total;
+            document.getElementById('display-price').innerText = total;
+            document.getElementById('btn-price').innerText = total;
         }
 
-        // Change Listener attach karein
         document.addEventListener('change', (e) => {
-            if(e.target.classList.contains('calc-trigger')) updateCalculations();
+            if(e.target.classList.contains('calc-ref')) updatePrice();
         });
 
-        // 3. Order Submit Handler
-        function handleOrder(e) {
+        // 3. Submit
+        function handleSubmit(e) {
             e.preventDefault();
-            const btn = document.querySelector('.btn-checkout');
-            const originalText = btn.innerText;
-            btn.innerText = 'Processing...';
-            
-            setTimeout(() => {
-                alert('Order Placed Successfully! Total: ' + document.getElementById('btnPrice').innerText + ' PKR');
-                btn.innerText = originalText;
+            const btn = document.querySelector('.btn-main');
+            btn.innerHTML = 'Processing...';
+            setTimeout(() => { 
+                alert('Order Placed! Total: ' + document.getElementById('btn-price').innerText); 
+                window.location.reload();
             }, 1000);
         }
     </script>
@@ -314,109 +276,51 @@ export function generateProductHTML(product) {
 </html>`;
 }
 
-// --- HELPER FUNCTION: Jo Form Fields Banata Hai ---
-
+// --- HELPER: FORM BUILDER ---
 function generateDynamicForm(fields) {
-    if(!fields || fields.length === 0) return '<p style="color:#666;">No customization options available.</p>';
+    if(!fields || fields.length === 0) return '';
 
     return fields.map((f, i) => {
         const type = f._type;
-        const label = f.label || 'Field';
+        const label = f.label;
         const req = f.required ? 'required' : '';
         const star = f.required ? '<span style="color:red">*</span>' : '';
 
-        // 1. Header Field
-        if(type === 'header') return `<h3 style="border-bottom:2px solid #eee; padding-bottom:5px; margin-top:25px;">${label}</h3>`;
+        if(type === 'header') return `<h3 style="border-bottom:1px solid #eee; padding-bottom:5px; margin-top:1.5rem;">${label}</h3>`;
 
-        // 2. Simple Inputs (Text, Email, etc)
         if(['text','email','number','date'].includes(type)) {
-            return `
-            <div class="custom-form-group">
-                <label class="form-label">${label} ${star}</label>
-                <input type="${type}" name="${label}" class="form-input" ${req}>
-            </div>`;
+            return `<div class="field-group"><label class="field-label">${label} ${star}</label><input type="${type}" class="form-control" ${req}></div>`;
         }
 
-        // 3. File Input
         if(type === 'file') {
-            return `
-            <div class="custom-form-group">
-                <label class="form-label">${label} ${star}</label>
-                <input type="file" name="${label}" class="form-input" ${req}>
-            </div>`;
+            return `<div class="field-group"><label class="field-label">${label} ${star}</label><input type="file" class="form-control" ${req}></div>`;
         }
         
-        // 4. Textarea
         if(type === 'textarea') {
-            return `
-            <div class="custom-form-group">
-                <label class="form-label">${label} ${star}</label>
-                <textarea name="${label}" rows="${f.rows || 3}" class="form-input" ${req}></textarea>
-            </div>`;
+            return `<div class="field-group"><label class="field-label">${label} ${star}</label><textarea class="form-control" rows="3" ${req}></textarea></div>`;
         }
 
-        // 5. Select Dropdown (With Logic)
         if(type === 'select') {
-            const condTarget = `cond_select_${i}`;
-            const opts = f.options_list.map(o => `
-                <option value="${o.label}" 
-                    data-price="${o.price || 0}"
-                    data-file-qty="${o.file_qty||0}"
-                    data-text-label="${o.text_label||''}">
-                    ${o.label} ${o.price>0 ? '(+'+o.price+')' : ''}
-                </option>
-            `).join('');
-
-            return `
-            <div class="custom-form-group">
-                <label class="form-label">${label} ${star}</label>
-                <select name="${label}" class="form-input calc-trigger" data-cond-target="${condTarget}" ${req}>
-                    <option value="" data-price="0">Select Option</option>
-                    ${opts}
-                </select>
-                <div id="${condTarget}" class="conditional-field"></div>
-            </div>`;
+            const target = `cond_sel_${i}`;
+            const opts = f.options_list.map(o => `<option value="${o.label}" data-price="${o.price||0}" data-file-qty="${o.file_qty||0}" data-text-label="${o.text_label||''}">${o.label} ${o.price>0?`(+${o.price})`:''}</option>`).join('');
+            return `<div class="field-group"><label class="field-label">${label} ${star}</label><select class="form-control calc-ref" data-cond-target="${target}" ${req}><option value="" data-price="0">Select Option</option>${opts}</select><div id="${target}" class="cond-box"></div></div>`;
         }
 
-        // 6. Radio & Checkbox (With Logic)
         if(type === 'radio' || type === 'checkbox_group') {
             const isRadio = type === 'radio';
             const opts = f.options_list.map((o, idx) => {
-                const condId = `cond_opt_${i}_${idx}`;
-                const hasCond = (o.file_qty > 0 || o.text_label);
-                
-                // Conditional HTML prepare karein
-                let condHtml = '';
+                const cId = `c_${i}_${idx}`;
+                const hasCond = (o.file_qty>0 || o.text_label);
+                let cHtml = '';
                 if(hasCond) {
-                    condHtml = `<div id="${condId}" class="conditional-field">`;
-                    if(o.file_qty) for(let k=1; k<=o.file_qty; k++) condHtml += `<div style="margin-bottom:5px"><small>Upload File ${k} *</small><input type="file" class="form-input" disabled required></div>`;
-                    if(o.text_label) condHtml += `<div><small>${o.text_label} *</small><input type="text" class="form-input" disabled required></div>`;
-                    condHtml += `</div>`;
+                    cHtml = `<div id="${cId}" class="cond-box">`;
+                    if(o.file_qty) for(let k=1;k<=o.file_qty;k++) cHtml += `<div style="margin-bottom:5px"><small>File ${k} *</small><input type="file" class="form-control" disabled required></div>`;
+                    if(o.text_label) cHtml += `<div><small>${o.text_label} *</small><input type="text" class="form-control" disabled required></div>`;
+                    cHtml += `</div>`;
                 }
-
-                return `
-                <div>
-                    <label class="option-card">
-                        <div style="display:flex; align-items:center;">
-                            <input type="${isRadio?'radio':'checkbox'}" 
-                                   name="${label}${isRadio?'':'[]'}" 
-                                   class="calc-trigger"
-                                   data-price="${o.price || 0}"
-                                   data-cond-id="${hasCond ? condId : ''}"
-                                   ${isRadio && f.required ? 'required' : ''}>
-                            <span>${o.label}</span>
-                        </div>
-                        ${o.price>0 ? `<span class="extra-price">+${o.price}</span>` : ''}
-                    </label>
-                    ${condHtml}
-                </div>`;
+                return `<div><label class="opt-item"><div style="display:flex;align-items:center;gap:10px"><input type="${isRadio?'radio':'checkbox'}" name="${label}${isRadio?'':'[]'}" class="calc-ref" data-price="${o.price||0}" data-cond-id="${hasCond?cId:''}" ${isRadio&&f.required?'required':''}><span>${o.label}</span></div>${o.price>0?`<span style="font-weight:bold;color:var(--primary)">+${o.price}</span>`:''}</label>${cHtml}</div>`;
             }).join('');
-
-            return `
-            <div class="custom-form-group">
-                <label class="form-label">${label} ${star}</label>
-                <div class="options-grid">${opts}</div>
-            </div>`;
+            return `<div class="field-group"><label class="field-label">${label} ${star}</label><div class="opts-list">${opts}</div></div>`;
         }
         return '';
     }).join('');
