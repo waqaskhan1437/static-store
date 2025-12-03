@@ -25,9 +25,6 @@ let fieldLabelInputEl;
 let fieldPlaceholderInputEl;
 let fieldRequiredCheckboxEl;
 let addFieldBtnEl;
-let optionsBuilderEl;
-let optionsTableBodyEl;
-let addOptionRowBtnEl;
 let populateFieldEditor = null;
 
 function renderFields() {
@@ -51,10 +48,6 @@ function renderFields() {
         if (fieldOptionsInputEl) fieldOptionsInputEl.value = '';
         if (fieldPricesInputEl) fieldPricesInputEl.value = '';
         if (fieldRequiredCheckboxEl) fieldRequiredCheckboxEl.checked = false;
-        clearOptionsBuilder();
-        if (optionsBuilderEl) {
-          optionsBuilderEl.style.display = 'none';
-        }
       }
       renderFields();
     };
@@ -70,143 +63,6 @@ function renderFields() {
 }
 
 
-
-function clearOptionsBuilder() {
-  if (optionsTableBodyEl) {
-    optionsTableBodyEl.innerHTML = '';
-  }
-}
-
-function addOptionRow(name = '', price = '', isDefault = false) {
-  if (!optionsTableBodyEl) return;
-  const tr = document.createElement('tr');
-  const tdLabel = document.createElement('td');
-  const tdPrice = document.createElement('td');
-  const tdDefault = document.createElement('td');
-  const tdAction = document.createElement('td');
-
-  const nameInput = document.createElement('input');
-  nameInput.type = 'text';
-  nameInput.className = 'option-name';
-  nameInput.value = name;
-  nameInput.addEventListener('input', syncBuilderToHiddenInputs);
-  tdLabel.appendChild(nameInput);
-
-  const priceInput = document.createElement('input');
-  priceInput.type = 'number';
-  priceInput.step = '0.01';
-  priceInput.className = 'option-price';
-  priceInput.value = price;
-  priceInput.addEventListener('input', syncBuilderToHiddenInputs);
-  tdPrice.appendChild(priceInput);
-
-  const defaultInput = document.createElement('input');
-  defaultInput.type = 'radio';
-  defaultInput.name = 'option-default';
-  defaultInput.className = 'option-default';
-  defaultInput.checked = !!isDefault;
-  defaultInput.addEventListener('change', syncBuilderToHiddenInputs);
-  tdDefault.style.textAlign = 'center';
-  tdDefault.appendChild(defaultInput);
-
-  const removeBtn = document.createElement('button');
-  removeBtn.type = 'button';
-  removeBtn.textContent = '✕';
-  removeBtn.className = 'remove-option';
-  removeBtn.addEventListener('click', () => {
-    tr.remove();
-    syncBuilderToHiddenInputs();
-  });
-  tdAction.appendChild(removeBtn);
-
-  tr.appendChild(tdLabel);
-  tr.appendChild(tdPrice);
-  tr.appendChild(tdDefault);
-  tr.appendChild(tdAction);
-
-  optionsTableBodyEl.appendChild(tr);
-}
-
-function syncBuilderToHiddenInputs() {
-  if (!fieldOptionsInputEl || !fieldPricesInputEl || !fieldTypeSelectEl) return;
-  const type = fieldTypeSelectEl.value;
-  if (!type) {
-    fieldOptionsInputEl.value = '';
-    fieldPricesInputEl.value = '';
-    return;
-  }
-  const rows = [];
-  if (optionsTableBodyEl) {
-    const trs = optionsTableBodyEl.querySelectorAll('tr');
-    trs.forEach(tr => {
-      const nameInput = tr.querySelector('.option-name');
-      const priceInput = tr.querySelector('.option-price');
-      const defaultInput = tr.querySelector('.option-default');
-      const name = nameInput ? nameInput.value.trim() : '';
-      const price = priceInput ? priceInput.value.trim() : '';
-      const isDefault = defaultInput ? defaultInput.checked : false;
-      if (name) {
-        rows.push({ name, price, isDefault });
-      }
-    });
-  }
-  if (!rows.length) {
-    fieldOptionsInputEl.value = '';
-    fieldPricesInputEl.value = '';
-    return;
-  }
-  // ensure default row is first for radio groups
-  if (type === 'radioGroupField') {
-    const defIndex = rows.findIndex(r => r.isDefault);
-    if (defIndex > 0) {
-      const defRow = rows.splice(defIndex, 1)[0];
-      rows.unshift(defRow);
-    }
-  }
-  const names = rows.map(r => r.name);
-  const prices = rows.map(r => r.price || '');
-  if (type === 'selectField' || type === 'radioField') {
-    fieldOptionsInputEl.value = names.join(', ');
-    fieldPricesInputEl.value = '';
-  } else if (
-    type === 'checkboxGroupField' ||
-    type === 'radioGroupField' ||
-    type === 'photoSelectField'
-  ) {
-    fieldOptionsInputEl.value = names.join(', ');
-    fieldPricesInputEl.value = prices.join(', ');
-  } else {
-    fieldOptionsInputEl.value = '';
-    fieldPricesInputEl.value = '';
-  }
-}
-
-function syncHiddenInputsToBuilder(fieldType) {
-  if (!optionsTableBodyEl || !fieldOptionsInputEl || !fieldPricesInputEl) return;
-  clearOptionsBuilder();
-  const options = fieldOptionsInputEl.value.trim();
-  const prices = fieldPricesInputEl.value.trim();
-  if (!fieldType || !options) return;
-
-  const names = options.split(',').map(o => o.trim()).filter(Boolean);
-  const priceList = prices ? prices.split(',').map(p => p.trim()) : [];
-
-  if (fieldType === 'selectField' || fieldType === 'radioField') {
-    names.forEach((nm, idx) => {
-      addOptionRow(nm, '', idx === 0);
-    });
-  } else if (
-    fieldType === 'checkboxGroupField' ||
-    fieldType === 'photoSelectField' ||
-    fieldType === 'radioGroupField'
-  ) {
-    names.forEach((nm, idx) => {
-      const pr = priceList[idx] || '';
-      addOptionRow(nm, pr, idx === 0);
-    });
-  }
-}
-
 document.addEventListener('DOMContentLoaded', () => {
   // hook DOM elements into shared editor refs
   fieldTypeSelectEl = document.getElementById('field-type');
@@ -217,21 +73,11 @@ document.addEventListener('DOMContentLoaded', () => {
   fieldPlaceholderInputEl = document.getElementById('field-placeholder');
   fieldRequiredCheckboxEl = document.getElementById('field-required');
   addFieldBtnEl = document.getElementById('add-field-btn');
-  optionsBuilderEl = document.getElementById('options-builder');
-  optionsTableBodyEl = document.getElementById('options-table-body');
-  addOptionRowBtnEl = document.getElementById('add-option-row');
-
-  if (addOptionRowBtnEl && optionsTableBodyEl) {
-    addOptionRowBtnEl.addEventListener('click', () => {
-      addOptionRow();
-      syncBuilderToHiddenInputs();
-    });
-  }
 
   if (fieldTypeSelectEl) {
     fieldTypeSelectEl.addEventListener('change', () => {
       const val = fieldTypeSelectEl.value;
-      // show options input using dynamic options builder
+      // show options input for group or select/radio fields
       if (
         val === 'selectField' ||
         val === 'radioField' ||
@@ -239,35 +85,26 @@ document.addEventListener('DOMContentLoaded', () => {
         val === 'radioGroupField' ||
         val === 'photoSelectField'
       ) {
-        if (optionsBuilderEl) {
-          optionsBuilderEl.style.display = 'block';
-          if (optionsTableBodyEl && !optionsTableBodyEl.querySelector('tr')) {
-            addOptionRow();
-          }
-        }
-      } else {
-        if (optionsBuilderEl) {
-          optionsBuilderEl.style.display = 'none';
-        }
-        if (optionsTableBodyEl) {
-          clearOptionsBuilder();
-        }
-        if (fieldOptionsInputEl) fieldOptionsInputEl.value = '';
-        if (fieldPricesInputEl) fieldPricesInputEl.value = '';
+        if (fieldOptionsInputEl) fieldOptionsInputEl.style.display = 'block';
+      } else if (fieldOptionsInputEl) {
+        fieldOptionsInputEl.style.display = 'none';
       }
-      // keep text/price inputs hidden but in sync
-      if (fieldOptionsInputEl) fieldOptionsInputEl.style.display = 'none';
-      if (fieldPricesInputEl) fieldPricesInputEl.style.display = 'none';
-
+      // show prices input for add-on/delivery/photo groups
+      if (
+        val === 'checkboxGroupField' ||
+        val === 'radioGroupField' ||
+        val === 'photoSelectField'
+      ) {
+        if (fieldPricesInputEl) fieldPricesInputEl.style.display = 'block';
+      } else if (fieldPricesInputEl) {
+        fieldPricesInputEl.style.display = 'none';
+      }
       // show color input for heading field
       if (val === 'headingField') {
         if (fieldColorInputEl) fieldColorInputEl.style.display = 'block';
       } else if (fieldColorInputEl) {
         fieldColorInputEl.style.display = 'none';
       }
-
-      // update hidden inputs based on current builder state
-      syncBuilderToHiddenInputs();
     });
     // initialise visibility
     fieldTypeSelectEl.dispatchEvent(new Event('change'));
@@ -321,22 +158,6 @@ document.addEventListener('DOMContentLoaded', () => {
 
     if (fieldOptionsInputEl) fieldOptionsInputEl.value = optionsStr;
     if (fieldPricesInputEl) fieldPricesInputEl.value = pricesStr;
-
-    if (field._type === 'selectField' ||
-        field._type === 'radioField' ||
-        field._type === 'checkboxGroupField' ||
-        field._type === 'radioGroupField' ||
-        field._type === 'photoSelectField') {
-      syncHiddenInputsToBuilder(field._type);
-      if (optionsBuilderEl) {
-        optionsBuilderEl.style.display = 'block';
-      }
-    } else {
-      clearOptionsBuilder();
-      if (optionsBuilderEl) {
-        optionsBuilderEl.style.display = 'none';
-      }
-    }
 
     if (field._type === 'headingField' && fieldColorInputEl) {
       fieldColorInputEl.style.display = 'block';
@@ -417,10 +238,6 @@ document.addEventListener('DOMContentLoaded', () => {
       if (fieldPricesInputEl) fieldPricesInputEl.value = '';
       if (fieldRequiredCheckboxEl) fieldRequiredCheckboxEl.checked = false;
       if (fieldColorInputEl) fieldColorInputEl.value = '#6366f1';
-      clearOptionsBuilder();
-      if (optionsBuilderEl) {
-        optionsBuilderEl.style.display = 'none';
-      }
 
       renderFields();
     });
