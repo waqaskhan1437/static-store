@@ -1102,5 +1102,169 @@
       "2025",
       "test"
     ]
+  },
+  {
+    "slug": "ultimate-custom-gift-videoo",
+    "id": "ultimate-custom-gift-videoo",
+    "date": "2025-12-03T23:21:38.295Z",
+    "title": "Ultimate Custom Gift  videoo",
+    "price": 5500,
+    "old_price": 7000,
+    "description": "This is a comprehensive demo to showcase the Advanced Form Builder 2025.\n\nIt features:\n- Cloudinary Integration (Video + Images)\n- Conditional Logic (File/Text requirements)\n- Complex Add-ons & Pricing\n- Long Text Areas",
+    "seoDescription": "A perfect demo for testing admin panel capabilities.",
+    "images": [
+      "https://res.cloudinary.com/demo/image/upload/v1590483864/fashion_product.jpg",
+      "https://res.cloudinary.com/demo/image/upload/v1590483329/sample.jpg",
+      "https://res.cloudinary.com/demo/image/upload/v1312461204/sample.jpg"
+    ],
+    "video_url": "https://res.cloudinary.com/demo/video/upload/v1590484059/dog.mp4",
+    "delivery_instant": false,
+    "delivery_physical": true,
+    "stock_status": "in_stock",
+    "min_photos": 0,
+    "customForm": [
+      {
+        "_type": "header",
+        "label": "Step 1: Personalization",
+        "required": false,
+        "rows": 3,
+        "options_list": []
+      },
+      {
+        "_type": "text",
+        "label": "Recipient Full Name",
+        "required": true,
+        "rows": 3,
+        "options_list": []
+      },
+      {
+        "_type": "email",
+        "label": "Contact Email",
+        "required": true,
+        "rows": 3,
+        "options_list": []
+      },
+      {
+        "_type": "header",
+        "label": "Step 2: Customization Options",
+        "required": false,
+        "rows": 3,
+        "options_list": []
+      },
+      {
+        "_type": "select",
+        "label": "Choose Material Type",
+        "required": true,
+        "rows": 3,
+        "options_list": [
+          {
+            "label": "Standard Wood",
+            "price": 0,
+            "file_qty": 1,
+            "text_label": "",
+            "text_placeholder": ""
+          },
+          {
+            "label": "Premium Metal (+Logo File)",
+            "price": 500,
+            "file_qty": 1,
+            "text_label": "",
+            "text_placeholder": ""
+          },
+          {
+            "label": "Gold Plated (+Engraving)",
+            "price": 1500,
+            "file_qty": 1,
+            "text_label": "Name to Engrave",
+            "text_placeholder": "Type name here..."
+          }
+        ]
+      },
+      {
+        "_type": "radio",
+        "label": "Packaging Preference",
+        "required": false,
+        "rows": 3,
+        "options_list": [
+          {
+            "label": "Eco-Friendly Pouch",
+            "price": 0,
+            "file_qty": 1,
+            "text_label": "",
+            "text_placeholder": ""
+          },
+          {
+            "label": "Velvet Gift Box",
+            "price": 300,
+            "file_qty": 1,
+            "text_label": "",
+            "text_placeholder": ""
+          },
+          {
+            "label": "Luxury Wooden Crate",
+            "price": 800,
+            "file_qty": 1,
+            "text_label": "",
+            "text_placeholder": ""
+          }
+        ]
+      },
+      {
+        "_type": "header",
+        "label": "Step 3: Final Touches",
+        "required": false,
+        "rows": 3,
+        "options_list": []
+      },
+      {
+        "_type": "textarea",
+        "label": "Gift Message Card",
+        "required": false,
+        "rows": 5,
+        "options_list": []
+      },
+      {
+        "_type": "checkbox_group",
+        "label": "Premium Add-ons",
+        "required": false,
+        "rows": 3,
+        "options_list": [
+          {
+            "label": "Urgent Delivery (24 Hours)",
+            "price": 1000,
+            "file_qty": 1,
+            "text_label": "",
+            "text_placeholder": ""
+          },
+          {
+            "label": "Remove Price Tag",
+            "price": 50,
+            "file_qty": 1,
+            "text_label": "",
+            "text_placeholder": ""
+          },
+          {
+            "label": "Extended Warranty (1 Year)",
+            "price": 500,
+            "file_qty": 1,
+            "text_label": "",
+            "text_placeholder": ""
+          }
+        ]
+      },
+      {
+        "_type": "file",
+        "label": "Reference Image (Optional)",
+        "required": false,
+        "rows": 3,
+        "options_list": []
+      }
+    ],
+    "photoOptions": [],
+    "tags": [
+      "demo",
+      "2025",
+      "test"
+    ]
   }
 ]
