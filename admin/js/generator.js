@@ -1,6 +1,7 @@
 /**
  * admin/js/generator.js
  * COMPLETE FIX: Self-contained Layout + Dynamic Form Builder Support
+ * Ye file Product HTML generate karti hai jo "Deploy Canceled" issue se effect nahi hoti.
  */
 
 export function generateProductHTML(product) {
@@ -11,7 +12,7 @@ export function generateProductHTML(product) {
         ? product.images 
         : ['https://placehold.co/600x600?text=No+Image'];
     
-    // Default Data
+    // Default Data setup
     const title = product.title || 'Untitled Product';
     const price = product.price || 0;
     const oldPrice = product.old_price || 0;
