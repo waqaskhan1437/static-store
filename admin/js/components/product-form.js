@@ -1,4 +1,3 @@
-// ... (imports same as before) ...
 import { renderBasicInfo, setupBasicInfoEvents } from './form-tabs/basic-info.js';
 import { renderMedia, setupMediaEvents } from './form-tabs/media.js';
 import { renderDelivery, setupDeliveryEvents } from './form-tabs/delivery.js';
@@ -7,7 +6,6 @@ import { saveData } from '../api.js';
 import { showToast } from '../utils.js';
 
 export function renderProductForm(product = {}) {
-    // ... (same as before) ...
     const tabsHtml = `
         <div class="tabs-header">
             <button class="tab-btn active" data-tab="tab-basic">Basic Info</button>
@@ -23,8 +21,7 @@ export function renderProductForm(product = {}) {
         <div id="tab-delivery" class="tab-content">${renderDelivery(product)}</div>
         <div id="tab-custom" class="tab-content">${renderCustomFields(product)}</div>
     `;
-    
-    // ... (return logic same as before) ...
+
     return `
         <div class="form-container">
             <h2 style="margin-bottom:20px;">${product.id ? 'Edit Product' : 'New Product'}</h2>
@@ -42,7 +39,6 @@ export function renderProductForm(product = {}) {
 }
 
 export function setupFormEvents() {
-    // ... (event setups same as before) ...
     const form = document.getElementById('product-form');
     if (!form) return;
 
@@ -62,7 +58,7 @@ export function setupFormEvents() {
         });
     });
 
-    // Save Logic (UPDATED)
+    // Save Logic (Updated for Textarea Rows)
     form.addEventListener('submit', async (e) => {
         e.preventDefault();
         const btn = form.querySelector('button[type="submit"]');
@@ -78,6 +74,9 @@ export function setupFormEvents() {
                 const type = card.dataset.type;
                 const label = card.querySelector('[name="f_label"]').value;
                 const required = card.querySelector('[name="f_req"]')?.checked || false;
+                
+                // Capture Textarea Rows if available
+                const rows = card.querySelector('[name="f_rows"]')?.value || 3;
 
                 let options_list = [];
                 if (card.querySelector('.opts-container')) {
@@ -85,12 +84,9 @@ export function setupFormEvents() {
                     options_list = Array.from(optRows).map(row => ({
                         label: row.querySelector('[name="opt_label"]').value,
                         price: parseFloat(row.querySelector('[name="opt_price"]').value) || 0,
-                        
-                        // New Fields Captured Here
                         file_qty: parseInt(row.querySelector('[name="opt_file_qty"]')?.value) || 0,
                         text_label: row.querySelector('[name="opt_text_label"]')?.value || '',
                         text_placeholder: row.querySelector('[name="opt_text_ph"]')?.value || ''
-                        
                     })).filter(o => o.label);
                 }
 
@@ -98,6 +94,7 @@ export function setupFormEvents() {
                     _type: type,
                     label: label,
                     required: required,
+                    rows: parseInt(rows), // Saving Rows
                     options_list: options_list
                 };
             }).filter(f => f.label);
