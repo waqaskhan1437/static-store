@@ -1,0 +1,760 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Static Store</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <header>
+    <h1>Static Store</h1>
+  </header>
+  <main>
+    <section id="product-list">
+      <h2>Products</h2>
+      <div id="products"></div>
+    </section>
+  </main>
+  <footer>
+    <p>&copy; 2025 Static Store</p>
+  </footer>
+  <script id="products-json" type="application/json">
+[
+  {
+    "slug": "demo-product-1",
+    "title": "Special Birthday Video",
+    "price": 20,
+    "images": [
+      "https://res.cloudinary.com/demo/image/upload/kitten.jpg",
+      "https://res.cloudinary.com/demo/image/upload/v1312461204/sample.jpg"
+    ],
+    "videos": [
+      "https://res.cloudinary.com/demo/video/upload/dog.mp4"
+    ],
+    "description": "Personalised birthday video for your special day.",
+    "tags": [
+      "birthday",
+      "video"
+    ],
+    "formHeadingText": "Start Customize Your Video",
+    "formHeadingColor": "#6366f1",
+    "addons": [
+      {
+        "name": "Extra Feature",
+        "price": 5
+      },
+      {
+        "name": "Premium Support",
+        "price": 10
+      }
+    ],
+    "addonsHeadingText": "Enhancements",
+    "addonsHeadingColor": "#047857",
+    "deliveryOptions": [
+      {
+        "name": "Instant Delivery in 60 Minutes",
+        "price": 15,
+        "default": true
+      },
+      {
+        "name": "1 Day delivery",
+        "price": 5,
+        "default": false
+      },
+      {
+        "name": "Standard Delivery Free",
+        "price": 0,
+        "default": false
+      }
+    ],
+    "photoOptions": [
+      "1:Free",
+      "2:$5",
+      "3:$10"
+    ],
+    "customForm": [
+      {
+        "_type": "textField",
+        "label": "Recipient Name",
+        "placeholder": "Enter name",
+        "required": true
+      },
+      {
+        "_type": "textAreaField",
+        "label": "Personal Message",
+        "placeholder": "What shall we say",
+        "required": true
+      },
+      {
+        "_type": "selectField",
+        "label": "Theme",
+        "options": "Birthday, Anniversary",
+        "required": false
+      },
+      {
+        "_type": "checkboxField",
+        "label": "Agree to Terms",
+        "required": true
+      }
+    ]
+  },
+  {
+    "slug": "demo-product-2",
+    "title": "Greeting Card Video",
+    "price": 25,
+    "images": [
+      "https://res.cloudinary.com/demo/image/upload/v1312461204/sample.jpg",
+      "https://res.cloudinary.com/demo/image/upload/kitten.jpg"
+    ],
+    "videos": [
+      "https://res.cloudinary.com/demo/video/upload/dog.mp4"
+    ],
+    "description": "Create a personalised greeting video for any occasion.",
+    "tags": [
+      "greeting",
+      "video"
+    ],
+    "formHeadingText": "Customize Your Greeting",
+    "formHeadingColor": "#2563eb",
+    "addons": [
+      {
+        "name": "Extra Song",
+        "price": 5
+      }
+    ],
+    "addonsHeadingText": "Extras",
+    "addonsHeadingColor": "#065f46",
+    "deliveryOptions": [
+      {
+        "name": "Same Day",
+        "price": 10,
+        "default": true
+      },
+      {
+        "name": "2 Days",
+        "price": 0,
+        "default": false
+      }
+    ],
+    "photoOptions": [
+      "1:Free",
+      "3:$5"
+    ],
+    "customForm": [
+      {
+        "_type": "textField",
+        "label": "Recipient Name",
+        "placeholder": "Enter name",
+        "required": true
+      },
+      {
+        "_type": "textField",
+        "label": "Age",
+        "placeholder": "Enter age",
+        "required": false
+      },
+      {
+        "_type": "selectField",
+        "label": "Color Theme",
+        "options": "Blue, Pink, Green",
+        "required": false
+      }
+    ]
+  },
+  {
+    "slug": "demo-product-3",
+    "title": "Personalized Video Message",
+    "price": 18,
+    "images": [
+      "https://res.cloudinary.com/demo/image/upload/kitten.jpg",
+      "https://res.cloudinary.com/demo/image/upload/v1312461204/sample.jpg"
+    ],
+    "videos": [
+      "https://res.cloudinary.com/demo/video/upload/dog.mp4"
+    ],
+    "description": "Send a unique personalised video message.",
+    "tags": [
+      "personal",
+      "video"
+    ],
+    "formHeadingText": "Customize Your Message",
+    "formHeadingColor": "#8b5cf6",
+    "addons": [],
+    "addonsHeadingText": "",
+    "addonsHeadingColor": "",
+    "deliveryOptions": [
+      {
+        "name": "24 Hours Express",
+        "price": 10,
+        "default": true
+      },
+      {
+        "name": "3 Days",
+        "price": 0,
+        "default": false
+      }
+    ],
+    "photoOptions": [
+      "1",
+      "2",
+      "4"
+    ],
+    "customForm": [
+      {
+        "_type": "textAreaField",
+        "label": "Message",
+        "placeholder": "Your message",
+        "required": true
+      },
+      {
+        "_type": "textField",
+        "label": "Favorite Quote",
+        "placeholder": "Optional",
+        "required": false
+      }
+    ]
+  },
+  {
+    "slug": "demo-product-4",
+    "title": "Love Video Tribute",
+    "price": 35,
+    "images": [
+      "https://res.cloudinary.com/demo/image/upload/v1312461204/sample.jpg",
+      "https://res.cloudinary.com/demo/image/upload/kitten.jpg"
+    ],
+    "videos": [
+      "https://res.cloudinary.com/demo/video/upload/dog.mp4"
+    ],
+    "description": "Create a romantic tribute for your loved one.",
+    "tags": [
+      "love",
+      "video"
+    ],
+    "formHeadingText": "Customize Your Love Video",
+    "formHeadingColor": "#be185d",
+    "addons": [
+      {
+        "name": "Heart Effect",
+        "price": 7
+      },
+      {
+        "name": "Fireworks",
+        "price": 5
+      }
+    ],
+    "addonsHeadingText": "Special Effects",
+    "addonsHeadingColor": "#dc2626",
+    "deliveryOptions": [
+      {
+        "name": "2 Hours Express",
+        "price": 20,
+        "default": true
+      },
+      {
+        "name": "4 Hours",
+        "price": 10,
+        "default": false
+      },
+      {
+        "name": "Next Day",
+        "price": 0,
+        "default": false
+      }
+    ],
+    "photoOptions": [
+      "1:Free",
+      "2:$5"
+    ],
+    "customForm": [
+      {
+        "_type": "textField",
+        "label": "Partner Name",
+        "placeholder": "Name",
+        "required": true
+      },
+      {
+        "_type": "selectField",
+        "label": "Occasion",
+        "options": "Anniversary, Valentine's Day, Proposal",
+        "required": false
+      },
+      {
+        "_type": "textAreaField",
+        "label": "Message",
+        "placeholder": "Your message",
+        "required": true
+      }
+    ]
+  },
+  {
+    "slug": "demo-product-5",
+    "title": "Birthday Song Video",
+    "price": 22,
+    "images": [
+      "https://res.cloudinary.com/demo/image/upload/kitten.jpg",
+      "https://res.cloudinary.com/demo/image/upload/v1312461204/sample.jpg"
+    ],
+    "videos": [
+      "https://res.cloudinary.com/demo/video/upload/dog.mp4"
+    ],
+    "description": "Celebrate birthdays with a personalised song video.",
+    "tags": [
+      "birthday",
+      "song",
+      "video"
+    ],
+    "formHeadingText": "Customize Your Song Video",
+    "formHeadingColor": "#7c3aed",
+    "addons": [
+      {
+        "name": "Music Add-on",
+        "price": 5
+      }
+    ],
+    "addonsHeadingText": "Music Add-ons",
+    "addonsHeadingColor": "#d97706",
+    "deliveryOptions": [
+      {
+        "name": "Instant 30 Minutes",
+        "price": 20,
+        "default": true
+      },
+      {
+        "name": "Same Day",
+        "price": 5,
+        "default": false
+      },
+      {
+        "name": "2 Days",
+        "price": 0,
+        "default": false
+      }
+    ],
+    "photoOptions": [
+      "1:Free",
+      "2:$5",
+      "3:$10"
+    ],
+    "customForm": [
+      {
+        "_type": "textField",
+        "label": "Name",
+        "placeholder": "Enter name",
+        "required": true
+      },
+      {
+        "_type": "selectField",
+        "label": "Song Choice",
+        "options": "Happy Birthday, Congratulations, Custom",
+        "required": true
+      },
+      {
+        "_type": "fileUploadField",
+        "label": "Upload Photo",
+        "required": true
+      },
+      {
+        "_type": "textAreaField",
+        "label": "Special Request",
+        "placeholder": "Any special request",
+        "required": false
+      }
+    ]
+  },
+  {
+    "slug": "demo-product-6",
+    "title": "Graduation Celebration Video",
+    "price": 28,
+    "images": [
+      "https://res.cloudinary.com/demo/image/upload/v1312461204/sample.jpg",
+      "https://res.cloudinary.com/demo/image/upload/kitten.jpg"
+    ],
+    "videos": [
+      "https://res.cloudinary.com/demo/video/upload/dog.mp4"
+    ],
+    "description": "Honor academic achievements with a special video.",
+    "tags": [
+      "graduation",
+      "video"
+    ],
+    "formHeadingText": "Celebrate Your Achievement",
+    "formHeadingColor": "#22c55e",
+    "addons": [
+      {
+        "name": "Cap & Gown",
+        "price": 8
+      },
+      {
+        "name": "Fireworks",
+        "price": 5
+      },
+      {
+        "name": "Certificate Frame",
+        "price": 3
+      }
+    ],
+    "addonsHeadingText": "Graduation Extras",
+    "addonsHeadingColor": "#16a34a",
+    "deliveryOptions": [
+      {
+        "name": "Instant 1 Hour",
+        "price": 15,
+        "default": true
+      },
+      {
+        "name": "Next Day",
+        "price": 5,
+        "default": false
+      },
+      {
+        "name": "5 Days",
+        "price": 0,
+        "default": false
+      }
+    ],
+    "photoOptions": [
+      "1:Free",
+      "2:$5",
+      "3:$8"
+    ],
+    "customForm": [
+      {
+        "_type": "textField",
+        "label": "Graduate Name",
+        "placeholder": "Name",
+        "required": true
+      },
+      {
+        "_type": "textField",
+        "label": "University",
+        "placeholder": "University Name",
+        "required": false
+      },
+      {
+        "_type": "selectField",
+        "label": "Degree",
+        "options": "BSc, MSc, PhD",
+        "required": true
+      },
+      {
+        "_type": "textAreaField",
+        "label": "Personal Message",
+        "placeholder": "Write your message",
+        "required": false
+      }
+    ]
+  },
+  {
+    "slug": "demo-product-7",
+    "title": "Baby Shower Announcement Video",
+    "price": 24,
+    "images": [
+      "https://res.cloudinary.com/demo/image/upload/kitten.jpg",
+      "https://res.cloudinary.com/demo/image/upload/v1312461204/sample.jpg"
+    ],
+    "videos": [
+      "https://res.cloudinary.com/demo/video/upload/dog.mp4"
+    ],
+    "description": "Celebrate your baby shower with a personalised announcement.",
+    "tags": [
+      "baby",
+      "shower",
+      "video"
+    ],
+    "formHeadingText": "Announce Your Baby",
+    "formHeadingColor": "#db2777",
+    "addons": [
+      {
+        "name": "Baby Name Reveal",
+        "price": 6
+      }
+    ],
+    "addonsHeadingText": "Extras",
+    "addonsHeadingColor": "#ec4899",
+    "deliveryOptions": [
+      {
+        "name": "Instant 2 Hours",
+        "price": 12,
+        "default": true
+      },
+      {
+        "name": "1 Day",
+        "price": 6,
+        "default": false
+      },
+      {
+        "name": "2 Days",
+        "price": 3,
+        "default": false
+      },
+      {
+        "name": "Standard",
+        "price": 0,
+        "default": false
+      }
+    ],
+    "photoOptions": [
+      "1:Free",
+      "2:$4"
+    ],
+    "customForm": [
+      {
+        "_type": "textField",
+        "label": "Parents Names",
+        "placeholder": "Names",
+        "required": true
+      },
+      {
+        "_type": "radioField",
+        "label": "Baby Gender",
+        "options": "Boy, Girl",
+        "required": true
+      },
+      {
+        "_type": "textField",
+        "label": "Due Date",
+        "placeholder": "MM/DD/YYYY",
+        "required": false
+      }
+    ]
+  },
+  {
+    "slug": "demo-product-8",
+    "title": "Retirement Tribute Video",
+    "price": 40,
+    "images": [
+      "https://res.cloudinary.com/demo/image/upload/v1312461204/sample.jpg",
+      "https://res.cloudinary.com/demo/image/upload/kitten.jpg"
+    ],
+    "videos": [
+      "https://res.cloudinary.com/demo/video/upload/dog.mp4"
+    ],
+    "description": "Celebrate a successful career with a special video tribute.",
+    "tags": [
+      "retirement",
+      "video"
+    ],
+    "formHeadingText": "Honor Your Service",
+    "formHeadingColor": "#d97706",
+    "addons": [
+      {
+        "name": "Highlight Reel",
+        "price": 10
+      },
+      {
+        "name": "Guest Messages",
+        "price": 8
+      }
+    ],
+    "addonsHeadingText": "Add-On Options",
+    "addonsHeadingColor": "#d97706",
+    "deliveryOptions": [
+      {
+        "name": "Instant 24 Hours",
+        "price": 12,
+        "default": true
+      },
+      {
+        "name": "3 Days",
+        "price": 5,
+        "default": false
+      },
+      {
+        "name": "5 Days",
+        "price": 0,
+        "default": false
+      }
+    ],
+    "photoOptions": [
+      "1:Free",
+      "2:$5",
+      "5:$10"
+    ],
+    "customForm": [
+      {
+        "_type": "textField",
+        "label": "Retiree Name",
+        "placeholder": "Name",
+        "required": true
+      },
+      {
+        "_type": "textField",
+        "label": "Years of Service",
+        "placeholder": "Years",
+        "required": false
+      },
+      {
+        "_type": "textAreaField",
+        "label": "Favorite Memories",
+        "placeholder": "Share memories",
+        "required": false
+      }
+    ]
+  },
+  {
+    "slug": "demo-product-9",
+    "title": "Engagement Announcement Video",
+    "price": 32,
+    "images": [
+      "https://res.cloudinary.com/demo/image/upload/kitten.jpg",
+      "https://res.cloudinary.com/demo/image/upload/v1312461204/sample.jpg"
+    ],
+    "videos": [
+      "https://res.cloudinary.com/demo/video/upload/dog.mp4"
+    ],
+    "description": "Announce your engagement with a personalised video.",
+    "tags": [
+      "engagement",
+      "video"
+    ],
+    "formHeadingText": "Share Your Love Story",
+    "formHeadingColor": "#eab308",
+    "addons": [
+      {
+        "name": "Ring Close-up",
+        "price": 6
+      },
+      {
+        "name": "Love Story",
+        "price": 8
+      }
+    ],
+    "addonsHeadingText": "Engagement Add-ons",
+    "addonsHeadingColor": "#eab308",
+    "deliveryOptions": [
+      {
+        "name": "Instant 2 Hours",
+        "price": 15,
+        "default": true
+      },
+      {
+        "name": "6 Hours",
+        "price": 8,
+        "default": false
+      },
+      {
+        "name": "12 Hours",
+        "price": 5,
+        "default": false
+      },
+      {
+        "name": "2 Days",
+        "price": 0,
+        "default": false
+      }
+    ],
+    "photoOptions": [
+      "1:Free",
+      "3:$5",
+      "5:$10"
+    ],
+    "customForm": [
+      {
+        "_type": "textField",
+        "label": "Couple Names",
+        "placeholder": "Names",
+        "required": true
+      },
+      {
+        "_type": "textField",
+        "label": "Date of Event",
+        "placeholder": "MM/DD/YYYY",
+        "required": true
+      },
+      {
+        "_type": "textAreaField",
+        "label": "Message for Couple",
+        "placeholder": "Write your message",
+        "required": true
+      }
+    ]
+  },
+  {
+    "slug": "demo-product-10",
+    "title": "Corporate Promo Video",
+    "price": 50,
+    "images": [
+      "https://res.cloudinary.com/demo/image/upload/v1312461204/sample.jpg",
+      "https://res.cloudinary.com/demo/image/upload/kitten.jpg"
+    ],
+    "videos": [
+      "https://res.cloudinary.com/demo/video/upload/dog.mp4"
+    ],
+    "description": "Promote your company with a custom promotional video.",
+    "tags": [
+      "corporate",
+      "promo",
+      "video"
+    ],
+    "formHeadingText": "Craft Your Promo",
+    "formHeadingColor": "#0ea5e9",
+    "addons": [
+      {
+        "name": "Logo Animation",
+        "price": 8
+      },
+      {
+        "name": "Custom Script",
+        "price": 12
+      },
+      {
+        "name": "Voice Over",
+        "price": 7
+      }
+    ],
+    "addonsHeadingText": "Professional Add-ons",
+    "addonsHeadingColor": "#0ea5e9",
+    "deliveryOptions": [
+      {
+        "name": "48 Hours Express",
+        "price": 25,
+        "default": true
+      },
+      {
+        "name": "72 Hours",
+        "price": 15,
+        "default": false
+      },
+      {
+        "name": "1 Week",
+        "price": 0,
+        "default": false
+      }
+    ],
+    "photoOptions": [
+      "1:Free",
+      "2:$5",
+      "4:$8"
+    ],
+    "customForm": [
+      {
+        "_type": "textField",
+        "label": "Company Name",
+        "placeholder": "Enter company name",
+        "required": true
+      },
+      {
+        "_type": "textField",
+        "label": "Tagline",
+        "placeholder": "Enter tagline",
+        "required": false
+      },
+      {
+        "_type": "selectField",
+        "label": "Preferred Colors",
+        "options": "Blue, Green, Red, Orange",
+        "required": false
+      },
+      {
+        "_type": "textAreaField",
+        "label": "Additional Instructions",
+        "placeholder": "Describe your requirements",
+        "required": false
+      }
+    ]
+  }
+]
+</script>
+  <script src="script.js"></script>
+</body>
+</html>

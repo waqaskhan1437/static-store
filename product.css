@@ -1,0 +1,111 @@
+/* Product page specific styles */
+.product-page {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+  max-width: 900px;
+  margin: auto;
+  padding: 24px;
+}
+.media-section {
+  position: relative;
+  width: 100%;
+  aspect-ratio: 16 / 9;
+  background: #000;
+  border-radius: 12px;
+  overflow: hidden;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12);
+}
+.media-section img,
+.media-section video {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+.details h1 {
+  font-size: 2rem;
+  margin: 0 0 8px 0;
+}
+.details .price {
+  font-size: 1.5rem;
+  color: #047857;
+  font-weight: 700;
+  margin-bottom: 16px;
+}
+.details p {
+  margin-bottom: 16px;
+  line-height: 1.5;
+}
+.custom-form {
+  display: grid;
+  gap: 24px;
+  background: #fff;
+  padding: 24px;
+  border-radius: 16px;
+  border: 1px solid #e5e7eb;
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.03);
+  width: 100%;
+  box-sizing: border-box;
+}
+.custom-form .input-wrap {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+.custom-form label {
+  font-size: 15px;
+  font-weight: 700;
+  color: #374151;
+}
+.custom-form .styled-input {
+  width: 100%;
+  padding: 16px 18px;
+  border-radius: 10px;
+  border: 1px solid #d1d5db;
+  font-size: 16px;
+  background: #fdfdfd;
+  line-height: 1.5;
+  box-sizing: border-box;
+}
+.custom-form .styled-input:focus {
+  outline: none;
+  border-color: #2563eb;
+  box-shadow: 0 0 0 2px #bfdbfe;
+  background: #fff;
+}
+.custom-form .checkbox-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+.custom-form .checkbox-row input {
+  width: 20px;
+  height: 20px;
+  accent-color: #2563eb;
+}
+.custom-form .submit-btn {
+  width: 100%;
+  background: #047857;
+  color: #ffffff;
+  border: none;
+  padding: 20px;
+  border-radius: 12px;
+  font-size: 20px;
+  font-weight: 800;
+  cursor: pointer;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+.custom-form .submit-btn:hover {
+  background: #065f46;
+}
+.custom-form .price-display {
+  background: rgba(0,0,0,0.15);
+  padding: 6px 12px;
+  border-radius: 8px;
+  font-size: 16px;
+}

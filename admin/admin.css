@@ -1,0 +1,156 @@
+body {
+  font-family: Arial, sans-serif;
+  margin: 1rem;
+}
+nav {
+  margin-bottom: 1rem;
+}
+nav button {
+  margin-right: 0.5rem;
+  padding: 0.5rem 1rem;
+  background: #1e40af;
+  color: #fff;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+}
+nav button:hover {
+  background: #0d2963;
+}
+.form-section form {
+  display: flex;
+  flex-direction: column;
+  max-width: 600px;
+}
+.form-section label {
+  margin-bottom: 0.5rem;
+  display: flex;
+  flex-direction: column;
+}
+.form-section input,
+.form-section textarea,
+.form-section select {
+  padding: 0.5rem;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+}
+.form-section button {
+  margin-top: 1rem;
+  padding: 0.5rem 1rem;
+  background: #1e40af;
+  color: #fff;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+}
+.form-section button:hover {
+  background: #0d2963;
+}
+
+/* Custom Form Builder Styles */
+#form-builder {
+  margin-top: 1rem;
+  padding: 1rem;
+  border: 1px solid #e5e7eb;
+  border-radius: 8px;
+}
+.builder-controls {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  margin-bottom: 0.5rem;
+}
+.builder-controls select,
+.builder-controls input {
+  flex: 1 1 auto;
+  padding: 0.5rem;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+}
+#fields-list {
+  list-style: none;
+  padding: 0;
+  margin: 0.5rem 0 0 0;
+}
+#fields-list li {
+  margin-bottom: 0.5rem;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background: #f9fafb;
+  padding: 0.5rem;
+  border-radius: 4px;
+}
+#fields-list button {
+  background: #ef4444;
+  color: white;
+  border: none;
+  padding: 0.25rem 0.5rem;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+/* Dynamic options builder table for custom fields */
+#options-builder {
+  border: 1px dashed #d1d5db;
+  border-radius: 6px;
+  padding: 0.5rem;
+  margin-top: 0.5rem;
+  background: #f9fafb;
+}
+
+#options-builder table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.85rem;
+}
+
+#options-builder th,
+#options-builder td {
+  border-bottom: 1px solid #e5e7eb;
+  padding: 0.25rem 0.35rem;
+  text-align: left;
+}
+
+#options-builder th:nth-child(2),
+#options-builder td:nth-child(2) {
+  width: 90px;
+}
+
+#options-builder th:nth-child(3),
+#options-builder td:nth-child(3) {
+  width: 70px;
+  text-align: center;
+}
+
+#options-builder th:nth-child(4),
+#options-builder td:nth-child(4) {
+  width: 50px;
+  text-align: right;
+}
+
+#options-builder input[type="text"],
+#options-builder input[type="number"] {
+  width: 100%;
+  box-sizing: border-box;
+  padding: 0.25rem 0.35rem;
+  border-radius: 4px;
+  border: 1px solid #d1d5db;
+}
+
+#options-builder button {
+  margin-top: 0.5rem;
+  padding: 0.25rem 0.75rem;
+  border-radius: 4px;
+  border: none;
+  background: #1e40af;
+  color: #fff;
+  cursor: pointer;
+}
+
+#options-builder .remove-option {
+  background: transparent;
+  color: #ef4444;
+  font-size: 0.85rem;
+  padding: 0.1rem 0.25rem;
+}
