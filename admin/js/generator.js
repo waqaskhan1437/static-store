@@ -1,7 +1,6 @@
 /**
  * admin/js/generator.js
- * EXACT COPY of demo-product-1.html Layout
- * Uses external ../product.css and ../style.css
+ * EXACT COPY of demo-product-1.html Layout (With Simple Delivery Time)
  */
 
 export function generateProductHTML(product) {
@@ -16,16 +15,19 @@ export function generateProductHTML(product) {
     const price = parseFloat(product.price) || 0;
     const oldPrice = parseFloat(product.old_price) || 0;
     const desc = product.description || '';
+    
+    // Yahan hum naya delivery time utha rahe hain
+    const deliveryTime = product.delivery_time || 'Instant Delivery';
 
-    // 2. Thumbnails Generate (Original Style)
+    // 2. Thumbnails
     const thumbsHtml = images.map((img, idx) => `
         <img src="${img}" onclick="switchMedia('image','${img}')">
     `).join('');
 
-    // 3. Form Fields Generate (Dynamic Data inside Original Containers)
+    // 3. Form Logic
     const formHtml = generateDynamicForm(product.customForm || []);
 
-    // 4. Final HTML Structure (Exactly matches demo-product-1.html)
+    // 4. Final HTML
     return `<!DOCTYPE html>
 <html lang="en">
 <head>
@@ -35,7 +37,7 @@ export function generateProductHTML(product) {
 <link rel="stylesheet" href="../style.css">
 <link rel="stylesheet" href="../product.css">
 <style>
-/* Thora sa inline CSS taake agar external file load na ho to bhi bura na lagay */
+/* Layout CSS */
 .product-container { display:grid; grid-template-columns: 1fr 1fr; gap:2rem; margin:2rem auto; max-width:1200px; padding:0 15px; }
 .media-col { flex:1 1 55%; min-width:280px; }
 .form-col { display:flex; flex-direction:column; gap:1rem; box-sizing:border-box; }
@@ -45,7 +47,13 @@ export function generateProductHTML(product) {
 .thumbs img { width:80px; height:60px; border-radius:6px; cursor:pointer; object-fit:cover; border:2px solid transparent; }
 .thumbs img:hover { border-color: #6366f1; }
 
-.price-card2 { background:#8b5cf6; color:white; padding:1rem; border-radius:12px; display:flex; flex-direction:column; align-items:center; justify-content:center; gap:0.25rem; }
+/* Delivery & Price Cards */
+.cards-row { display:flex; gap:1rem; margin-top:0.5rem; }
+.delivery-card { flex:1; background:#10b981; color:white; padding:1rem; border-radius:12px; display:flex; flex-direction:column; justify-content:center; }
+.delivery-card h4 { margin:0; font-size:1rem; font-weight:700; }
+.delivery-card span { font-size:0.9rem; opacity:0.9; margin-top:5px; }
+
+.price-card2 { flex:1; background:#8b5cf6; color:white; padding:1rem; border-radius:12px; display:flex; flex-direction:column; align-items:center; justify-content:center; gap:0.25rem; }
 .price-card2 .price { font-size:1.8rem; font-weight:bold; }
 .price-card2 .old-price { text-decoration:line-through; opacity:0.7; font-size:1rem; }
 .price-card2 .discount { background:white; color:#8b5cf6; padding:2px 6px; border-radius:9999px; font-size:0.75rem; font-weight:700; }
@@ -54,7 +62,7 @@ export function generateProductHTML(product) {
 .form-section label { font-weight:600; font-size:0.9rem; display:block; margin-bottom:0.25rem; }
 .form-control { width:100%; padding:0.6rem; border:1px solid #d1d5db; border-radius:8px; font-size:0.9rem; box-sizing:border-box; }
 
-/* Custom Form Builder Styles */
+/* Custom Form Styles */
 .opt-row { display:flex; justify-content:space-between; align-items:center; padding:10px; background:white; border:1px solid #e5e7eb; border-radius:8px; margin-bottom:5px; cursor:pointer; }
 .opt-row:hover { border-color:#8b5cf6; }
 .conditional-wrap { background:#eff6ff; padding:10px; border-radius:8px; border-left:3px solid #8b5cf6; margin-top:5px; display:none; }
@@ -92,14 +100,21 @@ export function generateProductHTML(product) {
     <h1 style="font-size:1.8rem; margin:0">${title}</h1>
     <div style="color:#fbbf24; font-weight:bold; font-size:0.9rem">★ 5.0 (New Arrival)</div>
 
-    <div class="price-card2">
-      <span class="price" id="display-price">${price} PKR</span>
-      ${oldPrice > 0 ? `<span class="old-price">${oldPrice} PKR</span>` : ''}
-      <span class="discount">Special Offer</span>
+    <div class="cards-row">
+        <div class="delivery-card">
+            <h4>Estimated Delivery</h4>
+            <span>${deliveryTime}</span>
+        </div>
+
+        <div class="price-card2">
+            <span class="price" id="display-price">${price} PKR</span>
+            ${oldPrice > 0 ? `<span class="old-price">${oldPrice} PKR</span>` : ''}
+            <span class="discount">Special Offer</span>
+        </div>
     </div>
 
-    <div style="background:#d1fae5; padding:0.75rem; border-radius:8px; font-size:0.9rem; color:#065f46;">
-       Digital Delivery: Receive via WhatsApp/Email immediately.
+    <div style="background:#d1fae5; padding:0.75rem; border-radius:8px; font-size:0.9rem; color:#065f46; margin-top:10px;">
+       Digital/Physical Delivery: <b>${deliveryTime}</b>
     </div>
 
     <div class="form-section">
@@ -137,7 +152,7 @@ function updatePrice(){
     const opt = sel.options[sel.selectedIndex];
     total += parseFloat(opt.dataset.price) || 0;
     
-    // Conditionals
+    // Conditionals logic
     const target = sel.dataset.condTarget;
     if(target){
         const wrap = document.getElementById(target);
@@ -173,7 +188,6 @@ function updatePrice(){
              wrap.classList.remove('show');
              wrap.querySelectorAll('input').forEach(i => i.disabled = true);
         }
-        // Radio unchecked case
         if(inp.type === 'radio' && !inp.checked && wrap){
              wrap.classList.remove('show');
              wrap.querySelectorAll('input').forEach(i => i.disabled = true);
@@ -203,7 +217,7 @@ function submitOrder(e){
 </html>`;
 }
 
-// --- HELPER FUNCTION: Matches Old Form Styling ---
+// --- HELPER FUNCTION: Same as before ---
 
 function generateDynamicForm(fields) {
     if (!fields || fields.length === 0) return '<p>No options available.</p>';
@@ -214,25 +228,20 @@ function generateDynamicForm(fields) {
         const req = f.required ? 'required' : '';
         const star = f.required ? '<span style="color:red">*</span>' : '';
 
-        // Header
         if(type === 'header') return `<h3 style="margin:1.5rem 0 0.5rem 0; border-bottom:1px solid #ddd; padding-bottom:5px;">${label}</h3>`;
 
-        // Text / Email / Number
         if(['text','email','number','date'].includes(type)) {
             return `<div style="margin-top:1rem"><label>${label} ${star}</label><input type="${type}" class="form-control" ${req}></div>`;
         }
 
-        // Textarea
         if(type === 'textarea') {
             return `<div style="margin-top:1rem"><label>${label} ${star}</label><textarea class="form-control" rows="${f.rows||3}" ${req}></textarea></div>`;
         }
 
-        // File
         if(type === 'file') {
             return `<div style="margin-top:1rem"><label>${label} ${star}</label><input type="file" class="form-control" ${req}></div>`;
         }
 
-        // Select
         if(type === 'select') {
             const condTarget = `cond_sel_${i}`;
             const opts = f.options_list.map(o => `<option value="${o.label}" data-price="${o.price||0}" data-file-qty="${o.file_qty||0}" data-text-label="${o.text_label||''}">${o.label} ${o.price>0 ? '(+'+o.price+')' : ''}</option>`).join('');
@@ -247,7 +256,6 @@ function generateDynamicForm(fields) {
             </div>`;
         }
 
-        // Radio / Checkbox
         if(type === 'radio' || type === 'checkbox_group') {
             const isRadio = type === 'radio';
             const opts = f.options_list.map((o, idx) => {
