@@ -3,10 +3,9 @@
  * Zimmedari: Data fetch karna aur Cloudflare Worker par save karna.
  */
 
-// --- IMPORTANT CONFIGURATION ---
-// Apne Cloudflare Worker ka URL yahan likhein (baghair /api/publish ke)
-// Example: 'https://my-store-worker.username.workers.dev'
-const WORKER_BASE_URL = 'https://YOUR-WORKER-URL.workers.dev'; 
+// --- UPDATED WORKER URL ---
+// Aapka naya Cloudflare Worker Link (Trailing slash removed for safety)
+const WORKER_BASE_URL = 'https://old-mountain-402astore-api.waqaskhan1437.workers.dev'; 
 
 const API_ENDPOINT = `${WORKER_BASE_URL}/api/publish`;
 const PRODUCTS_URL = '../json/products.json?v=' + Date.now();
@@ -37,9 +36,9 @@ export async function fetchOrders() {
 }
 
 export async function saveData(payload, password) {
-    // Check if user forgot to set URL
-    if (WORKER_BASE_URL.includes('YOUR-WORKER-URL')) {
-        alert('Please update admin/js/api.js with your Cloudflare Worker URL.');
+    // Check if URL is placeholder
+    if (WORKER_BASE_URL.includes('YAHAN-APNA')) {
+        alert('API URL set nahi hai! admin/js/api.js check karein.');
         throw new Error("Worker URL not configured");
     }
 
@@ -54,10 +53,6 @@ export async function saveData(payload, password) {
         });
 
         if (!response.ok) {
-            // Agar 405 ab bhi aye to iska matlab URL ghalat hai
-            if(response.status === 405) {
-                throw new Error("Error 405: Ghalat URL. Make sure aap Cloudflare Worker ka link use kar rahe hain, Github ka nahi.");
-            }
             const errText = await response.text();
             throw new Error(errText || "Save failed");
         }
