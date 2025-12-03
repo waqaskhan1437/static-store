@@ -4,11 +4,13 @@ import { renderDelivery, setupDeliveryEvents } from './form-tabs/delivery.js';
 import { renderCustomFields, setupCustomFieldsEvents } from './form-tabs/custom-fields.js';
 import { saveData } from '../api.js';
 import { showToast } from '../utils.js';
-// HTML Generator import karein
 import { generateProductHTML } from '../generator.js';
 
 export function renderProductForm(product = {}) {
     const productId = product.slug || product.id || '';
+    
+    // Existing date uthao ya nahi hai to khali rakho (Save waqt new dalenge)
+    const createdDate = product.date || ''; 
 
     const tabsHtml = `
         <div class="tabs-header">
@@ -28,11 +30,12 @@ export function renderProductForm(product = {}) {
         <div id="tab-custom" class="tab-content">${renderCustomFields(product)}</div>
     `;
 
-    // Demo Button
+    // Demo Button only for New Products
     const demoBtn = !productId ? 
         `<button type="button" id="btn-demo" class="btn" style="background:#8e44ad; color:white; font-weight:bold;">
             <i class="fas fa-magic"></i> Load Demo Data
-         </button>` : '';
+         </button>` 
+        : '';
 
     return `
         <div class="form-container">
@@ -43,6 +46,9 @@ export function renderProductForm(product = {}) {
             
             <form id="product-form">
                 <input type="hidden" name="existing_id" value="${productId}">
+                <!-- Hidden Field to keep original Date -->
+                <input type="hidden" name="existing_date" value="${createdDate}">
+                
                 ${tabsHtml}
                 ${contentHtml}
                 <div class="form-actions">
@@ -79,27 +85,82 @@ export function setupFormEvents() {
     const demoBtn = document.getElementById('btn-demo');
     if (demoBtn) {
         demoBtn.addEventListener('click', () => {
-            if(!confirm('Load demo data? This will clear current fields.')) return;
-            // Short demo data for quick test
+            if(!confirm('Load heavy demo data?')) return;
+            
             const demoData = {
-                title: "Custom Photo Frame",
-                price: 1500,
-                description: "High quality wooden frame.",
-                images: ["https://placehold.co/600x400"],
+                title: "Ultimate Custom Gift 2025 (Demo)",
+                price: 5500,
+                old_price: 7000,
+                description: "This is a comprehensive demo to showcase the Advanced Form Builder 2025.\n\nIt features:\n- Cloudinary Integration (Video + Images)\n- Conditional Logic (File/Text requirements)\n- Complex Add-ons & Pricing\n- Long Text Areas",
+                seoDescription: "A perfect demo for testing admin panel capabilities.",
+                images: [
+                    "https://res.cloudinary.com/demo/image/upload/v1590483864/fashion_product.jpg",
+                    "https://res.cloudinary.com/demo/image/upload/v1590483329/sample.jpg",
+                    "https://res.cloudinary.com/demo/image/upload/v1312461204/sample.jpg"
+                ],
+                video_url: "https://res.cloudinary.com/demo/video/upload/v1590484059/dog.mp4",
+                delivery_instant: false,
+                delivery_physical: true,
                 stock_status: "in_stock",
+                tags: ["demo", "2025", "test"],
                 customForm: [
-                    { _type: 'text', label: 'Engraving Name', required: true },
-                    { _type: 'checkbox_group', label: 'Extras', options_list: [{label:'Gift Wrap', price:200}] }
+                    { _type: 'header', label: 'Step 1: Personalization' },
+                    { _type: 'text', label: 'Recipient Full Name', required: true },
+                    { _type: 'email', label: 'Contact Email', required: true },
+                    
+                    { _type: 'header', label: 'Step 2: Customization Options' },
+                    { 
+                        _type: 'select', 
+                        label: 'Choose Material Type', 
+                        required: true, 
+                        options_list: [
+                            { label: 'Standard Wood', price: 0 },
+                            { label: 'Premium Metal (+Logo File)', price: 500, file_qty: 1 },
+                            { label: 'Gold Plated (+Engraving)', price: 1500, text_label: 'Name to Engrave', text_placeholder: 'Type name here...' }
+                        ]
+                    },
+                    { 
+                        _type: 'radio', 
+                        label: 'Packaging Preference', 
+                        options_list: [
+                            { label: 'Eco-Friendly Pouch', price: 0 },
+                            { label: 'Velvet Gift Box', price: 300 },
+                            { label: 'Luxury Wooden Crate', price: 800 }
+                        ]
+                    },
+                    
+                    { _type: 'header', label: 'Step 3: Final Touches' },
+                    { 
+                        _type: 'textarea', 
+                        label: 'Gift Message Card', 
+                        rows: 5,
+                        placeholder: 'Write your heartfelt message here...'
+                    },
+                    { 
+                        _type: 'checkbox_group', 
+                        label: 'Premium Add-ons', 
+                        options_list: [
+                            { label: 'Urgent Delivery (24 Hours)', price: 1000 },
+                            { label: 'Remove Price Tag', price: 50 },
+                            { label: 'Extended Warranty (1 Year)', price: 500 }
+                        ]
+                    },
+                    { _type: 'file', label: 'Reference Image (Optional)' }
                 ]
             };
+
             const container = document.getElementById('app-container');
             container.innerHTML = renderProductForm(demoData);
             setupFormEvents();
-            showToast('Demo Data Loaded');
+            
+            // Switch to Form Builder tab to show off features
+            const customTabBtn = document.querySelector('[data-tab="tab-custom"]');
+            if(customTabBtn) customTabBtn.click();
+
+            showToast('Demo Data Loaded Successfully!');
         });
     }
 
-    // --- SAVE LOGIC (UPDATED FOR WORKER) ---
     form.addEventListener('submit', async (e) => {
         e.preventDefault();
         const btn = form.querySelector('button[type="submit"]');
@@ -109,12 +170,14 @@ export function setupFormEvents() {
             const formData = new FormData(form);
             const raw = Object.fromEntries(formData.entries());
 
-            // 1. Process Custom Fields
+            // Process Custom Fields
             const cardElements = document.querySelectorAll('.field-card');
             const customForm = Array.from(cardElements).map(card => {
                 const type = card.dataset.type;
                 const label = card.querySelector('[name="f_label"]').value;
                 const required = card.querySelector('[name="f_req"]')?.checked || false;
+                
+                // Textarea Rows Capture
                 const rows = card.querySelector('[name="f_rows"]')?.value || 3;
 
                 let options_list = [];
@@ -128,18 +191,28 @@ export function setupFormEvents() {
                         text_placeholder: row.querySelector('[name="opt_text_ph"]')?.value || ''
                     })).filter(o => o.label);
                 }
-                return { _type: type, label, required, rows: parseInt(rows), options_list };
+
+                return { 
+                    _type: type, 
+                    label, 
+                    required, 
+                    rows: parseInt(rows), 
+                    options_list 
+                };
             }).filter(f => f.label);
 
-            // 2. Prepare Final Object
             let finalSlug = raw.existing_id;
             if (!finalSlug) {
                 finalSlug = raw.title.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '');
             }
 
+            // DATE LOGIC: Agar purani date hai to wohi rakho, warna abhi ki date dalo
+            const publishDate = raw.existing_date || new Date().toISOString();
+
             const finalProduct = {
-                slug: finalSlug,
-                id: finalSlug, // Keeping both for compatibility
+                slug: finalSlug, 
+                id: finalSlug,
+                date: publishDate, // Saved Date
                 title: raw.title,
                 price: parseFloat(raw.price) || 0,
                 old_price: parseFloat(raw.old_price) || 0,
@@ -156,10 +229,8 @@ export function setupFormEvents() {
                 tags: raw.tags ? raw.tags.split(',').map(s => s.trim()) : []
             };
 
-            // 3. Generate HTML Content
             const htmlContent = generateProductHTML(finalProduct);
 
-            // 4. Send to Worker (Format matches worker.js)
             await saveData({
                 type: 'product',
                 slug: finalSlug,
