@@ -765,7 +765,7 @@
           {
             "label": "Gift Wrap",
             "price": 200,
-            "file_qty": 1,
+            "file_qty": 2,
             "text_label": "",
             "text_placeholder": ""
           }
