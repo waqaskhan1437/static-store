@@ -1,6 +1,6 @@
 /**
  * Professional Form Builder (Globo Style 2025)
- * Features: Groups, Options with Price, File Upload & Text Logic (with Placeholders) per Option
+ * Features: Groups, Options with Price, File/Text Logic, and Textarea Sizing
  */
 
 export function renderCustomFields(data = {}) {
@@ -15,7 +15,8 @@ export function renderCustomFields(data = {}) {
             <!-- Toolbar -->
             <div class="toolbar" style="display:flex; gap:8px; flex-wrap:wrap; margin-bottom:20px; padding:10px; background:#f8f9fa; border:1px solid #e9ecef; border-radius:8px;">
                 <button type="button" class="btn-tool" data-type="header"><i class="fas fa-heading"></i> Heading</button>
-                <button type="button" class="btn-tool" data-type="text"><i class="fas fa-font"></i> Text</button>
+                <button type="button" class="btn-tool" data-type="text"><i class="fas fa-font"></i> Short Text</button>
+                <button type="button" class="btn-tool" data-type="textarea"><i class="fas fa-align-left"></i> Long Text Area</button>
                 <button type="button" class="btn-tool" data-type="email"><i class="fas fa-envelope"></i> Email</button>
                 <button type="button" class="btn-tool" data-type="select"><i class="fas fa-list-ul"></i> Dropdown</button>
                 <button type="button" class="btn-tool" data-type="radio"><i class="fas fa-dot-circle"></i> Radio</button>
@@ -36,7 +37,6 @@ export function renderCustomFields(data = {}) {
             .field-card.type-header { background:#f1f2f6; border-left-color:#2d3436; }
             .field-card:hover { box-shadow:0 2px 8px rgba(0,0,0,0.05); }
             
-            /* Logic Config Styling */
             .logic-config { display:flex; align-items:center; gap:5px; background:#f1f2f6; padding:0 8px; border-radius:4px; border:1px solid #dcdde1; height:34px; transition:0.2s; font-size:0.75rem; }
             .logic-config:hover { border-color:#b2bec3; }
             .logic-config.active { background:#e3f2fd; border-color:#2196f3; }
@@ -54,19 +54,26 @@ function renderFieldCard(field = {}, index = Date.now()) {
     const type = field._type || 'text';
     const isOptionType = ['select', 'radio', 'checkbox_group'].includes(type);
     const isHeader = type === 'header';
+    const isTextarea = type === 'textarea';
 
-    // Options HTML generator
+    // 1. Logic for Textarea (Rows setting)
+    const textareaSettings = isTextarea ? `
+        <div style="margin-top:10px; display:flex; gap:10px; align-items:center; background:#f8f9fa; padding:10px; border-radius:4px;">
+            <label style="font-size:0.85rem; font-weight:bold; color:#636e72;">Box Height:</label>
+            <input type="number" name="f_rows" class="form-control" value="${field.rows || 3}" min="1" max="20" style="width:80px;" placeholder="3">
+            <span style="font-size:0.8rem; color:#999;">lines (rows)</span>
+        </div>
+    ` : '';
+
+    // 2. Logic for Options (Dropdown, Radio, Checkbox)
     let optionsHtml = '';
     if (isOptionType) {
         const opts = field.options_list || [];
         const rows = opts.map(o => {
             const hasFile = o.file_qty && o.file_qty > 0;
             const hasText = !!o.text_label; 
-            
-            // Logic: Show Toggles for Select, Radio AND Checkbox now
             const showLogic = ['select', 'radio', 'checkbox_group'].includes(type);
             
-            // 1. File Upload Logic UI
             const fileLogicUI = showLogic ? `
                 <div class="logic-config ${hasFile ? 'active' : ''}" title="Require File Upload?">
                     <label>
@@ -79,7 +86,6 @@ function renderFieldCard(field = {}, index = Date.now()) {
                 </div>
             ` : '';
 
-            // 2. Text Input Logic UI (Added Placeholder)
             const textLogicUI = showLogic ? `
                 <div class="logic-config ${hasText ? 'active-text' : ''}" title="Require Text Input?">
                     <label>
@@ -99,10 +105,8 @@ function renderFieldCard(field = {}, index = Date.now()) {
             <div class="opt-row" style="display:flex; gap:5px; margin-bottom:5px; align-items:center;">
                 <input type="text" class="form-control" name="opt_label" placeholder="Option Name" value="${o.label}" style="flex:1.5;">
                 <input type="number" class="form-control" name="opt_price" placeholder="Price" value="${o.price}" style="flex:0.8;">
-                
                 ${fileLogicUI}
                 ${textLogicUI}
-                
                 <button type="button" onclick="this.closest('.opt-row').remove()" style="color:#e74c3c; border:none; background:none; cursor:pointer; padding:0 8px;"><i class="fas fa-times"></i></button>
             </div>
         `}).join('');
@@ -121,14 +125,14 @@ function renderFieldCard(field = {}, index = Date.now()) {
     return `
         <div class="field-card type-${type}" data-type="${type}">
             <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px;">
-                <span class="badge" style="background:#dfe6e9; color:#2d3436; padding:2px 8px; font-size:0.75rem; border-radius:4px; font-weight:bold;">${type.toUpperCase()}</span>
+                <span class="badge" style="background:#dfe6e9; color:#2d3436; padding:2px 8px; font-size:0.75rem; border-radius:4px; font-weight:bold;">${type === 'textarea' ? 'LONG TEXT' : type.toUpperCase()}</span>
                 <button type="button" onclick="this.closest('.field-card').remove()" style="color:#ff7675; border:none; background:none; cursor:pointer;"><i class="fas fa-trash"></i></button>
             </div>
             
             <div class="row" style="display:flex; gap:10px;">
                 <div style="flex:1;">
                     <label style="font-size:0.85rem; font-weight:bold;">${isHeader ? 'Section Heading' : 'Label / Question'}</label>
-                    <input type="text" name="f_label" class="form-control" value="${field.label || ''}" placeholder="${isHeader ? 'e.g. Personal Details' : 'e.g. Select Size'}" style="${isHeader ? 'font-weight:bold; font-size:1.1rem;' : ''}">
+                    <input type="text" name="f_label" class="form-control" value="${field.label || ''}" placeholder="${isHeader ? 'e.g. Personal Details' : 'e.g. Describe your request'}" style="${isHeader ? 'font-weight:bold; font-size:1.1rem;' : ''}">
                 </div>
                 ${!isHeader ? `
                 <div style="width:100px; padding-top:25px;">
@@ -136,6 +140,7 @@ function renderFieldCard(field = {}, index = Date.now()) {
                 </div>` : ''}
             </div>
             
+            ${textareaSettings}
             ${optionsHtml}
         </div>
     `;
@@ -153,7 +158,8 @@ export function setupCustomFieldsEvents() {
             
             const type = btn.dataset.type;
             const tempDiv = document.createElement('div');
-            tempDiv.innerHTML = renderFieldCard({ _type: type, label: '', options_list: [] });
+            // Empty field structure
+            tempDiv.innerHTML = renderFieldCard({ _type: type, label: '', options_list: [], rows: 3 });
             const newCard = tempDiv.firstElementChild;
             container.appendChild(newCard);
             
@@ -184,7 +190,6 @@ export function setupCustomFieldsEvents() {
         if (e.target.classList.contains('text-req-toggle')) {
             const wrapper = e.target.closest('.logic-config');
             const group = wrapper.querySelector('.text-inputs-group');
-            // Add 'active-text' class for green color
             if(e.target.checked) wrapper.classList.add('active-text'); 
             else wrapper.classList.remove('active-text');
             
@@ -196,25 +201,17 @@ export function setupCustomFieldsEvents() {
 function toggleLogicInput(isChecked, wrapper, element, displayType, defaultValue) {
     if (isChecked) {
         wrapper.classList.add('active');
-        element.style.display = displayType; // 'block' or 'flex'
-        
-        // Only set default value if input is empty and it's a simple input
+        element.style.display = displayType; 
         if(defaultValue && element.tagName === 'INPUT' && !element.value) {
             element.value = defaultValue;
         }
-        
-        // Focus logic
         const inputToFocus = element.tagName === 'INPUT' ? element : element.querySelector('input');
         if(inputToFocus) inputToFocus.focus();
     } else {
         wrapper.classList.remove('active');
         element.style.display = 'none';
-        
-        // Clear values so they don't get saved
         if(element.tagName === 'INPUT') element.value = defaultValue === '1' ? 0 : ''; 
-        else {
-            element.querySelectorAll('input').forEach(inp => inp.value = '');
-        }
+        else element.querySelectorAll('input').forEach(inp => inp.value = '');
     }
 }
 
@@ -222,7 +219,6 @@ function addOptionRow(container) {
     const fieldCard = container.closest('.field-card');
     const type = fieldCard ? fieldCard.dataset.type : 'select';
 
-    // Show Logics for Select, Radio AND Checkbox_group
     const showLogic = ['select', 'radio', 'checkbox_group'].includes(type);
 
     const logicHTML = showLogic ? `
