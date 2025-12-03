@@ -1,256 +1,335 @@
 /**
  * admin/js/generator.js
- * Updated logic to match demo-product-1.html design exactly.
+ * Generates product HTML matching the EXACT structure of demo-product-1.html
+ * Integrates: Dynamic Form Builder + Globol Layout
  */
 
 export function generateProductHTML(product) {
     if (!product) return '';
 
-    // Data handling
-    const images = product.images && product.images.length > 0 ? product.images : ['https://placehold.co/600x600?text=No+Image'];
-    const customForm = product.customForm || [];
+    // 1. Setup Data
+    // Agar images nahi hain to placeholder lagaye
+    const images = (product.images && product.images.length > 0) 
+        ? product.images 
+        : ['https://placehold.co/600x600?text=No+Image'];
+        
+    const title = product.title || 'Untitled Product';
+    const price = product.price || 0;
+    const oldPrice = product.old_price || 0;
+    const desc = product.description || '';
     
-    // Generate Form Fields HTML
-    const formFieldsHtml = generateFormFields(customForm);
+    // 2. Generate Thumbnails HTML (Exactly like demo-product-1)
+    const thumbsHtml = images.map((img, index) => 
+        `<img src="${img}" class="${index === 0 ? 'active-thumb' : ''}" onclick="changeMedia('${img}', this)" alt="Thumb">`
+    ).join('');
 
+    // 3. Generate Form Fields (Dynamic from Form Builder)
+    const formFieldsHtml = generateFormFields(product.customForm || []);
+
+    // 4. Return Full HTML Page
     return `<!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>${product.title}</title>
-<link rel="stylesheet" href="../style.css">
-<link rel="stylesheet" href="../product.css">
-<style>
-.product-container { display:grid; grid-template-columns: 1fr 1fr; gap:2rem; margin:2rem auto; max-width:1200px; padding:0 15px; }
-.media-col { flex:1 1 55%; min-width:280px; }
-.form-col { display:flex; flex-direction:column; gap:1rem; box-sizing:border-box; }
-.media-frame { position:relative; width:100%; aspect-ratio:16/9; background:#000; border-radius:12px; overflow:hidden; margin-bottom:10px; }
-.media-frame img, .media-frame video { position:absolute; width:100%; height:100%; object-fit:contain; }
-.thumbs { display:flex; gap:8px; margin-top:0.75rem; flex-wrap:wrap; }
-.thumbs img { width:80px; height:60px; border-radius:6px; cursor:pointer; object-fit:cover; border:2px solid transparent; }
-.thumbs img:hover { border-color: #6366f1; }
-
-.price-card2 { background:#8b5cf6; color:white; padding:1rem; border-radius:12px; display:flex; flex-direction:column; align-items:center; justify-content:center; gap:0.25rem; margin-bottom: 20px; }
-.price-card2 .price { font-size:1.8rem; font-weight:bold; }
-.price-card2 .old-price { text-decoration:line-through; opacity:0.7; font-size:1rem; }
-
-.form-section { border:1px solid #e5e7eb; border-radius:12px; padding:1rem; background:#f9fafb; display:flex; flex-direction:column; gap:1rem; }
-.form-section label { font-weight:600; font-size:0.9rem; display:block; margin-bottom:0.25rem; }
-.form-control { width:100%; padding:0.6rem; border:1px solid #d1d5db; border-radius:8px; font-size:0.9rem; }
-
-.checkout-btn { width:100%; background:#047857; color:white; border:none; padding:1rem; border-radius:12px; font-size:1.1rem; font-weight:700; cursor:pointer; margin-top:10px; }
-.checkout-btn:hover { background:#065f46; }
-
-/* Dynamic Fields Styling */
-.opt-row { display:flex; justify-content:space-between; align-items:center; padding:8px; background:white; border:1px solid #e5e7eb; border-radius:6px; margin-bottom:5px; }
-.conditional-wrap { margin-top:5px; padding:10px; background:#eff6ff; border-radius:6px; display:none; }
-.conditional-wrap.show { display:block; animation: fadeIn 0.3s; }
-@keyframes fadeIn { from{opacity:0; transform:translateY(-5px);} to{opacity:1; transform:translateY(0);} }
-
-@media(max-width: 768px) { .product-container { grid-template-columns: 1fr; } }
-</style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>${title}</title>
+    <meta name="description" content="${product.seoDescription || title}">
+    
+    <link rel="stylesheet" href="../style.css">
+    <link rel="stylesheet" href="../product.css">
+    
+    <style>
+        /* Fallback CSS agar product.css load na ho */
+        .product-container { display: grid; grid-template-columns: 1.2fr 1fr; gap: 30px; max-width: 1100px; margin: 40px auto; padding: 0 20px; }
+        .media-col { display: flex; flex-direction: column; gap: 15px; }
+        .media-frame { width: 100%; aspect-ratio: 1/1; background: #f3f4f6; border-radius: 10px; overflow: hidden; display: flex; align-items: center; justify-content: center; border: 1px solid #e5e7eb; }
+        .media-frame img, .media-frame video { max-width: 100%; max-height: 100%; object-fit: contain; }
+        .thumbs { display: flex; gap: 10px; overflow-x: auto; padding-bottom: 5px; }
+        .thumbs img { width: 70px; height: 70px; border-radius: 6px; cursor: pointer; border: 2px solid transparent; object-fit: cover; opacity: 0.7; transition: 0.3s; }
+        .thumbs img:hover, .thumbs img.active-thumb { border-color: #4f46e5; opacity: 1; }
+        
+        .form-col { padding: 10px; }
+        .product-title { font-size: 2rem; margin-bottom: 10px; color: #111; }
+        .price-box { font-size: 1.5rem; color: #4f46e5; font-weight: bold; margin-bottom: 20px; display: flex; align-items: center; gap: 15px; }
+        .old-price { color: #999; text-decoration: line-through; font-size: 1rem; font-weight: normal; }
+        
+        /* Form Field Styles */
+        .custom-field { margin-bottom: 15px; }
+        .custom-field label { display: block; font-weight: 600; margin-bottom: 5px; color: #374151; font-size: 0.95rem; }
+        .form-control { width: 100%; padding: 10px; border: 1px solid #d1d5db; border-radius: 6px; font-size: 1rem; }
+        .req-star { color: red; }
+        
+        /* Options & Conditional Logic Styles */
+        .opt-group { display: flex; flex-direction: column; gap: 8px; }
+        .opt-row { display: flex; align-items: center; justify-content: space-between; padding: 10px; border: 1px solid #e5e7eb; border-radius: 6px; cursor: pointer; transition: 0.2s; }
+        .opt-row:hover { background: #f9fafb; border-color: #cbd5e1; }
+        .opt-row input { margin-right: 10px; accent-color: #4f46e5; transform: scale(1.2); }
+        .opt-price { font-weight: bold; color: #4f46e5; font-size: 0.9rem; }
+        
+        .cond-wrap { margin-top: 10px; padding: 12px; background: #eff6ff; border-radius: 6px; display: none; border-left: 3px solid #4f46e5; }
+        .cond-wrap.show { display: block; animation: fadeIn 0.3s ease-in-out; }
+        
+        .btn-buy { background: #4f46e5; color: white; border: none; width: 100%; padding: 15px; font-size: 1.1rem; font-weight: bold; border-radius: 8px; cursor: pointer; margin-top: 20px; transition: 0.3s; }
+        .btn-buy:hover { background: #4338ca; }
+        
+        .desc-box { margin-top: 30px; background: #fff; padding: 20px; border-radius: 8px; border: 1px solid #e5e7eb; line-height: 1.6; color: #4b5563; }
+        
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(-5px); } to { opacity: 1; transform: translateY(0); } }
+        @media(max-width: 768px) { .product-container { grid-template-columns: 1fr; } }
+    </style>
 </head>
 <body>
 
-<div class="product-container">
-  <div class="media-col">
-    <div class="media-frame" id="main-media">
-       ${product.video_url 
-         ? `<video controls src="${product.video_url}" poster="${images[0]}"></video>` 
-         : `<img src="${images[0]}" alt="${product.title}">`
-       }
-    </div>
-    <div class="thumbs">
-      ${images.map(img => `<img src="${img}" onclick="switchMedia('image','${img}')">`).join('')}
-    </div>
-    
-    <div class="description-card" style="margin-top:20px; padding:15px; border:1px solid #e5e7eb; border-radius:12px;">
-      <h3>Description</h3>
-      <p>${product.description.replace(/\n/g, '<br>')}</p>
-    </div>
-  </div>
-
-  <div class="form-col">
-    <h1>${product.title}</h1>
-    
-    <div class="price-card2">
-      <span class="price" id="display-price">${product.price} PKR</span>
-      ${product.old_price ? `<span class="old-price">${product.old_price} PKR</span>` : ''}
-    </div>
-
-    <form class="form-section" id="orderForm" onsubmit="submitOrder(event)">
-      ${formFieldsHtml}
-
-      <button type="submit" class="checkout-btn">
-        Checkout <span id="btn-price">${product.price} PKR</span>
-      </button>
-    </form>
-  </div>
-</div>
-
-<script>
-const BASE_PRICE = ${product.price};
-
-function switchMedia(type, url){
-  const main = document.getElementById('main-media');
-  main.innerHTML = '<img src="'+url+'" style="position:absolute;width:100%;height:100%;object-fit:contain;" />';
-}
-
-// Logic for Price Update & Conditionals
-function updateForm() {
-    let total = BASE_PRICE;
-    
-    // 1. Select Dropdowns
-    document.querySelectorAll('select.calc-trigger').forEach(sel => {
-        const opt = sel.options[sel.selectedIndex];
-        const price = parseFloat(opt.dataset.price) || 0;
-        total += price;
-
-        // Show conditional inputs if exists
-        const containerId = sel.dataset.condTarget;
-        if(containerId) {
-            document.getElementById(containerId).innerHTML = ''; // Clear old
-            const fileQty = parseInt(opt.dataset.fileQty) || 0;
-            const textLabel = opt.dataset.textLabel;
+    <div class="product-container">
+        <div class="media-col">
+            <div class="media-frame" id="main-frame">
+                ${product.video_url 
+                  ? `<video src="${product.video_url}" controls poster="${images[0]}"></video>` 
+                  : `<img src="${images[0]}" id="main-img" alt="${title}">`
+                }
+            </div>
+            <div class="thumbs">
+                ${product.video_url ? `<img src="https://img.icons8.com/ios-filled/50/000000/video.png" onclick="playVideo('${product.video_url}')" style="padding:15px; background:#eee">` : ''}
+                ${thumbsHtml}
+            </div>
             
-            let html = '';
-            if(fileQty > 0) {
-                for(let i=1; i<=fileQty; i++) html += '<div style="margin-top:5px"><label>Upload File '+i+'</label><input type="file" required class="form-control"></div>';
-            }
-            if(textLabel) {
-                html += '<div style="margin-top:5px"><label>'+textLabel+'</label><input type="text" required class="form-control" placeholder="'+(opt.dataset.textPh || '')+'"></div>';
-            }
-            if(html) document.getElementById(containerId).innerHTML = '<div class="conditional-wrap show">'+html+'</div>';
-        }
-    });
+            <div class="desc-box">
+                <h3>Product Details</h3>
+                <p>${desc.replace(/\n/g, '<br>')}</p>
+            </div>
+        </div>
 
-    // 2. Checkboxes & Radios
-    document.querySelectorAll('input.calc-trigger:checked').forEach(inp => {
-        total += parseFloat(inp.dataset.price) || 0;
+        <div class="form-col">
+            <h1 class="product-title">${title}</h1>
+            
+            <div class="price-box">
+                <span id="display-price">${price}</span> PKR
+                ${oldPrice > 0 ? `<span class="old-price">${oldPrice} PKR</span>` : ''}
+            </div>
+
+            <form id="orderForm" onsubmit="handleSubmit(event)">
+                ${formFieldsHtml}
+                
+                <button type="submit" class="btn-buy">
+                    Order Now - <span id="btn-price">${price}</span> PKR
+                </button>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        const BASE_PRICE = ${price};
         
-        // Show conditionals
-        const condId = inp.dataset.condId;
-        if(condId) {
-            const wrap = document.getElementById(condId);
-            if(wrap) {
-                wrap.classList.add('show');
-                wrap.querySelectorAll('input').forEach(i => i.disabled = false);
-            }
+        // 1. Image Switcher
+        function changeMedia(src, el) {
+            const frame = document.getElementById('main-frame');
+            frame.innerHTML = '<img src="' + src + '" style="max-width:100%; max-height:100%; object-fit:contain;">';
+            
+            // Highlight active thumb
+            document.querySelectorAll('.thumbs img').forEach(img => img.classList.remove('active-thumb'));
+            if(el) el.classList.add('active-thumb');
         }
-    });
-    
-    // Hide unchecked conditionals
-    document.querySelectorAll('input.calc-trigger:not(:checked)').forEach(inp => {
-        const condId = inp.dataset.condId;
-        if(condId) {
-            const wrap = document.getElementById(condId);
-            if(wrap) {
-                wrap.classList.remove('show');
-                wrap.querySelectorAll('input').forEach(i => i.disabled = true);
-            }
+        
+        function playVideo(url) {
+            const frame = document.getElementById('main-frame');
+            frame.innerHTML = '<video src="' + url + '" controls autoplay style="width:100%; height:100%"></video>';
         }
-    });
 
-    // Update UI
-    document.getElementById('display-price').innerText = total + ' PKR';
-    document.getElementById('btn-price').innerText = total + ' PKR';
-}
+        // 2. Price Calculation & Conditionals Logic
+        function updatePrice() {
+            let total = BASE_PRICE;
+            
+            // Select Inputs
+            document.querySelectorAll('select.price-trigger').forEach(sel => {
+                const opt = sel.options[sel.selectedIndex];
+                total += parseFloat(opt.getAttribute('data-price')) || 0;
+                
+                // Show/Hide Conditionals for Select
+                const condId = sel.getAttribute('data-cond-id');
+                if (condId) {
+                    const wrap = document.getElementById(condId);
+                    wrap.innerHTML = ''; // Clear
+                    
+                    const fileQty = parseInt(opt.getAttribute('data-file-qty')) || 0;
+                    const textLabel = opt.getAttribute('data-text-label');
+                    
+                    let html = '';
+                    if(fileQty > 0) {
+                        for(let i=1; i<=fileQty; i++) html += '<div style="margin-top:10px"><label style="font-size:0.9rem">Upload File '+i+' <span style="color:red">*</span></label><input type="file" required class="form-control"></div>';
+                    }
+                    if(textLabel) {
+                        html += '<div style="margin-top:10px"><label style="font-size:0.9rem">'+textLabel+' <span style="color:red">*</span></label><input type="text" required class="form-control" placeholder="Type here..."></div>';
+                    }
+                    
+                    if(html) {
+                        wrap.innerHTML = html;
+                        wrap.classList.add('show');
+                    } else {
+                        wrap.classList.remove('show');
+                    }
+                }
+            });
 
-// Add Event Listeners
-document.addEventListener('change', (e) => {
-    if(e.target.classList.contains('calc-trigger')) updateForm();
-});
+            // Radio/Checkbox Inputs
+            document.querySelectorAll('input.price-trigger').forEach(inp => {
+                const condId = inp.getAttribute('data-cond-target');
+                const wrap = document.getElementById(condId);
+                
+                if (inp.checked) {
+                    total += parseFloat(inp.getAttribute('data-price')) || 0;
+                    if(wrap) {
+                        wrap.classList.add('show');
+                        wrap.querySelectorAll('input').forEach(i => i.disabled = false);
+                    }
+                } else {
+                    if(wrap) {
+                        wrap.classList.remove('show');
+                        wrap.querySelectorAll('input').forEach(i => i.disabled = true);
+                    }
+                }
+            });
 
-function submitOrder(e) {
-    e.preventDefault();
-    const btn = document.querySelector('.checkout-btn');
-    btn.innerHTML = 'Processing...';
-    setTimeout(() => alert('Order Placed! Total: ' + document.getElementById('btn-price').innerText), 1000);
-}
-</script>
+            document.getElementById('display-price').innerText = total;
+            document.getElementById('btn-price').innerText = total;
+        }
 
+        // Event Listeners for Live Update
+        document.addEventListener('change', (e) => {
+            if (e.target.classList.contains('price-trigger') || e.target.tagName === 'SELECT') {
+                updatePrice();
+            }
+        });
+
+        // 3. Form Submit
+        function handleSubmit(e) {
+            e.preventDefault();
+            const btn = document.querySelector('.btn-buy');
+            btn.innerHTML = 'Processing...';
+            setTimeout(() => {
+                alert('Thank you! Order Placed for ' + document.getElementById('btn-price').innerText + ' PKR');
+                btn.innerHTML = 'Order Placed';
+            }, 1000);
+        }
+    </script>
 </body>
 </html>`;
 }
 
-// --- Helper Functions to Generate Fields ---
+// --- HELPER FUNCTIONS ---
 
 function generateFormFields(fields) {
-    return fields.map((f, i) => {
-        const reqAttr = f.required ? 'required' : '';
-        const reqStar = f.required ? '<span style="color:red">*</span>' : '';
-        const baseId = `field_${i}`;
+    if (!fields || fields.length === 0) return '<p>No options available.</p>';
 
-        if(f._type === 'header') return `<h3 style="margin:10px 0 5px; border-bottom:2px solid #ddd; padding-bottom:5px;">${f.label}</h3>`;
-        
-        if(f._type === 'text' || f._type === 'email') {
-            return `<div><label>${f.label} ${reqStar}</label><input type="${f._type}" name="${f.label}" class="form-control" ${reqAttr}></div>`;
-        }
+    return fields.map((field, idx) => {
+        const type = field._type;
+        const label = field.label || 'Field';
+        const req = field.required ? 'required' : '';
+        const reqHtml = field.required ? '<span class="req-star">*</span>' : '';
 
-        if(f._type === 'textarea') {
-            return `<div><label>${f.label} ${reqStar}</label><textarea name="${f.label}" rows="${f.rows||3}" class="form-control" ${reqAttr}></textarea></div>`;
-        }
-        
-        if(f._type === 'file') {
-            return `<div><label>${f.label} ${reqStar}</label><input type="file" name="${f.label}" class="form-control" ${reqAttr}></div>`;
-        }
+        // 1. HEADER
+        if (type === 'header') return `<h3 style="margin-top:20px; border-bottom:1px solid #ddd; padding-bottom:5px;">${label}</h3>`;
 
-        if(f._type === 'select') {
-            const opts = f.options_list.map((o, idx) => `
-                <option value="${o.label}" 
-                    data-price="${o.price}" 
-                    data-file-qty="${o.file_qty||0}"
-                    data-text-label="${o.text_label||''}"
-                    data-text-ph="${o.text_placeholder||''}"
-                >
-                    ${o.label} ${o.price > 0 ? '(+'+o.price+')' : ''}
-                </option>`).join('');
-            
+        // 2. TEXT / EMAIL / DATE
+        if (['text', 'email', 'date', 'number'].includes(type)) {
             return `
-            <div>
-                <label>${f.label} ${reqStar}</label>
-                <select name="${f.label}" class="form-control calc-trigger" data-cond-target="cond_container_${i}" ${reqAttr}>
-                    <option value="" data-price="0">Select Option</option>
-                    ${opts}
-                </select>
-                <div id="cond_container_${i}"></div>
+            <div class="custom-field">
+                <label>${label} ${reqHtml}</label>
+                <input type="${type}" name="${label}" class="form-control" ${req}>
+            </div>`;
+        }
+        
+        // 3. TEXTAREA
+        if (type === 'textarea') {
+            return `
+            <div class="custom-field">
+                <label>${label} ${reqHtml}</label>
+                <textarea name="${label}" rows="3" class="form-control" ${req}></textarea>
             </div>`;
         }
 
-        if(f._type === 'radio' || f._type === 'checkbox_group') {
-            const isRadio = f._type === 'radio';
-            const opts = f.options_list.map((o, idx) => {
-                const condId = `cond_${i}_${idx}`;
-                const hasCond = (o.file_qty > 0 || o.text_label);
+        // 4. FILE
+        if (type === 'file') {
+            return `
+            <div class="custom-field">
+                <label>${label} ${reqHtml}</label>
+                <input type="file" name="${label}" class="form-control" ${req}>
+            </div>`;
+        }
+
+        // 5. SELECT (Dropdown)
+        if (type === 'select') {
+            const condContainerId = `cond_select_${idx}`;
+            let optionsHtml = `<option value="" data-price="0">Select Option</option>`;
+            
+            field.options_list.forEach((opt) => {
+                const priceTxt = opt.price > 0 ? ` (+${opt.price})` : '';
+                optionsHtml += `
+                    <option value="${opt.label}" 
+                            data-price="${opt.price || 0}"
+                            data-file-qty="${opt.file_qty || 0}"
+                            data-text-label="${opt.text_label || ''}">
+                        ${opt.label}${priceTxt}
+                    </option>`;
+            });
+
+            return `
+            <div class="custom-field">
+                <label>${label} ${reqHtml}</label>
+                <select name="${label}" class="form-control price-trigger" data-cond-id="${condContainerId}" ${req}>
+                    ${optionsHtml}
+                </select>
+                <div id="${condContainerId}" class="cond-wrap"></div>
+            </div>`;
+        }
+
+        // 6. RADIO & CHECKBOX
+        if (type === 'radio' || type === 'checkbox_group') {
+            const isRadio = type === 'radio';
+            let optionsHtml = `<div class="opt-group">`;
+            
+            field.options_list.forEach((opt, optIdx) => {
+                const uniqueId = `opt_${idx}_${optIdx}`;
+                const condId = `cond_opt_${idx}_${optIdx}`;
+                const hasCond = (opt.file_qty > 0 || opt.text_label);
                 
-                let condHtml = '';
-                if(hasCond) {
-                    condHtml = `<div id="${condId}" class="conditional-wrap">`;
-                    if(o.file_qty) condHtml += `<div><small>Upload Required:</small><input type="file" class="form-control" disabled required></div>`;
-                    if(o.text_label) condHtml += `<div><small>${o.text_label}:</small><input type="text" class="form-control" placeholder="${o.text_placeholder}" disabled required></div>`;
-                    condHtml += `</div>`;
+                // Prepare Conditional Inputs HTML (Hidden by default)
+                let condInputs = '';
+                if (hasCond) {
+                    condInputs = `<div id="${condId}" class="cond-wrap">`;
+                    if (opt.file_qty) {
+                         for(let i=1; i<=opt.file_qty; i++) condInputs += `<div style="margin-bottom:5px"><small>Upload File ${i} *</small><input type="file" class="form-control" disabled required></div>`;
+                    }
+                    if (opt.text_label) {
+                         condInputs += `<div><small>${opt.text_label} *</small><input type="text" class="form-control" disabled required></div>`;
+                    }
+                    condInputs += `</div>`;
                 }
 
-                return `
-                <div style="margin-bottom:5px;">
-                    <label class="opt-row">
-                        <span>
+                optionsHtml += `
+                <div>
+                    <label class="opt-row" for="${uniqueId}">
+                        <div style="display:flex; align-items:center;">
                             <input type="${isRadio ? 'radio' : 'checkbox'}" 
-                                   name="${f.label}${isRadio ? '' : '[]'}" 
-                                   class="calc-trigger" 
-                                   data-price="${o.price}"
-                                   data-cond-id="${hasCond ? condId : ''}"
-                                   ${isRadio && f.required ? 'required' : ''}> 
-                            ${o.label}
-                        </span>
-                        <span style="font-weight:bold; color:#6366f1;">${o.price > 0 ? '+'+o.price : ''}</span>
+                                   id="${uniqueId}"
+                                   name="${label}${isRadio ? '' : '[]'}" 
+                                   class="price-trigger"
+                                   data-price="${opt.price || 0}"
+                                   data-cond-target="${hasCond ? condId : ''}"
+                                   ${isRadio && field.required ? 'required' : ''}>
+                            <span>${opt.label}</span>
+                        </div>
+                        ${opt.price > 0 ? `<span class="opt-price">+${opt.price}</span>` : ''}
                     </label>
-                    ${condHtml}
+                    ${condInputs}
                 </div>`;
-            }).join('');
-            
-            return `<div><label style="margin-bottom:5px; display:block;">${f.label} ${reqStar}</label>${opts}</div>`;
+            });
+            optionsHtml += `</div>`;
+
+            return `
+            <div class="custom-field">
+                <label>${label} ${reqHtml}</label>
+                ${optionsHtml}
+            </div>`;
         }
 
         return '';
