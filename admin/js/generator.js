@@ -1,33 +1,33 @@
 /**
  * admin/js/generator.js
- * COMPLETE FIX: Self-contained styles + Dynamic Form Builder
+ * COMPLETE FIX: Self-contained Layout + Dynamic Form Builder Support
  */
 
 export function generateProductHTML(product) {
     if (!product) return '';
 
-    // 1. Data Setup (Handle missing images safely)
+    // 1. Data Setup (Agar images nahi hain to placeholder lagaye)
     const images = (product.images && product.images.length > 0) 
         ? product.images 
         : ['https://placehold.co/600x600?text=No+Image'];
     
-    // Default Title/Price
+    // Default Data
     const title = product.title || 'Untitled Product';
     const price = product.price || 0;
     const oldPrice = product.old_price || 0;
     const desc = product.description || 'No description available.';
 
-    // 2. Build Thumbnails HTML
+    // 2. Thumbnails HTML Generate karna
     const thumbsHtml = images.map((img, idx) => `
         <div class="thumb-item ${idx === 0 ? 'active' : ''}" onclick="changeImage('${img}', this)">
             <img src="${img}" alt="Thumb ${idx + 1}">
         </div>
     `).join('');
 
-    // 3. Build Dynamic Form (New Form Builder Logic)
+    // 3. Form Fields Generate karna (Helper function se)
     const formHtml = generateDynamicForm(product.customForm || []);
 
-    // 4. Return Final HTML
+    // 4. Final HTML Page Return karna
     return `<!DOCTYPE html>
 <html lang="en">
 <head>
@@ -43,7 +43,7 @@ export function generateProductHTML(product) {
         * { box-sizing: border-box; }
         body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; margin: 0; padding: 0; background: #f9f9f9; }
         
-        /* Layout Grid */
+        /* Main Container */
         .product-page-container {
             max-width: 1200px;
             margin: 40px auto;
@@ -75,7 +75,7 @@ export function generateProductHTML(product) {
             object-fit: contain;
         }
 
-        /* Thumbnails - Explicitly Styled */
+        /* Thumbnails Styling */
         .thumbs-container {
             display: flex;
             gap: 10px;
@@ -132,18 +132,18 @@ export function generateProductHTML(product) {
         .option-card input { transform: scale(1.2); margin-right: 10px; }
         .extra-price { color: #4f46e5; font-weight: 700; font-size: 0.9rem; }
 
-        /* Conditionals */
+        /* Conditional Fields (Hidden by default) */
         .conditional-field {
             margin-top: 10px;
             padding: 15px;
             background: #f0f7ff;
             border-radius: 8px;
             border-left: 4px solid #4f46e5;
-            display: none; /* Hidden by default */
+            display: none; 
         }
         .conditional-field.visible { display: block; animation: fadeIn 0.3s; }
 
-        /* Checkout Button */
+        /* Buttons */
         .btn-checkout {
             width: 100%;
             padding: 18px;
@@ -214,35 +214,36 @@ export function generateProductHTML(product) {
     <script>
         const BASE_PRICE = ${price};
 
-        // 1. Image Switcher
+        // 1. Image Switcher Function
         function changeImage(src, thumbEl) {
             const display = document.getElementById('mainDisplay');
             display.innerHTML = '<img src="' + src + '" style="max-width:100%; max-height:100%; object-fit:contain;">';
             
-            // Update active styling
+            // Active class update karein
             document.querySelectorAll('.thumb-item').forEach(t => t.classList.remove('active'));
             if(thumbEl) thumbEl.classList.add('active');
         }
 
+        // Video Player Function
         function playMainVideo(url) {
             const display = document.getElementById('mainDisplay');
             display.innerHTML = '<video src="' + url + '" controls autoplay style="width:100%; height:100%"></video>';
         }
 
-        // 2. Price & Logic Calculation
+        // 2. Price & Logic Calculation Function
         function updateCalculations() {
             let total = BASE_PRICE;
             
-            // Handle Selects
+            // Select (Dropdown) Inputs Check karein
             document.querySelectorAll('select.calc-trigger').forEach(sel => {
                 const opt = sel.options[sel.selectedIndex];
                 total += parseFloat(opt.getAttribute('data-price')) || 0;
                 
-                // Show Conditionals
+                // Conditional Fields Show/Hide logic
                 const targetId = sel.getAttribute('data-cond-target');
                 if(targetId) {
                     const wrap = document.getElementById(targetId);
-                    wrap.innerHTML = ''; // Reset
+                    wrap.innerHTML = ''; // Pehle clear karein
                     
                     const fQty = parseInt(opt.getAttribute('data-file-qty')) || 0;
                     const tLbl = opt.getAttribute('data-text-label');
@@ -260,7 +261,7 @@ export function generateProductHTML(product) {
                 }
             });
 
-            // Handle Radios/Checkboxes
+            // Radio/Checkbox Inputs Check karein
             document.querySelectorAll('input.calc-trigger').forEach(inp => {
                 const condId = inp.getAttribute('data-cond-id');
                 const wrap = document.getElementById(condId);
@@ -272,11 +273,12 @@ export function generateProductHTML(product) {
                         wrap.querySelectorAll('input').forEach(i => i.disabled = false);
                     }
                 } else {
-                    if(wrap && inp.type !== 'radio') { // Radio logic handled by other radio checking
+                    // Sirf Checkbox ke liye hide karein, Radio ka alag handle hota hai
+                    if(wrap && inp.type !== 'radio') {
                          wrap.classList.remove('visible');
                          wrap.querySelectorAll('input').forEach(i => i.disabled = true);
                     }
-                     // Special case for radio: we need to hide the unchecked sibling's conditional
+                    // Agar radio unchecked ho jaye (doosra select hone par)
                     if(inp.type === 'radio' && !inp.checked && wrap) {
                          wrap.classList.remove('visible');
                          wrap.querySelectorAll('input').forEach(i => i.disabled = true);
@@ -284,23 +286,26 @@ export function generateProductHTML(product) {
                 }
             });
 
+            // UI Update karein
             document.getElementById('displayPrice').innerText = total;
             document.getElementById('btnPrice').innerText = total;
         }
 
-        // Listen for changes
+        // Change Listener attach karein
         document.addEventListener('change', (e) => {
             if(e.target.classList.contains('calc-trigger')) updateCalculations();
         });
 
-        // 3. Submit Handler
+        // 3. Order Submit Handler
         function handleOrder(e) {
             e.preventDefault();
             const btn = document.querySelector('.btn-checkout');
+            const originalText = btn.innerText;
             btn.innerText = 'Processing...';
+            
             setTimeout(() => {
-                alert('Order Placed Successfully! (Demo)');
-                window.location.reload();
+                alert('Order Placed Successfully! Total: ' + document.getElementById('btnPrice').innerText + ' PKR');
+                btn.innerText = originalText;
             }, 1000);
         }
     </script>
@@ -308,21 +313,21 @@ export function generateProductHTML(product) {
 </html>`;
 }
 
-// --- HELPER: FORM FIELD GENERATOR ---
+// --- HELPER FUNCTION: Jo Form Fields Banata Hai ---
 
 function generateDynamicForm(fields) {
-    if(!fields || fields.length === 0) return '<p style="color:#666;">No customization options.</p>';
+    if(!fields || fields.length === 0) return '<p style="color:#666;">No customization options available.</p>';
 
     return fields.map((f, i) => {
         const type = f._type;
-        const label = f.label;
+        const label = f.label || 'Field';
         const req = f.required ? 'required' : '';
         const star = f.required ? '<span style="color:red">*</span>' : '';
 
-        // Header
+        // 1. Header Field
         if(type === 'header') return `<h3 style="border-bottom:2px solid #eee; padding-bottom:5px; margin-top:25px;">${label}</h3>`;
 
-        // Text Inputs
+        // 2. Simple Inputs (Text, Email, etc)
         if(['text','email','number','date'].includes(type)) {
             return `
             <div class="custom-form-group">
@@ -331,7 +336,7 @@ function generateDynamicForm(fields) {
             </div>`;
         }
 
-        // File
+        // 3. File Input
         if(type === 'file') {
             return `
             <div class="custom-form-group">
@@ -339,13 +344,22 @@ function generateDynamicForm(fields) {
                 <input type="file" name="${label}" class="form-input" ${req}>
             </div>`;
         }
+        
+        // 4. Textarea
+        if(type === 'textarea') {
+            return `
+            <div class="custom-form-group">
+                <label class="form-label">${label} ${star}</label>
+                <textarea name="${label}" rows="${f.rows || 3}" class="form-input" ${req}></textarea>
+            </div>`;
+        }
 
-        // Select (Dropdown)
+        // 5. Select Dropdown (With Logic)
         if(type === 'select') {
             const condTarget = `cond_select_${i}`;
             const opts = f.options_list.map(o => `
                 <option value="${o.label}" 
-                    data-price="${o.price}"
+                    data-price="${o.price || 0}"
                     data-file-qty="${o.file_qty||0}"
                     data-text-label="${o.text_label||''}">
                     ${o.label} ${o.price>0 ? '(+'+o.price+')' : ''}
@@ -363,13 +377,14 @@ function generateDynamicForm(fields) {
             </div>`;
         }
 
-        // Radio / Checkbox
+        // 6. Radio & Checkbox (With Logic)
         if(type === 'radio' || type === 'checkbox_group') {
             const isRadio = type === 'radio';
             const opts = f.options_list.map((o, idx) => {
                 const condId = `cond_opt_${i}_${idx}`;
                 const hasCond = (o.file_qty > 0 || o.text_label);
                 
+                // Conditional HTML prepare karein
                 let condHtml = '';
                 if(hasCond) {
                     condHtml = `<div id="${condId}" class="conditional-field">`;
@@ -385,7 +400,7 @@ function generateDynamicForm(fields) {
                             <input type="${isRadio?'radio':'checkbox'}" 
                                    name="${label}${isRadio?'':'[]'}" 
                                    class="calc-trigger"
-                                   data-price="${o.price}"
+                                   data-price="${o.price || 0}"
                                    data-cond-id="${hasCond ? condId : ''}"
                                    ${isRadio && f.required ? 'required' : ''}>
                             <span>${o.label}</span>
