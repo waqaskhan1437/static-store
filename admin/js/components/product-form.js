@@ -8,7 +8,8 @@ import { generateProductHTML } from '../generator.js';
 
 /**
  * Helper: Converts Old Data Types to New Form Builder Format
- * Yeh function purane "textField" wagera ko naye "text" format mein badal deta hai.
+ * Yeh function purane data ko naye format mein convert karta hai taake
+ * Form Builder aur Frontend Generator tootay na.
  */
 function normalizeLegacyData(customForm) {
     if (!Array.isArray(customForm)) return [];
@@ -64,22 +65,19 @@ function normalizeLegacyData(customForm) {
 /**
  * Main Product Form Component
  * Handles rendering, events, demo data, and saving logic.
- * FIXED: Date persistence, English Comments, Updated Delivery Logic, Legacy Data Normalization
  */
-
 export function renderProductForm(product = {}) {
     const productId = product.slug || product.id || '';
-    const createdDate = product.date || ''; // Preserve original date
+    const createdDate = product.date || ''; 
 
     // 🔥 FIX: Normalize Data before rendering
-    // Yeh line purane data ko naye format mein convert karti hai taake form builder tootay na
     const normalizedForm = normalizeLegacyData(product.customForm || []);
     const productWithId = { ...product, id: productId, customForm: normalizedForm };
 
     const tabsHtml = `
         <div class="tabs-header">
             <button class="tab-btn active" data-tab="tab-basic">Basic Info</button>
-            <button class="tab-btn" data-tab="tab-media">Media</button>
+            <button class="tab-btn" data-tab="tab-media">Media & SEO</button>
             <button class="tab-btn" data-tab="tab-delivery">Delivery</button>
             <button class="tab-btn" data-tab="tab-custom">Form Builder</button>
         </div>
@@ -87,8 +85,8 @@ export function renderProductForm(product = {}) {
 
     const contentHtml = `
         <div id="tab-basic" class="tab-content active">${renderBasicInfo(productWithId)}</div>
-        <div id="tab-media" class="tab-content">${renderMedia(product)}</div>
-        <div id="tab-delivery" class="tab-content">${renderDelivery(product)}</div>
+        <div id="tab-media" class="tab-content">${renderMedia(productWithId)}</div>
+        <div id="tab-delivery" class="tab-content">${renderDelivery(productWithId)}</div>
         <div id="tab-custom" class="tab-content">${renderCustomFields(productWithId)}</div>
     `;
 
@@ -114,7 +112,7 @@ export function renderProductForm(product = {}) {
                 ${contentHtml}
                 <div class="form-actions">
                     <button type="button" class="btn" onclick="location.hash='#products'">Cancel</button>
-                    <button type="submit" class="btn btn-primary"><i class="fas fa-save"></i> Save Product</button>
+                    <button type="submit" class="btn btn-primary"><i class="fas fa-save"></i> Publish Product</button>
                 </div>
             </form>
         </div>
@@ -130,7 +128,7 @@ export function setupFormEvents() {
     setupDeliveryEvents();
     setupCustomFieldsEvents();
 
-    // Tab Switching
+    // Tab Switching Logic
     const tabBtns = form.querySelectorAll('.tab-btn');
     tabBtns.forEach(btn => {
         btn.addEventListener('click', (e) => {
@@ -142,7 +140,7 @@ export function setupFormEvents() {
         });
     });
 
-    // Demo Loader Logic
+    // Demo Data Loader (Updated for Animation Test)
     const demoBtn = document.getElementById('btn-demo');
     if (demoBtn) {
         demoBtn.addEventListener('click', () => {
@@ -150,30 +148,34 @@ export function setupFormEvents() {
             
             const demoData = {
                 title: "Ultimate Custom Gift 2025 (Demo)",
+                slug: "ultimate-custom-gift-2025",
                 price: 55,
-                old_price: 70,
-                description: "This is a comprehensive demo to showcase the Advanced Form Builder.\n\nIt features:\n- Cloudinary Integration\n- Conditional Logic\n- Complex Add-ons\n- Long Text Areas",
-                seoDescription: "A perfect demo for testing capabilities.",
-                images: [
-                    "https://placehold.co/600x600?text=Main+Image",
-                    "https://placehold.co/600x600?text=Side+View"
-                ],
-                video_url: "",
+                old_price: 80,
+                description: "This demo showcases the new Slide Animation features.\n\nTry selecting 'Premium Metal' or checking 'Add Gift Wrap' to see the conditional fields slide down smoothly.",
+                seoTitle: "Best Custom Gift 2025 - Personalized Video",
+                seoKeywords: "gift, custom, video, 2025",
+                seoDescription: "Order the ultimate custom gift for your loved ones. Features premium materials and instant delivery options.",
+                images: ["https://placehold.co/600x600?text=Product+Image"],
                 is_instant: false,
                 delivery_time: "2 Days",
                 stock_status: "in_stock",
-                tags: ["demo", "2025"],
                 customForm: [
-                    { _type: 'header', label: 'Step 1: Personalization' },
+                    { _type: 'header', label: 'Personalization' },
                     { _type: 'text', label: 'Recipient Name', required: true },
                     { 
                         _type: 'select', 
-                        label: 'Material', 
+                        label: 'Choose Material (Try Premium!)', 
                         required: true, 
                         options_list: [
                             { label: 'Standard Wood', price: 0 },
-                            { label: 'Premium Metal', price: 10, file_qty: 1 },
-                            { label: 'Gold Plated', price: 25, text_label: 'Engraving Name' }
+                            { label: 'Premium Metal', price: 15, file_qty: 1, text_label: 'Logo Text' }
+                        ]
+                    },
+                    {
+                        _type: 'checkbox_group',
+                        label: 'Extras',
+                        options_list: [
+                            { label: 'Add Gift Wrap', price: 5, text_label: 'Gift Note' }
                         ]
                     }
                 ]
@@ -183,6 +185,7 @@ export function setupFormEvents() {
             container.innerHTML = renderProductForm(demoData);
             setupFormEvents();
             
+            // Switch to Custom Tab to show fields
             const customTabBtn = document.querySelector('[data-tab="tab-custom"]');
             if(customTabBtn) customTabBtn.click();
 
@@ -190,6 +193,7 @@ export function setupFormEvents() {
         });
     }
 
+    // Form Submission Logic
     form.addEventListener('submit', async (e) => {
         e.preventDefault();
         const btn = form.querySelector('button[type="submit"]');
@@ -199,7 +203,7 @@ export function setupFormEvents() {
             const formData = new FormData(form);
             const raw = Object.fromEntries(formData.entries());
 
-            // Process Custom Fields
+            // 1. Process Custom Fields (Extract from DOM)
             const cardElements = document.querySelectorAll('.field-card');
             const customForm = Array.from(cardElements).map(card => {
                 const type = card.dataset.type;
@@ -222,14 +226,15 @@ export function setupFormEvents() {
                 return { _type: type, label, required, rows: parseInt(rows), options_list };
             }).filter(f => f.label);
 
-            let finalSlug = raw.existing_id;
+            // 2. Slug Logic
+            let finalSlug = raw.slug ? raw.slug.trim() : raw.existing_id;
             if (!finalSlug) {
                 finalSlug = raw.title.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '');
             }
 
             const publishDate = raw.existing_date || new Date().toISOString();
 
-            // Final Product Object
+            // 3. Final Product Object
             const finalProduct = {
                 slug: finalSlug, 
                 id: finalSlug,
@@ -238,21 +243,27 @@ export function setupFormEvents() {
                 price: parseFloat(raw.price) || 0,
                 old_price: parseFloat(raw.old_price) || 0,
                 description: raw.description,
-                seoDescription: raw.seoDescription,
+                
+                // SEO Metadata
+                seoTitle: raw.seoTitle || raw.title,
+                seoDescription: raw.seoDescription || '',
+                seoKeywords: raw.seoKeywords || '',
+
                 images: raw.images ? raw.images.split('\n').map(s => s.trim()).filter(s => s) : [],
                 video_url: raw.video_url,
                 
-                // Delivery Logic Update
                 is_instant: !!raw.is_instant,
                 delivery_time: raw.delivery_time || 'Standard',
+                stock_status: raw.stock_status, // Ensure stock status is saved if available
                 
-                stock_status: raw.stock_status,
                 customForm: customForm,
                 tags: raw.tags ? raw.tags.split(',').map(s => s.trim()) : []
             };
 
+            // 4. Generate HTML
             const htmlContent = generateProductHTML(finalProduct);
 
+            // 5. Send to Worker
             await saveData({
                 type: 'product',
                 slug: finalSlug,
@@ -261,6 +272,8 @@ export function setupFormEvents() {
             }, 'admin123');
 
             showToast('Product Published Successfully!');
+            
+            // Redirect after slight delay
             setTimeout(() => { window.location.hash = '#products'; }, 1500);
 
         } catch (error) {
