@@ -1,12 +1,9 @@
 /**
  * admin/js/generator.js
  * FIXED: 
- * - ULTIMATE ACCESSIBILITY UPDATE
- * - ARIA Live Regions for Dynamic Price (Screen readers announce price changes)
- * - Descriptive Alt Text (SEO friendly)
- * - ARIA Required attributes for forms
- * - High Contrast Focus States
- * - Retains 16:9 Player, Sticky Layout, Mobile Optimizations
+ * - Handles Legacy Data (textField, options string)
+ * - Handles New Data (text, options_list)
+ * - Retains Ultimate Accessibility & Layout
  */
 
 export function generateProductHTML(product) {
@@ -62,7 +59,7 @@ export function generateProductHTML(product) {
         `;
     }).join('');
 
-    // 3. Form Logic
+    // 3. Form Logic (Robust Generator)
     const formHtml = generateDynamicForm(product.customForm || []);
 
     // 4. Final HTML
@@ -342,7 +339,6 @@ function updatePrice(){
   });
 
   const finalPrice = '$' + total.toFixed(2);
-  // Update ONLY the button text for screen readers
   const btnPriceSpan = document.getElementById('btn-price');
   if(btnPriceSpan) btnPriceSpan.innerText = finalPrice;
 }
@@ -366,12 +362,32 @@ function submitOrder(e){
 </html>`;
 }
 
-// --- HELPER FUNCTION: Accessible Form ---
+// --- HELPER FUNCTION: Accessible Form with LEGACY SUPPORT ---
 
 function generateDynamicForm(fields) {
     if (!fields || fields.length === 0) return '<p>No options available.</p>';
+    
     return fields.map((f, i) => {
-        const type = f._type;
+        // --- NORMALIZATION: Convert Old Types to New Types ---
+        let type = f._type;
+        if(type === 'textField') type = 'text';
+        if(type === 'textAreaField') type = 'textarea';
+        if(type === 'selectField') type = 'select';
+        if(type === 'radioField') type = 'radio';
+        if(type === 'checkboxField') type = 'checkbox_group';
+        if(type === 'fileUploadField') type = 'file';
+
+        // --- NORMALIZE OPTIONS: Convert String Options to Array ---
+        let optionsList = f.options_list || [];
+        if(optionsList.length === 0 && f.options && typeof f.options === 'string') {
+            optionsList = f.options.split(',').map(s => ({
+                label: s.trim(),
+                price: 0,
+                file_qty: 0,
+                text_label: ''
+            })).filter(o => o.label);
+        }
+
         const label = f.label;
         const req = f.required ? 'required' : '';
         const ariaReq = f.required ? 'aria-required="true"' : '';
@@ -391,13 +407,13 @@ function generateDynamicForm(fields) {
         
         if(type === 'select') {
             const condTarget = `cond_sel_${i}`;
-            const opts = f.options_list.map(o => `<option value="${o.label}" data-price="${o.price||0}" data-file-qty="${o.file_qty||0}" data-text-label="${o.text_label||''}">${o.label} ${o.price>0 ? '(+$'+o.price+')' : ''}</option>`).join('');
+            const opts = optionsList.map(o => `<option value="${o.label}" data-price="${o.price||0}" data-file-qty="${o.file_qty||0}" data-text-label="${o.text_label||''}">${o.label} ${o.price>0 ? '(+$'+o.price+')' : ''}</option>`).join('');
             return `<div class="form-group"><label class="form-label" for="${fieldId}">${label} ${star}</label><select id="${fieldId}" class="form-control price-ref" data-cond-target="${condTarget}" ${req} ${ariaReq}><option value="" data-price="0">Select Option</option>${opts}</select><div id="${condTarget}" class="conditional-wrap"></div></div>`;
         }
         
         if(type === 'radio' || type === 'checkbox_group') {
             const isRadio = type === 'radio';
-            const opts = f.options_list.map((o, idx) => {
+            const opts = optionsList.map((o, idx) => {
                 const condId = `cond_opt_${i}_${idx}`;
                 const optId = `opt_${i}_${idx}`;
                 const hasCond = (o.file_qty > 0 || o.text_label);
