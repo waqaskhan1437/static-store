@@ -1,9 +1,12 @@
 /**
  * admin/js/generator.js
  * FIXED: 
- * - Updated Delivery Notification Text (Digital/No Shipping)
- * - Updated Form Heading ("Start customizing your video👇")
- * - Keeps all previous fixes (Slider, Sticky Player, Mobile Layout, USD)
+ * - ULTIMATE ACCESSIBILITY UPDATE
+ * - ARIA Live Regions for Dynamic Price (Screen readers announce price changes)
+ * - Descriptive Alt Text (SEO friendly)
+ * - ARIA Required attributes for forms
+ * - High Contrast Focus States
+ * - Retains 16:9 Player, Sticky Layout, Mobile Optimizations
  */
 
 export function generateProductHTML(product) {
@@ -39,21 +42,21 @@ export function generateProductHTML(product) {
         }
     }
 
-    // 2. Thumbnails Logic
+    // 2. Thumbnails Logic (Enhanced Alt Text)
     const thumbsHtml = images.map((img, idx) => {
         let clickAction = `switchMedia('image','${img}')`;
-        let ariaLabel = `View Image ${idx + 1}`;
+        let ariaLabel = `View ${title} Image ${idx + 1}`;
         let playIconOverlay = '';
 
         if (idx === 0 && product.video_url) {
             clickAction = `switchMedia('video','${product.video_url}')`;
-            ariaLabel = `Play Video`;
-            playIconOverlay = `<span class="play-icon-overlay">▶</span>`;
+            ariaLabel = `Play Product Video`;
+            playIconOverlay = `<span class="play-icon-overlay" aria-hidden="true">▶</span>`;
         }
 
         return `
         <button type="button" class="t-btn" onclick="${clickAction}" aria-label="${ariaLabel}">
-            <img src="${img}" alt="Thumbnail ${idx + 1}" loading="lazy">
+            <img src="${img}" alt="${title} view ${idx + 1}" loading="lazy">
             ${playIconOverlay}
         </button>
         `;
@@ -84,6 +87,12 @@ body {
     background: #f9fafb;
     overflow-x: hidden;
     width: 100%;
+}
+
+/* --- ACCESSIBILITY FOCUS --- */
+button:focus-visible, input:focus-visible, select:focus-visible, textarea:focus-visible {
+    outline: 2px solid var(--primary);
+    outline-offset: 2px;
 }
 
 /* --- DESKTOP LAYOUT --- */
@@ -168,6 +177,20 @@ body {
 
 .desc-box { background: white; padding: 25px; border-radius: 12px; border: 1px solid #e5e7eb; }
 
+/* UPDATED HEADING STYLE */
+.custom-heading {
+    text-align: center;
+    background: #eef2ff;
+    color: #4338ca;
+    padding: 15px;
+    border-radius: 10px;
+    margin: 0 0 20px 0;
+    font-size: 1.25rem;
+    font-weight: 700;
+    border: 1px solid #c7d2fe;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.02);
+}
+
 /* Form Styling */
 .form-group { margin-bottom: 15px; }
 .form-label { display: block; font-weight: 700; font-size: 0.9rem; margin-bottom: 8px; color: #374151; }
@@ -179,26 +202,13 @@ body {
 
 .rating-text { color: #b45309; font-weight: bold; font-size: 0.9rem; margin-top: 5px; }
 
-/* --- MOBILE OPTIMIZED --- */
+/* --- MOBILE --- */
 @media (max-width: 768px) {
-    .product-container { 
-        display: flex; flex-direction: column; gap: 20px; 
-        margin: 0; padding: 0; 
-        width: 100%; max-width: 100%;
-        overflow-x: hidden;
-    }
-    
+    .product-container { display: flex; flex-direction: column; gap: 20px; margin: 0; padding: 0; width: 100%; max-width: 100%; overflow-x: hidden; }
     .media-col { display: contents; } 
-
-    .media-frame { 
-        order: 1; width: 100% !important; margin: 0 !important;
-        border-radius: 0 !important; border-left: none; border-right: none; box-shadow: none;
-    }
-    
+    .media-frame { order: 1; width: 100% !important; margin: 0 !important; border-radius: 0 !important; border-left: none; border-right: none; box-shadow: none; }
     .t-wrapper { order: 2; width: calc(100% - 30px) !important; margin: 0 auto !important; }
-    
     .form-col { order: 3; width: calc(100% - 30px) !important; margin: 0 auto !important; padding: 20px; }
-    
     .desc-box { order: 4; width: calc(100% - 30px) !important; margin: 0 auto 40px auto !important; }
 }
 </style>
@@ -251,12 +261,12 @@ body {
     </div>
 
     <div class="form-section">
-      <h2 style="color:#4f46e5; margin:0 0 20px 0; font-size:1.2rem; border-bottom: 2px solid #e0e7ff; padding-bottom: 10px; display:inline-block;">Start customizing your video👇</h2>
+      <h2 class="custom-heading">Start customizing your video👇</h2>
       
       <form id="orderForm" onsubmit="submitOrder(event)">
         ${formHtml}
 
-        <button type="submit" class="checkout-btn">
+        <button type="submit" class="checkout-btn" aria-live="polite">
             <span>Place Order</span>
             <span id="btn-price">$${price}</span>
         </button>
@@ -296,11 +306,10 @@ function updatePrice(){
         const wrap = document.getElementById(target);
         const fQty = parseInt(opt.dataset.fileQty)||0;
         const tLbl = opt.dataset.textLabel;
-        
         if(fQty > 0 || tLbl){
             let h = '';
-            if(fQty) for(let i=1;i<=fQty;i++) h+= '<div class="form-group"><label class="form-label" for="file_'+i+'">Upload File '+i+' <span style="color:red">*</span></label><input type="file" id="file_'+i+'" required class="form-control"></div>';
-            if(tLbl) h+= '<div class="form-group"><label class="form-label" for="text_lbl">'+tLbl+' <span style="color:red">*</span></label><input type="text" id="text_lbl" required class="form-control"></div>';
+            if(fQty) for(let i=1;i<=fQty;i++) h+= '<div class="form-group"><label class="form-label" for="file_'+i+'">Upload File '+i+' <span style="color:red">*</span></label><input type="file" id="file_'+i+'" required class="form-control" aria-required="true"></div>';
+            if(tLbl) h+= '<div class="form-group"><label class="form-label" for="text_lbl">'+tLbl+' <span style="color:red">*</span></label><input type="text" id="text_lbl" required class="form-control" aria-required="true"></div>';
             wrap.innerHTML = h;
             wrap.classList.add('show');
         } else {
@@ -333,8 +342,9 @@ function updatePrice(){
   });
 
   const finalPrice = '$' + total.toFixed(2);
-  document.getElementById('display-price').innerText = finalPrice;
-  document.getElementById('btn-price').innerText = finalPrice;
+  // Update ONLY the button text for screen readers
+  const btnPriceSpan = document.getElementById('btn-price');
+  if(btnPriceSpan) btnPriceSpan.innerText = finalPrice;
 }
 
 document.addEventListener('change', (e) => {
@@ -356,7 +366,7 @@ function submitOrder(e){
 </html>`;
 }
 
-// --- HELPER FUNCTION: Same as before ---
+// --- HELPER FUNCTION: Accessible Form ---
 
 function generateDynamicForm(fields) {
     if (!fields || fields.length === 0) return '<p>No options available.</p>';
@@ -364,17 +374,27 @@ function generateDynamicForm(fields) {
         const type = f._type;
         const label = f.label;
         const req = f.required ? 'required' : '';
-        const star = f.required ? '<span style="color:red">*</span>' : '';
+        const ariaReq = f.required ? 'aria-required="true"' : '';
+        const star = f.required ? '<span style="color:red" aria-hidden="true">*</span>' : '';
         const fieldId = `f_${i}`;
+        
         if(type === 'header') return `<h3 style="margin:25px 0 15px 0; border-bottom:1px solid #ddd; padding-bottom:5px; font-size:1.1rem; color:#111;">${label}</h3>`;
-        if(['text','email','number','date'].includes(type)) return `<div class="form-group"><label class="form-label" for="${fieldId}">${label} ${star}</label><input type="${type}" id="${fieldId}" class="form-control" ${req}></div>`;
-        if(type === 'textarea') return `<div class="form-group"><label class="form-label" for="${fieldId}">${label} ${star}</label><textarea id="${fieldId}" class="form-control" rows="${f.rows||3}" ${req}></textarea></div>`;
-        if(type === 'file') return `<div class="form-group"><label class="form-label" for="${fieldId}">${label} ${star}</label><input type="file" id="${fieldId}" class="form-control" ${req}></div>`;
+        
+        if(['text','email','number','date'].includes(type)) 
+            return `<div class="form-group"><label class="form-label" for="${fieldId}">${label} ${star}</label><input type="${type}" id="${fieldId}" class="form-control" ${req} ${ariaReq}></div>`;
+        
+        if(type === 'textarea') 
+            return `<div class="form-group"><label class="form-label" for="${fieldId}">${label} ${star}</label><textarea id="${fieldId}" class="form-control" rows="${f.rows||3}" ${req} ${ariaReq}></textarea></div>`;
+        
+        if(type === 'file') 
+            return `<div class="form-group"><label class="form-label" for="${fieldId}">${label} ${star}</label><input type="file" id="${fieldId}" class="form-control" ${req} ${ariaReq}></div>`;
+        
         if(type === 'select') {
             const condTarget = `cond_sel_${i}`;
             const opts = f.options_list.map(o => `<option value="${o.label}" data-price="${o.price||0}" data-file-qty="${o.file_qty||0}" data-text-label="${o.text_label||''}">${o.label} ${o.price>0 ? '(+$'+o.price+')' : ''}</option>`).join('');
-            return `<div class="form-group"><label class="form-label" for="${fieldId}">${label} ${star}</label><select id="${fieldId}" class="form-control price-ref" data-cond-target="${condTarget}" ${req}><option value="" data-price="0">Select Option</option>${opts}</select><div id="${condTarget}" class="conditional-wrap"></div></div>`;
+            return `<div class="form-group"><label class="form-label" for="${fieldId}">${label} ${star}</label><select id="${fieldId}" class="form-control price-ref" data-cond-target="${condTarget}" ${req} ${ariaReq}><option value="" data-price="0">Select Option</option>${opts}</select><div id="${condTarget}" class="conditional-wrap"></div></div>`;
         }
+        
         if(type === 'radio' || type === 'checkbox_group') {
             const isRadio = type === 'radio';
             const opts = f.options_list.map((o, idx) => {
@@ -384,11 +404,11 @@ function generateDynamicForm(fields) {
                 let condHtml = '';
                 if(hasCond) {
                     condHtml = `<div id="${condId}" class="conditional-wrap">`;
-                    if(o.file_qty) for(let k=1; k<=o.file_qty; k++) condHtml += `<div style="margin-bottom:8px"><label class="form-label" for="file_${i}_${k}">Upload File ${k} *</label><input type="file" id="file_${i}_${k}" class="form-control" disabled required></div>`;
-                    if(o.text_label) condHtml += `<div><label class="form-label" for="text_${i}_${idx}">${o.text_label} *</label><input type="text" id="text_${i}_${idx}" class="form-control" disabled required></div>`;
+                    if(o.file_qty) for(let k=1; k<=o.file_qty; k++) condHtml += `<div style="margin-bottom:8px"><label class="form-label" for="file_${i}_${k}">Upload File ${k} *</label><input type="file" id="file_${i}_${k}" class="form-control" disabled required aria-required="true"></div>`;
+                    if(o.text_label) condHtml += `<div><label class="form-label" for="text_${i}_${idx}">${o.text_label} *</label><input type="text" id="text_${i}_${idx}" class="form-control" disabled required aria-required="true"></div>`;
                     condHtml += `</div>`;
                 }
-                return `<div style="margin-bottom:8px"><label class="opt-row" for="${optId}" style="display:flex; justify-content:space-between; align-items:center; padding:12px; background:white; border:1px solid #e5e7eb; border-radius:8px; cursor:pointer; transition:0.1s;"><span style="display:flex; align-items:center; gap:10px; color:#374151;"><input type="${isRadio?'radio':'checkbox'}" id="${optId}" name="${label}${isRadio?'':'[]'}" class="price-ref" data-price="${o.price||0}" data-cond-id="${hasCond?condId:''}" ${isRadio&&f.required?'required':''}>${o.label}</span><span style="font-weight:bold; color:#4f46e5;">${o.price>0 ? '+$'+o.price : ''}</span></label>${condHtml}</div>`;
+                return `<div style="margin-bottom:8px"><label class="opt-row" for="${optId}" style="display:flex; justify-content:space-between; align-items:center; padding:12px; background:white; border:1px solid #e5e7eb; border-radius:8px; cursor:pointer; transition:0.1s;"><span style="display:flex; align-items:center; gap:10px; color:#374151;"><input type="${isRadio?'radio':'checkbox'}" id="${optId}" name="${label}${isRadio?'':'[]'}" class="price-ref" data-price="${o.price||0}" data-cond-id="${hasCond?condId:''}" ${isRadio&&f.required?'required':''} ${ariaReq}>${o.label}</span><span style="font-weight:bold; color:#4f46e5;">${o.price>0 ? '+$'+o.price : ''}</span></label>${condHtml}</div>`;
             }).join('');
             return `<div class="form-group"><label class="form-label" style="margin-bottom:10px;">${label} ${star}</label>${opts}</div>`;
         }
