@@ -12,239 +12,69 @@ It features:
 <link rel="stylesheet" href="../style.css">
 <link rel="stylesheet" href="../product.css">
 <style>
-/* --- CORE --- */
-:root { --primary: #4f46e5; --dark: #111; }
+/* Base Styles */
+:root { --primary: #4f46e5; }
 * { box-sizing: border-box; } 
-body { 
-    font-family: 'Segoe UI', system-ui, sans-serif; 
-    color: #1f2937; 
-    line-height: 1.5; 
-    margin: 0; 
-    background: #f9fafb;
-    overflow-x: hidden;
-    width: 100%;
-}
-
-/* --- ACCESSIBILITY FOCUS --- */
-button:focus-visible, input:focus-visible, select:focus-visible, textarea:focus-visible {
-    outline: 2px solid var(--primary);
-    outline-offset: 2px;
-}
-
-/* --- DESKTOP LAYOUT --- */
-.product-container { 
-    display: grid; 
-    grid-template-columns: 1.2fr 1fr; 
-    gap: 40px; 
-    margin: 40px auto; 
-    max-width: 1200px; 
-    padding: 0 20px; 
-    align-items: start;
-    position: relative;
-}
-
-.media-col { 
-    position: -webkit-sticky; position: sticky; top: 20px; 
-    display: flex; flex-direction: column; gap: 20px; 
-    height: fit-content; min-width: 0;
-}
-
-/* --- PLAYER (16:9) --- */
-.media-frame { 
-    width: 100%; aspect-ratio: 16/9 !important; background: #000; 
-    border-radius: 12px; overflow: hidden; border: 1px solid #e5e7eb; 
-    display: flex; align-items: center; justify-content: center;
-    box-shadow: 0 4px 10px rgba(0,0,0,0.05);
-}
+body { font-family: 'Segoe UI', system-ui, sans-serif; color: #1f2937; margin: 0; background: #f9fafb; }
+.product-container { display: grid; grid-template-columns: 1.2fr 1fr; gap: 40px; margin: 40px auto; max-width: 1200px; padding: 0 20px; align-items: start; }
+.media-col { position: sticky; top: 20px; display: flex; flex-direction: column; gap: 20px; }
+.media-frame { width: 100%; aspect-ratio: 16/9; background: #000; border-radius: 12px; overflow: hidden; display: flex; align-items: center; justify-content: center; }
 .media-frame img, .media-frame video { width: 100%; height: 100%; object-fit: contain; }
-
-/* --- SLIDER --- */
-.t-wrapper {
-    display: flex !important; align-items: center !important; gap: 10px !important; width: 100% !important;
-    background: white; padding: 10px; border-radius: 12px; border: 1px solid #e5e7eb; box-sizing: border-box;
-}
-
-.t-box { 
-    display: flex !important; flex-direction: row !important; flex-wrap: nowrap !important;
-    gap: 12px !important; overflow-x: auto !important; scroll-behavior: smooth;
-    width: 100%; white-space: nowrap !important; scrollbar-width: none;
-}
-.t-box::-webkit-scrollbar { display: none; }
-
-.t-btn { 
-    flex: 0 0 80px !important; width: 80px !important; height: 60px !important; min-width: 80px !important;
-    position: relative; background: white; border: 2px solid transparent; 
-    padding: 0; cursor: pointer; border-radius: 6px; overflow: hidden; transition: 0.2s;
-}
-.t-btn:hover, .t-btn:focus { border-color: var(--primary); transform: translateY(-2px); }
-.t-btn img { display: block; width: 100%; height: 100%; object-fit: cover; }
-
-.t-arrow {
-    background: #f3f4f6; border: none; border-radius: 50%; width: 32px; height: 32px; 
-    display: flex; align-items: center; justify-content: center; cursor: pointer; 
-    flex-shrink: 0; font-weight: bold; color: #374151; transition: 0.2s;
-}
-.t-arrow:hover { background: #e5e7eb; color: #111; }
-
-.play-icon-overlay {
-    position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%);
-    background: rgba(0,0,0,0.6); color: white; border-radius: 50%; width: 24px; height: 24px; 
-    display: flex; align-items: center; justify-content: center; font-size: 10px; pointer-events: none;
-}
-
-/* --- RIGHT PANEL --- */
-.form-col { 
-    background: white; padding: 30px; border-radius: 16px; 
-    border: 1px solid #e5e7eb; box-shadow: 0 10px 25px rgba(0,0,0,0.05);
-    display: flex; flex-direction: column; gap: 1.5rem; 
-}
-
-.cards-row { display: flex; gap: 15px; }
-.delivery-card { flex: 1; padding: 15px; border-radius: 10px; color: white; display: flex; flex-direction: column; justify-content: center; }
-.bg-green { background: #059669; }
-.bg-purple { background: #7c3aed; }
-.delivery-card h3 { margin: 0; font-size: 0.9rem; font-weight: 700; text-transform: uppercase; }
-.delivery-card span { font-size: 1rem; font-weight: 700; margin-top: 5px; }
-
-.price-card2 { flex: 1; background: var(--primary); color: white; padding: 15px; border-radius: 10px; text-align: center; display: flex; flex-direction: column; justify-content: center; }
-.price-card2 .price { font-size: 1.6rem; font-weight: 800; line-height: 1; }
-.price-card2 .old-price { font-size: 0.9rem; opacity: 0.8; text-decoration: line-through; }
-.price-card2 .discount { background: white; color: var(--primary); font-size: 0.7rem; font-weight: 800; padding: 2px 8px; border-radius: 12px; margin-top: 5px; display: inline-block; align-self: center; }
-
-.desc-box { background: white; padding: 25px; border-radius: 12px; border: 1px solid #e5e7eb; }
-
-/* UPDATED HEADING STYLE */
-.custom-heading {
-    text-align: center;
-    background: #eef2ff;
-    color: #4338ca;
-    padding: 15px;
-    border-radius: 10px;
-    margin: 0 0 20px 0;
-    font-size: 1.25rem;
-    font-weight: 700;
-    border: 1px solid #c7d2fe;
-    box-shadow: 0 2px 4px rgba(0,0,0,0.02);
-}
-
-/* Form Styling */
+.t-wrapper { display: flex; gap: 10px; overflow-x: auto; padding: 10px 0; }
+.t-btn { width: 80px; height: 60px; flex-shrink: 0; border: 2px solid transparent; border-radius: 6px; cursor: pointer; padding: 0; }
+.t-btn:hover { border-color: var(--primary); }
+.t-btn img { width: 100%; height: 100%; object-fit: cover; }
+.form-col { background: white; padding: 30px; border-radius: 16px; box-shadow: 0 10px 25px rgba(0,0,0,0.05); }
+.cards-row { display: flex; gap: 15px; margin: 20px 0; }
+.delivery-card { flex: 1; padding: 15px; border-radius: 10px; color: white; }
+.bg-green { background: #059669; } .bg-purple { background: #7c3aed; }
+.price-card2 { flex: 1; background: var(--primary); color: white; padding: 15px; border-radius: 10px; text-align: center; }
 .form-group { margin-bottom: 15px; }
-.form-label { display: block; font-weight: 700; font-size: 0.9rem; margin-bottom: 8px; color: #374151; }
-.form-control { width: 100%; padding: 12px; border: 1px solid #d1d5db; border-radius: 8px; font-size: 1rem; box-sizing: border-box; transition: 0.2s; }
-.form-control:focus { border-color: var(--primary); outline: 4px solid #e0e7ff; }
-
-.checkout-btn { width: 100%; background: #047857; color: white; padding: 18px; font-size: 1.1rem; font-weight: 800; border: none; border-radius: 10px; cursor: pointer; display: flex; justify-content: space-between; transition: 0.2s; box-shadow: 0 4px 6px rgba(4, 120, 87, 0.2); }
-.checkout-btn:hover { background: #065f46; transform: translateY(-2px); }
-
-.rating-text { color: #b45309; font-weight: bold; font-size: 0.9rem; margin-top: 5px; }
-
-/* --- MOBILE --- */
-@media (max-width: 768px) {
-    .product-container { display: flex; flex-direction: column; gap: 20px; margin: 0; padding: 0; width: 100%; max-width: 100%; overflow-x: hidden; }
-    .media-col { display: contents; } 
-    .media-frame { order: 1; width: 100% !important; margin: 0 !important; border-radius: 0 !important; border-left: none; border-right: none; box-shadow: none; }
-    .t-wrapper { order: 2; width: calc(100% - 30px) !important; margin: 0 auto !important; }
-    .form-col { order: 3; width: calc(100% - 30px) !important; margin: 0 auto !important; padding: 20px; }
-    .desc-box { order: 4; width: calc(100% - 30px) !important; margin: 0 auto 40px auto !important; }
-}
+.form-label { display: block; font-weight: 700; margin-bottom: 8px; }
+.form-control { width: 100%; padding: 12px; border: 1px solid #d1d5db; border-radius: 8px; }
+.checkout-btn { width: 100%; background: #047857; color: white; padding: 18px; font-weight: bold; border: none; border-radius: 10px; cursor: pointer; display: flex; justify-content: space-between; margin-top: 20px; }
+@media (max-width: 768px) { .product-container { grid-template-columns: 1fr; } }
 </style>
 </head>
 <body>
-
 <main class="product-container">
   <div class="media-col">
-    <div class="media-frame" id="main-media" role="region" aria-label="Media Player">
-       <video controls src="https://res.cloudinary.com/demo/video/upload/v1590484059/dog.mp4" poster="https://res.cloudinary.com/demo/image/upload/v1590483329/sample.jpg" width="600" height="337"><track kind="captions" src="" label="English" /></video>
+    <div class="media-frame" id="main-media">
+       <video controls src="https://res.cloudinary.com/demo/video/upload/v1590484059/dog.mp4" poster="https://res.cloudinary.com/demo/image/upload/v1590483329/sample.jpg"></video>
     </div>
-    
-    <div class="t-wrapper" role="region" aria-label="Gallery Slider">
-        <button class="t-arrow" onclick="scrollThumbs(-1)" aria-label="Previous">❮</button>
-        <div class="t-box" id="thumbs-box">
-            
-        <button type="button" class="t-btn" onclick="switchMedia('video','https://res.cloudinary.com/demo/video/upload/v1590484059/dog.mp4')" aria-label="Play Product Video">
-            <img src="https://res.cloudinary.com/demo/image/upload/v1590483329/sample.jpg" alt="Ultimate Custom Gift 2025 (Deejklejlmo)nn view 1" loading="lazy">
-            <span class="play-icon-overlay" aria-hidden="true">▶</span>
-        </button>
-        
-        <button type="button" class="t-btn" onclick="switchMedia('image','https://res.cloudinary.com/demo/image/upload/v1312461204/sample.jpg')" aria-label="View Ultimate Custom Gift 2025 (Deejklejlmo)nn Image 2">
-            <img src="https://res.cloudinary.com/demo/image/upload/v1312461204/sample.jpg" alt="Ultimate Custom Gift 2025 (Deejklejlmo)nn view 2" loading="lazy">
-            
-        </button>
-        
-        <button type="button" class="t-btn" onclick="switchMedia('image','https://res.cloudinary.com/demo/image/upload/v1590483329/sample.jpg')" aria-label="View Ultimate Custom Gift 2025 (Deejklejlmo)nn Image 3">
-            <img src="https://res.cloudinary.com/demo/image/upload/v1590483329/sample.jpg" alt="Ultimate Custom Gift 2025 (Deejklejlmo)nn view 3" loading="lazy">
-            
-        </button>
-        
-        <button type="button" class="t-btn" onclick="switchMedia('image','https://res.cloudinary.com/demo/image/upload/v1312461204/sample.jpg')" aria-label="View Ultimate Custom Gift 2025 (Deejklejlmo)nn Image 4">
-            <img src="https://res.cloudinary.com/demo/image/upload/v1312461204/sample.jpg" alt="Ultimate Custom Gift 2025 (Deejklejlmo)nn view 4" loading="lazy">
-            
-        </button>
-        
-        <button type="button" class="t-btn" onclick="switchMedia('image','https://res.cloudinary.com/demo/image/upload/v1590483329/sample.jpg')" aria-label="View Ultimate Custom Gift 2025 (Deejklejlmo)nn Image 5">
-            <img src="https://res.cloudinary.com/demo/image/upload/v1590483329/sample.jpg" alt="Ultimate Custom Gift 2025 (Deejklejlmo)nn view 5" loading="lazy">
-            
-        </button>
-        
-        <button type="button" class="t-btn" onclick="switchMedia('image','https://res.cloudinary.com/demo/image/upload/v1312461204/sample.jpg')" aria-label="View Ultimate Custom Gift 2025 (Deejklejlmo)nn Image 6">
-            <img src="https://res.cloudinary.com/demo/image/upload/v1312461204/sample.jpg" alt="Ultimate Custom Gift 2025 (Deejklejlmo)nn view 6" loading="lazy">
-            
-        </button>
-        
-        <button type="button" class="t-btn" onclick="switchMedia('image','https://res.cloudinary.com/demo/image/upload/v1590483329/sample.jpg')" aria-label="View Ultimate Custom Gift 2025 (Deejklejlmo)nn Image 7">
-            <img src="https://res.cloudinary.com/demo/image/upload/v1590483329/sample.jpg" alt="Ultimate Custom Gift 2025 (Deejklejlmo)nn view 7" loading="lazy">
-            
-        </button>
-        
-        <button type="button" class="t-btn" onclick="switchMedia('image','https://res.cloudinary.com/demo/image/upload/v1312461204/sample.jpg')" aria-label="View Ultimate Custom Gift 2025 (Deejklejlmo)nn Image 8">
-            <img src="https://res.cloudinary.com/demo/image/upload/v1312461204/sample.jpg" alt="Ultimate Custom Gift 2025 (Deejklejlmo)nn view 8" loading="lazy">
-            
-        </button>
-        
-        </div>
-        <button class="t-arrow" onclick="scrollThumbs(1)" aria-label="Next">❯</button>
+    <div class="t-wrapper"><button type="button" class="t-btn" onclick="switchMedia('video','https://res.cloudinary.com/demo/video/upload/v1590484059/dog.mp4')"><img src="https://res.cloudinary.com/demo/image/upload/v1590483329/sample.jpg" alt="View 1"></button><button type="button" class="t-btn" onclick="switchMedia('image','https://res.cloudinary.com/demo/image/upload/v1312461204/sample.jpg')"><img src="https://res.cloudinary.com/demo/image/upload/v1312461204/sample.jpg" alt="View 2"></button><button type="button" class="t-btn" onclick="switchMedia('image','https://res.cloudinary.com/demo/image/upload/v1590483329/sample.jpg')"><img src="https://res.cloudinary.com/demo/image/upload/v1590483329/sample.jpg" alt="View 3"></button><button type="button" class="t-btn" onclick="switchMedia('image','https://res.cloudinary.com/demo/image/upload/v1312461204/sample.jpg')"><img src="https://res.cloudinary.com/demo/image/upload/v1312461204/sample.jpg" alt="View 4"></button><button type="button" class="t-btn" onclick="switchMedia('image','https://res.cloudinary.com/demo/image/upload/v1590483329/sample.jpg')"><img src="https://res.cloudinary.com/demo/image/upload/v1590483329/sample.jpg" alt="View 5"></button><button type="button" class="t-btn" onclick="switchMedia('image','https://res.cloudinary.com/demo/image/upload/v1312461204/sample.jpg')"><img src="https://res.cloudinary.com/demo/image/upload/v1312461204/sample.jpg" alt="View 6"></button><button type="button" class="t-btn" onclick="switchMedia('image','https://res.cloudinary.com/demo/image/upload/v1590483329/sample.jpg')"><img src="https://res.cloudinary.com/demo/image/upload/v1590483329/sample.jpg" alt="View 7"></button><button type="button" class="t-btn" onclick="switchMedia('image','https://res.cloudinary.com/demo/image/upload/v1312461204/sample.jpg')"><img src="https://res.cloudinary.com/demo/image/upload/v1312461204/sample.jpg" alt="View 8"></button></div>
+    <div style="background:white; padding:20px; border-radius:12px; border:1px solid #eee;">
+      <h3>Description</h3>
+      <p style="white-space: pre-wrap;">This is a comprehensive demo to showcase the Advanced Form Builder 2025.
+
+It features:
+- Cloudinary Integration (Video + Images)
+- Conditional Logic (File/Text requirements)
+- Complex Add-ons & Pricing
+- Long Text Areas</p>
     </div>
-    
-    <section class="desc-box">
-      <h2 style="margin-top:0; font-size:1.2rem; border-bottom:1px solid #eee; padding-bottom:10px;">Product Description</h2>
-      <p style="color:#4b5563; line-height:1.7; margin-top:15px;">This is a comprehensive demo to showcase the Advanced Form Builder 2025.<br><br>It features:<br>- Cloudinary Integration (Video + Images)<br>- Conditional Logic (File/Text requirements)<br>- Complex Add-ons & Pricing<br>- Long Text Areas</p>
-    </section>
   </div>
 
   <div class="form-col">
-    <div>
-        <h1 style="font-size:1.8rem; margin:0; line-height:1.3;">Ultimate Custom Gift 2025 (Deejklejlmo)nn</h1>
-        <div class="rating-text">★ 5.0 (Best Seller)</div>
-    </div>
-
+    <h1>Ultimate Custom Gift 2025 (Deejklejlmo)nn</h1>
     <div class="cards-row">
         <div class="delivery-card bg-purple">
-            <h3>Delivery Time</h3>
-            <span>Instant Delivery (Within 60 Mins)</span>
+            <small>Delivery Time</small>
+            <div style="font-weight:bold; font-size:1.1rem;">Instant Delivery (Within 60 Mins)</div>
         </div>
         <div class="price-card2">
-            <span class="price" id="display-price">$17</span>
-            <span class="old-price">$9</span>
-            <span class="discount">Special</span>
+            <div style="font-size:1.5rem; font-weight:bold;">$17</div>
+            <div style="text-decoration:line-through; opacity:0.8;">$9</div>
         </div>
     </div>
 
-    <div style="background:#ecfdf5; padding:12px; border-radius:8px; font-size:0.9rem; color:#065f46; border:1px solid #a7f3d0;">
-       <strong>Digital Product:</strong> No shipping involved. Receive via WhatsApp/Email within Instant Delivery (Within 60 Mins).
-    </div>
-
-    <div class="form-section">
-      <h2 class="custom-heading">Start customizing your video👇</h2>
-      
-      <form id="orderForm" onsubmit="submitOrder(event)">
-        <div class="form-group"><label class="form-label" for="f_0">Choose Photo <span style="color:red" aria-hidden="true">*</span></label><select id="f_0" class="form-control price-ref" data-cond-target="cond_sel_0" required aria-required="true"><option value="" data-price="0">Select Option</option><option value="1 Photo Free" data-price="0" data-file-qty="1" data-text-label="">1 Photo Free </option><option value="2 Photo " data-price="3" data-file-qty="2" data-text-label="">2 Photo  (+$3)</option><option value="3 Photo" data-price="6" data-file-qty="4" data-text-label="">3 Photo (+$6)</option></select><div id="cond_sel_0" class="conditional-wrap"></div></div><div class="form-group"><label class="form-label" for="f_1">Happy birthday  </label><textarea id="f_1" class="form-control" rows="3"  ></textarea></div>
-
-        <button type="submit" class="checkout-btn" aria-live="polite">
+    <form id="orderForm" onsubmit="submitOrder(event)">
+        <div class="form-group"><label class="form-label">Choose Photo <span style="color:red">*</span></label><select class="form-control price-ref" data-cond-target="cond_sel_0" required><option value="" data-price="0">Select Option</option><option value="1 Photo Free" data-price="0" data-has-cond="true">1 Photo Free </option><option value="2 Photo " data-price="3" data-has-cond="true">2 Photo  (+$3)</option><option value="3 Photo" data-price="6" data-has-cond="true">3 Photo (+$6)</option></select><div id="cond_sel_0" style="display:none; padding:10px; background:#f9f9f9; margin-top:5px;"><div style="margin-top:5px"><label>Upload File 1 *</label><input type="file" class="form-control" required disabled></div><div style="margin-top:5px"><label>Upload File 1 *</label><input type="file" class="form-control" required disabled></div><div style="margin-top:5px"><label>Upload File 2 *</label><input type="file" class="form-control" required disabled></div><div style="margin-top:5px"><label>Upload File 1 *</label><input type="file" class="form-control" required disabled></div><div style="margin-top:5px"><label>Upload File 2 *</label><input type="file" class="form-control" required disabled></div><div style="margin-top:5px"><label>Upload File 3 *</label><input type="file" class="form-control" required disabled></div><div style="margin-top:5px"><label>Upload File 4 *</label><input type="file" class="form-control" required disabled></div></div></div><div class="form-group"><label class="form-label">Happy birthday  </label><textarea class="form-control" rows="3" ></textarea></div>
+        <button type="submit" class="checkout-btn">
             <span>Place Order</span>
             <span id="btn-price">$17</span>
         </button>
-      </form>
-    </div>
+    </form>
   </div>
 </main>
 
@@ -253,71 +83,42 @@ let BASE_PRICE = 17;
 
 function switchMedia(type, url){
   const main = document.getElementById('main-media');
-  if(type === 'video'){
-    main.innerHTML = '<video controls autoplay src="'+url+'" poster="https://res.cloudinary.com/demo/image/upload/v1590483329/sample.jpg" style="width:100%;height:100%;object-fit:contain;"></video>';
-  } else {
-    main.innerHTML = '<img src="'+url+'" alt="Main View" style="width:100%;height:100%;object-fit:contain;">';
-  }
-}
-
-function scrollThumbs(direction) {
-    const container = document.getElementById('thumbs-box');
-    const scrollAmount = 200;
-    if(direction === 1) container.scrollLeft += scrollAmount;
-    else container.scrollLeft -= scrollAmount;
+  if(type === 'video') main.innerHTML = '<video controls autoplay src="'+url+'" poster="https://res.cloudinary.com/demo/image/upload/v1590483329/sample.jpg" style="width:100%;height:100%;object-fit:contain;"></video>';
+  else main.innerHTML = '<img src="'+url+'" style="width:100%;height:100%;object-fit:contain;">';
 }
 
 function updatePrice(){
   let total = BASE_PRICE;
-  
+  // Select Logic
   document.querySelectorAll('select.price-ref').forEach(sel => {
     const opt = sel.options[sel.selectedIndex];
     total += parseFloat(opt.dataset.price) || 0;
-    
+    // Show/Hide Logic
     const target = sel.dataset.condTarget;
-    if(target){
+    if(target) {
         const wrap = document.getElementById(target);
-        const fQty = parseInt(opt.dataset.fileQty)||0;
-        const tLbl = opt.dataset.textLabel;
-        if(fQty > 0 || tLbl){
-            let h = '';
-            if(fQty) for(let i=1;i<=fQty;i++) h+= '<div class="form-group"><label class="form-label" for="file_'+i+'">Upload File '+i+' <span style="color:red">*</span></label><input type="file" id="file_'+i+'" required class="form-control" aria-required="true"></div>';
-            if(tLbl) h+= '<div class="form-group"><label class="form-label" for="text_lbl">'+tLbl+' <span style="color:red">*</span></label><input type="text" id="text_lbl" required class="form-control" aria-required="true"></div>';
-            wrap.innerHTML = h;
-            wrap.classList.add('show');
-        } else {
-            wrap.classList.remove('show');
-            wrap.innerHTML = '';
-        }
-    }
-  });
-
-  document.querySelectorAll('input.price-ref').forEach(inp => {
-    const condId = inp.dataset.condId;
-    const wrap = document.getElementById(condId);
-
-    if(inp.checked){
-        total += parseFloat(inp.dataset.price) || 0;
-        if(wrap) {
-            wrap.classList.add('show');
+        if(opt.dataset.hasCond === 'true') {
+            wrap.style.display = 'block';
             wrap.querySelectorAll('input').forEach(i => i.disabled = false);
-        }
-    } else {
-        if(wrap && inp.type !== 'radio') {
-             wrap.classList.remove('show');
-             wrap.querySelectorAll('input').forEach(i => i.disabled = true);
-        }
-        if(inp.type === 'radio' && !inp.checked && wrap){
-             wrap.classList.remove('show');
-             wrap.querySelectorAll('input').forEach(i => i.disabled = true);
+        } else {
+            wrap.style.display = 'none';
+            wrap.querySelectorAll('input').forEach(i => i.disabled = true);
         }
     }
   });
+  // Radio/Checkbox Logic
+  document.querySelectorAll('input.price-ref:checked').forEach(inp => {
+    total += parseFloat(inp.dataset.price) || 0;
+    if(inp.dataset.condId) {
+        document.getElementById(inp.dataset.condId).style.display = 'block';
+    }
+  });
+  // Reset unchecked radio conditionals
+  document.querySelectorAll('input[type="radio"].price-ref:not(:checked)').forEach(inp => {
+     if(inp.dataset.condId) document.getElementById(inp.dataset.condId).style.display = 'none';
+  });
 
-  const finalPrice = '$' + total.toFixed(2);
-  // Update ONLY the button text for screen readers
-  const btnPriceSpan = document.getElementById('btn-price');
-  if(btnPriceSpan) btnPriceSpan.innerText = finalPrice;
+  document.getElementById('btn-price').innerText = '$' + total.toFixed(2);
 }
 
 document.addEventListener('change', (e) => {
@@ -328,11 +129,7 @@ function submitOrder(e){
     e.preventDefault();
     const btn = document.querySelector('.checkout-btn');
     btn.innerText = 'Processing...';
-    btn.disabled = true;
-    setTimeout(() => {
-        alert('Order Placed Successfully! Total: ' + document.getElementById('btn-price').innerText);
-        window.location.reload();
-    }, 1500);
+    setTimeout(() => { alert('Order Placed! Total: ' + document.getElementById('btn-price').innerText); }, 1000);
 }
 </script>
 </body>
