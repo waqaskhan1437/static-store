@@ -1,6 +1,6 @@
 /**
  * admin/js/generator.js
- * EXACT COPY of demo-product-1.html Layout (With Simple Delivery Time)
+ * Logic Updated for Instant vs Standard Delivery
  */
 
 export function generateProductHTML(product) {
@@ -16,8 +16,27 @@ export function generateProductHTML(product) {
     const oldPrice = parseFloat(product.old_price) || 0;
     const desc = product.description || '';
     
-    // Yahan hum naya delivery time utha rahe hain
-    const deliveryTime = product.delivery_time || 'Instant Delivery';
+    // --- DELIVERY LOGIC START ---
+    let deliveryText = "Standard Delivery"; // Default
+    let deliveryClass = "bg-green"; // Green color default
+
+    if (product.is_instant) {
+        // Agar Instant checkbox on hai
+        deliveryText = "Instant Delivery In 60 Minutes";
+        deliveryClass = "bg-purple"; // Purple color for Instant
+    } else {
+        // Agar checkbox off hai, to text check karo
+        const dTime = (product.delivery_time || '').toString().trim();
+        
+        if (dTime === '1' || dTime.toLowerCase() === '1 day') {
+            deliveryText = "24 Hours Express Delivery";
+        } else if (dTime === '2' || dTime.toLowerCase() === '2 days') {
+            deliveryText = "2 Days Delivery";
+        } else if (dTime) {
+            deliveryText = dTime + " Delivery"; // Fallback (e.g. "5 Days Delivery")
+        }
+    }
+    // --- DELIVERY LOGIC END ---
 
     // 2. Thumbnails
     const thumbsHtml = images.map((img, idx) => `
@@ -37,7 +56,7 @@ export function generateProductHTML(product) {
 <link rel="stylesheet" href="../style.css">
 <link rel="stylesheet" href="../product.css">
 <style>
-/* Layout CSS */
+/* ... (Purana Layout Style Same Rahega) ... */
 .product-container { display:grid; grid-template-columns: 1fr 1fr; gap:2rem; margin:2rem auto; max-width:1200px; padding:0 15px; }
 .media-col { flex:1 1 55%; min-width:280px; }
 .form-col { display:flex; flex-direction:column; gap:1rem; box-sizing:border-box; }
@@ -47,12 +66,15 @@ export function generateProductHTML(product) {
 .thumbs img { width:80px; height:60px; border-radius:6px; cursor:pointer; object-fit:cover; border:2px solid transparent; }
 .thumbs img:hover { border-color: #6366f1; }
 
-/* Delivery & Price Cards */
-.cards-row { display:flex; gap:1rem; margin-top:0.5rem; }
-.delivery-card { flex:1; background:#10b981; color:white; padding:1rem; border-radius:12px; display:flex; flex-direction:column; justify-content:center; }
-.delivery-card h4 { margin:0; font-size:1rem; font-weight:700; }
-.delivery-card span { font-size:0.9rem; opacity:0.9; margin-top:5px; }
+/* Delivery Card Dynamic Colors */
+.delivery-card { flex:1; color:white; padding:1rem; border-radius:12px; display:flex; flex-direction:column; justify-content:center; }
+.bg-green { background:#10b981; }
+.bg-purple { background:#8e44ad; }
 
+.delivery-card h4 { margin:0; font-size:1rem; font-weight:700; }
+.delivery-card span { font-size:0.95rem; opacity:1; margin-top:5px; font-weight:600; }
+
+.cards-row { display:flex; gap:1rem; margin-top:0.5rem; }
 .price-card2 { flex:1; background:#8b5cf6; color:white; padding:1rem; border-radius:12px; display:flex; flex-direction:column; align-items:center; justify-content:center; gap:0.25rem; }
 .price-card2 .price { font-size:1.8rem; font-weight:bold; }
 .price-card2 .old-price { text-decoration:line-through; opacity:0.7; font-size:1rem; }
@@ -101,9 +123,9 @@ export function generateProductHTML(product) {
     <div style="color:#fbbf24; font-weight:bold; font-size:0.9rem">★ 5.0 (New Arrival)</div>
 
     <div class="cards-row">
-        <div class="delivery-card">
+        <div class="delivery-card ${deliveryClass}">
             <h4>Estimated Delivery</h4>
-            <span>${deliveryTime}</span>
+            <span>${deliveryText}</span>
         </div>
 
         <div class="price-card2">
@@ -114,7 +136,7 @@ export function generateProductHTML(product) {
     </div>
 
     <div style="background:#d1fae5; padding:0.75rem; border-radius:8px; font-size:0.9rem; color:#065f46; margin-top:10px;">
-       Digital/Physical Delivery: <b>${deliveryTime}</b>
+       Note: <b>${deliveryText}</b> upon order confirmation.
     </div>
 
     <div class="form-section">
