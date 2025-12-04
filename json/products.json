@@ -1810,13 +1810,6 @@
         "required": false,
         "rows": 3,
         "options_list": []
-      },
-      {
-        "_type": "header",
-        "label": "happy birthday video",
-        "required": false,
-        "rows": 3,
-        "options_list": []
       }
     ],
     "tags": []
