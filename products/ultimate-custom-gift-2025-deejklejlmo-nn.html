@@ -25,6 +25,12 @@ body {
     width: 100%;
 }
 
+/* --- ACCESSIBILITY FOCUS --- */
+button:focus-visible, input:focus-visible, select:focus-visible, textarea:focus-visible {
+    outline: 2px solid var(--primary);
+    outline-offset: 2px;
+}
+
 /* --- DESKTOP LAYOUT --- */
 .product-container { 
     display: grid; 
@@ -107,6 +113,20 @@ body {
 
 .desc-box { background: white; padding: 25px; border-radius: 12px; border: 1px solid #e5e7eb; }
 
+/* UPDATED HEADING STYLE */
+.custom-heading {
+    text-align: center;
+    background: #eef2ff;
+    color: #4338ca;
+    padding: 15px;
+    border-radius: 10px;
+    margin: 0 0 20px 0;
+    font-size: 1.25rem;
+    font-weight: 700;
+    border: 1px solid #c7d2fe;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.02);
+}
+
 /* Form Styling */
 .form-group { margin-bottom: 15px; }
 .form-label { display: block; font-weight: 700; font-size: 0.9rem; margin-bottom: 8px; color: #374151; }
@@ -118,26 +138,13 @@ body {
 
 .rating-text { color: #b45309; font-weight: bold; font-size: 0.9rem; margin-top: 5px; }
 
-/* --- MOBILE OPTIMIZED --- */
+/* --- MOBILE --- */
 @media (max-width: 768px) {
-    .product-container { 
-        display: flex; flex-direction: column; gap: 20px; 
-        margin: 0; padding: 0; 
-        width: 100%; max-width: 100%;
-        overflow-x: hidden;
-    }
-    
+    .product-container { display: flex; flex-direction: column; gap: 20px; margin: 0; padding: 0; width: 100%; max-width: 100%; overflow-x: hidden; }
     .media-col { display: contents; } 
-
-    .media-frame { 
-        order: 1; width: 100% !important; margin: 0 !important;
-        border-radius: 0 !important; border-left: none; border-right: none; box-shadow: none;
-    }
-    
+    .media-frame { order: 1; width: 100% !important; margin: 0 !important; border-radius: 0 !important; border-left: none; border-right: none; box-shadow: none; }
     .t-wrapper { order: 2; width: calc(100% - 30px) !important; margin: 0 auto !important; }
-    
     .form-col { order: 3; width: calc(100% - 30px) !important; margin: 0 auto !important; padding: 20px; }
-    
     .desc-box { order: 4; width: calc(100% - 30px) !important; margin: 0 auto 40px auto !important; }
 }
 </style>
@@ -154,43 +161,43 @@ body {
         <button class="t-arrow" onclick="scrollThumbs(-1)" aria-label="Previous">❮</button>
         <div class="t-box" id="thumbs-box">
             
-        <button type="button" class="t-btn" onclick="switchMedia('video','https://res.cloudinary.com/demo/video/upload/v1590484059/dog.mp4')" aria-label="Play Video">
-            <img src="https://res.cloudinary.com/demo/image/upload/v1590483329/sample.jpg" alt="Thumbnail 1" loading="lazy">
-            <span class="play-icon-overlay">▶</span>
+        <button type="button" class="t-btn" onclick="switchMedia('video','https://res.cloudinary.com/demo/video/upload/v1590484059/dog.mp4')" aria-label="Play Product Video">
+            <img src="https://res.cloudinary.com/demo/image/upload/v1590483329/sample.jpg" alt="Ultimate Custom Gift 2025 (Deejklejlmo)nnjkkjlknmn,mnm,bbb view 1" loading="lazy">
+            <span class="play-icon-overlay" aria-hidden="true">▶</span>
         </button>
         
-        <button type="button" class="t-btn" onclick="switchMedia('image','https://res.cloudinary.com/demo/image/upload/v1312461204/sample.jpg')" aria-label="View Image 2">
-            <img src="https://res.cloudinary.com/demo/image/upload/v1312461204/sample.jpg" alt="Thumbnail 2" loading="lazy">
+        <button type="button" class="t-btn" onclick="switchMedia('image','https://res.cloudinary.com/demo/image/upload/v1312461204/sample.jpg')" aria-label="View Ultimate Custom Gift 2025 (Deejklejlmo)nnjkkjlknmn,mnm,bbb Image 2">
+            <img src="https://res.cloudinary.com/demo/image/upload/v1312461204/sample.jpg" alt="Ultimate Custom Gift 2025 (Deejklejlmo)nnjkkjlknmn,mnm,bbb view 2" loading="lazy">
             
         </button>
         
-        <button type="button" class="t-btn" onclick="switchMedia('image','https://res.cloudinary.com/demo/image/upload/v1590483329/sample.jpg')" aria-label="View Image 3">
-            <img src="https://res.cloudinary.com/demo/image/upload/v1590483329/sample.jpg" alt="Thumbnail 3" loading="lazy">
+        <button type="button" class="t-btn" onclick="switchMedia('image','https://res.cloudinary.com/demo/image/upload/v1590483329/sample.jpg')" aria-label="View Ultimate Custom Gift 2025 (Deejklejlmo)nnjkkjlknmn,mnm,bbb Image 3">
+            <img src="https://res.cloudinary.com/demo/image/upload/v1590483329/sample.jpg" alt="Ultimate Custom Gift 2025 (Deejklejlmo)nnjkkjlknmn,mnm,bbb view 3" loading="lazy">
             
         </button>
         
-        <button type="button" class="t-btn" onclick="switchMedia('image','https://res.cloudinary.com/demo/image/upload/v1312461204/sample.jpg')" aria-label="View Image 4">
-            <img src="https://res.cloudinary.com/demo/image/upload/v1312461204/sample.jpg" alt="Thumbnail 4" loading="lazy">
+        <button type="button" class="t-btn" onclick="switchMedia('image','https://res.cloudinary.com/demo/image/upload/v1312461204/sample.jpg')" aria-label="View Ultimate Custom Gift 2025 (Deejklejlmo)nnjkkjlknmn,mnm,bbb Image 4">
+            <img src="https://res.cloudinary.com/demo/image/upload/v1312461204/sample.jpg" alt="Ultimate Custom Gift 2025 (Deejklejlmo)nnjkkjlknmn,mnm,bbb view 4" loading="lazy">
             
         </button>
         
-        <button type="button" class="t-btn" onclick="switchMedia('image','https://res.cloudinary.com/demo/image/upload/v1590483329/sample.jpg')" aria-label="View Image 5">
-            <img src="https://res.cloudinary.com/demo/image/upload/v1590483329/sample.jpg" alt="Thumbnail 5" loading="lazy">
+        <button type="button" class="t-btn" onclick="switchMedia('image','https://res.cloudinary.com/demo/image/upload/v1590483329/sample.jpg')" aria-label="View Ultimate Custom Gift 2025 (Deejklejlmo)nnjkkjlknmn,mnm,bbb Image 5">
+            <img src="https://res.cloudinary.com/demo/image/upload/v1590483329/sample.jpg" alt="Ultimate Custom Gift 2025 (Deejklejlmo)nnjkkjlknmn,mnm,bbb view 5" loading="lazy">
             
         </button>
         
-        <button type="button" class="t-btn" onclick="switchMedia('image','https://res.cloudinary.com/demo/image/upload/v1312461204/sample.jpg')" aria-label="View Image 6">
-            <img src="https://res.cloudinary.com/demo/image/upload/v1312461204/sample.jpg" alt="Thumbnail 6" loading="lazy">
+        <button type="button" class="t-btn" onclick="switchMedia('image','https://res.cloudinary.com/demo/image/upload/v1312461204/sample.jpg')" aria-label="View Ultimate Custom Gift 2025 (Deejklejlmo)nnjkkjlknmn,mnm,bbb Image 6">
+            <img src="https://res.cloudinary.com/demo/image/upload/v1312461204/sample.jpg" alt="Ultimate Custom Gift 2025 (Deejklejlmo)nnjkkjlknmn,mnm,bbb view 6" loading="lazy">
             
         </button>
         
-        <button type="button" class="t-btn" onclick="switchMedia('image','https://res.cloudinary.com/demo/image/upload/v1590483329/sample.jpg')" aria-label="View Image 7">
-            <img src="https://res.cloudinary.com/demo/image/upload/v1590483329/sample.jpg" alt="Thumbnail 7" loading="lazy">
+        <button type="button" class="t-btn" onclick="switchMedia('image','https://res.cloudinary.com/demo/image/upload/v1590483329/sample.jpg')" aria-label="View Ultimate Custom Gift 2025 (Deejklejlmo)nnjkkjlknmn,mnm,bbb Image 7">
+            <img src="https://res.cloudinary.com/demo/image/upload/v1590483329/sample.jpg" alt="Ultimate Custom Gift 2025 (Deejklejlmo)nnjkkjlknmn,mnm,bbb view 7" loading="lazy">
             
         </button>
         
-        <button type="button" class="t-btn" onclick="switchMedia('image','https://res.cloudinary.com/demo/image/upload/v1312461204/sample.jpg')" aria-label="View Image 8">
-            <img src="https://res.cloudinary.com/demo/image/upload/v1312461204/sample.jpg" alt="Thumbnail 8" loading="lazy">
+        <button type="button" class="t-btn" onclick="switchMedia('image','https://res.cloudinary.com/demo/image/upload/v1312461204/sample.jpg')" aria-label="View Ultimate Custom Gift 2025 (Deejklejlmo)nnjkkjlknmn,mnm,bbb Image 8">
+            <img src="https://res.cloudinary.com/demo/image/upload/v1312461204/sample.jpg" alt="Ultimate Custom Gift 2025 (Deejklejlmo)nnjkkjlknmn,mnm,bbb view 8" loading="lazy">
             
         </button>
         
@@ -227,12 +234,12 @@ body {
     </div>
 
     <div class="form-section">
-      <h2 style="color:#4f46e5; margin:0 0 20px 0; font-size:1.2rem; border-bottom: 2px solid #e0e7ff; padding-bottom: 10px; display:inline-block;">Start customizing your video👇</h2>
+      <h2 class="custom-heading">Start customizing your video👇</h2>
       
       <form id="orderForm" onsubmit="submitOrder(event)">
-        <div class="form-group"><label class="form-label" for="f_0">Choose Photo <span style="color:red">*</span></label><select id="f_0" class="form-control price-ref" data-cond-target="cond_sel_0" required><option value="" data-price="0">Select Option</option><option value="1 Photo Free" data-price="0" data-file-qty="1" data-text-label="">1 Photo Free </option><option value="2 Photo " data-price="3" data-file-qty="2" data-text-label="">2 Photo  (+$3)</option><option value="3 Photo" data-price="6" data-file-qty="4" data-text-label="">3 Photo (+$6)</option></select><div id="cond_sel_0" class="conditional-wrap"></div></div><div class="form-group"><label class="form-label" for="f_1">Happy birthday  </label><textarea id="f_1" class="form-control" rows="3" ></textarea></div>
+        <div class="form-group"><label class="form-label" for="f_0">Choose Photo <span style="color:red" aria-hidden="true">*</span></label><select id="f_0" class="form-control price-ref" data-cond-target="cond_sel_0" required aria-required="true"><option value="" data-price="0">Select Option</option><option value="1 Photo Free" data-price="0" data-file-qty="1" data-text-label="">1 Photo Free </option><option value="2 Photo " data-price="3" data-file-qty="2" data-text-label="">2 Photo  (+$3)</option><option value="3 Photo" data-price="6" data-file-qty="4" data-text-label="">3 Photo (+$6)</option></select><div id="cond_sel_0" class="conditional-wrap"></div></div><div class="form-group"><label class="form-label" for="f_1">Happy birthday  </label><textarea id="f_1" class="form-control" rows="3"  ></textarea></div>
 
-        <button type="submit" class="checkout-btn">
+        <button type="submit" class="checkout-btn" aria-live="polite">
             <span>Place Order</span>
             <span id="btn-price">$8</span>
         </button>
@@ -272,11 +279,10 @@ function updatePrice(){
         const wrap = document.getElementById(target);
         const fQty = parseInt(opt.dataset.fileQty)||0;
         const tLbl = opt.dataset.textLabel;
-        
         if(fQty > 0 || tLbl){
             let h = '';
-            if(fQty) for(let i=1;i<=fQty;i++) h+= '<div class="form-group"><label class="form-label" for="file_'+i+'">Upload File '+i+' <span style="color:red">*</span></label><input type="file" id="file_'+i+'" required class="form-control"></div>';
-            if(tLbl) h+= '<div class="form-group"><label class="form-label" for="text_lbl">'+tLbl+' <span style="color:red">*</span></label><input type="text" id="text_lbl" required class="form-control"></div>';
+            if(fQty) for(let i=1;i<=fQty;i++) h+= '<div class="form-group"><label class="form-label" for="file_'+i+'">Upload File '+i+' <span style="color:red">*</span></label><input type="file" id="file_'+i+'" required class="form-control" aria-required="true"></div>';
+            if(tLbl) h+= '<div class="form-group"><label class="form-label" for="text_lbl">'+tLbl+' <span style="color:red">*</span></label><input type="text" id="text_lbl" required class="form-control" aria-required="true"></div>';
             wrap.innerHTML = h;
             wrap.classList.add('show');
         } else {
@@ -309,8 +315,9 @@ function updatePrice(){
   });
 
   const finalPrice = '$' + total.toFixed(2);
-  document.getElementById('display-price').innerText = finalPrice;
-  document.getElementById('btn-price').innerText = finalPrice;
+  // Update ONLY the button text for screen readers
+  const btnPriceSpan = document.getElementById('btn-price');
+  if(btnPriceSpan) btnPriceSpan.innerText = finalPrice;
 }
 
 document.addEventListener('change', (e) => {
