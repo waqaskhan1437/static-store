@@ -1756,7 +1756,7 @@
     "slug": "ultimate-custom-gift-2025-deejklejlmo-nn",
     "id": "ultimate-custom-gift-2025-deejklejlmo-nn",
     "date": "2025-12-04T00:14:22.026Z",
-    "title": "Ultimate Custom Gift 2025 (Deejklejlmo)nnjkkjlknmn,mnm,bbb",
+    "title": "Ultimate Custom Gift 2025 (Deejklejlmo)nn",
     "price": 13,
     "old_price": 9,
     "description": "This is a comprehensive demo to showcase the Advanced Form Builder 2025.\n\nIt features:\n- Cloudinary Integration (Video + Images)\n- Conditional Logic (File/Text requirements)\n- Complex Add-ons & Pricing\n- Long Text Areas",
@@ -1772,8 +1772,8 @@
       "https://res.cloudinary.com/demo/image/upload/v1312461204/sample.jpg"
     ],
     "video_url": "https://res.cloudinary.com/demo/video/upload/v1590484059/dog.mp4",
-    "is_instant": true,
-    "delivery_time": "Standard",
+    "is_instant": false,
+    "delivery_time": "1",
     "customForm": [
       {
         "_type": "select",
