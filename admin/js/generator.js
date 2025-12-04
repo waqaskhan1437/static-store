@@ -1,10 +1,9 @@
 /**
  * admin/js/generator.js
  * FIXED: 
- * - Mobile Layout "Left Shift" Issue Fixed (Prevented Horizontal Overflow)
- * - Slider & Form Width Calculated Properly (100% - 30px)
- * - Player stays 100% Edge-to-Edge
- * - Body Overflow Hidden to stop shaking
+ * - Updated Delivery Notification Text (Digital/No Shipping)
+ * - Updated Form Heading ("Start customizing your video👇")
+ * - Keeps all previous fixes (Slider, Sticky Player, Mobile Layout, USD)
  */
 
 export function generateProductHTML(product) {
@@ -83,7 +82,7 @@ body {
     line-height: 1.5; 
     margin: 0; 
     background: #f9fafb;
-    overflow-x: hidden; /* Prevent horizontal scroll causing layout shift */
+    overflow-x: hidden;
     width: 100%;
 }
 
@@ -180,9 +179,8 @@ body {
 
 .rating-text { color: #b45309; font-weight: bold; font-size: 0.9rem; margin-top: 5px; }
 
-/* --- MOBILE OPTIMIZED (ZERO MARGIN PLAYER) --- */
+/* --- MOBILE OPTIMIZED --- */
 @media (max-width: 768px) {
-    /* Main container is full width with no padding */
     .product-container { 
         display: flex; flex-direction: column; gap: 20px; 
         margin: 0; padding: 0; 
@@ -192,38 +190,16 @@ body {
     
     .media-col { display: contents; } 
 
-    /* 1. Player: Edge to Edge (0 Margin) */
     .media-frame { 
-        order: 1; 
-        width: 100% !important;
-        margin: 0 !important;
-        border-radius: 0 !important;
-        border-left: none; border-right: none;
-        box-shadow: none;
+        order: 1; width: 100% !important; margin: 0 !important;
+        border-radius: 0 !important; border-left: none; border-right: none; box-shadow: none;
     }
     
-    /* 2. Slider: Centered with gap from edges */
-    .t-wrapper { 
-        order: 2; 
-        /* Use CALC to ensure it fits with margin */
-        width: calc(100% - 30px) !important;
-        margin: 0 auto !important; 
-    }
+    .t-wrapper { order: 2; width: calc(100% - 30px) !important; margin: 0 auto !important; }
     
-    /* 3. Form: Centered with gap */
-    .form-col { 
-        order: 3; 
-        width: calc(100% - 30px) !important;
-        margin: 0 auto !important; 
-        padding: 20px; 
-    }
+    .form-col { order: 3; width: calc(100% - 30px) !important; margin: 0 auto !important; padding: 20px; }
     
-    /* 4. Desc: Centered with gap */
-    .desc-box { 
-        order: 4; 
-        width: calc(100% - 30px) !important;
-        margin: 0 auto 40px auto !important; 
-    }
+    .desc-box { order: 4; width: calc(100% - 30px) !important; margin: 0 auto 40px auto !important; }
 }
 </style>
 </head>
@@ -271,11 +247,11 @@ body {
     </div>
 
     <div style="background:#ecfdf5; padding:12px; border-radius:8px; font-size:0.9rem; color:#065f46; border:1px solid #a7f3d0;">
-       <strong>Delivery:</strong> ${deliveryText} directly to your inbox/phone.
+       <strong>Digital Product:</strong> No shipping involved. Receive via WhatsApp/Email within ${deliveryText}.
     </div>
 
     <div class="form-section">
-      <h2 style="color:#4f46e5; margin:0 0 20px 0; font-size:1.2rem; border-bottom: 2px solid #e0e7ff; padding-bottom: 10px; display:inline-block;">Customize Order</h2>
+      <h2 style="color:#4f46e5; margin:0 0 20px 0; font-size:1.2rem; border-bottom: 2px solid #e0e7ff; padding-bottom: 10px; display:inline-block;">Start customizing your video👇</h2>
       
       <form id="orderForm" onsubmit="submitOrder(event)">
         ${formHtml}
