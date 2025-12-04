@@ -129,7 +129,7 @@ body { font-family: 'Segoe UI', system-ui, sans-serif; color: #1f2937; line-heig
 <main class="product-container">
   <div class="media-col">
     <div class="media-frame" id="main-media" role="region" aria-label="Media Player">
-       <video controls src="https://res.cloudinary.com/demo/video/upload/v1590484059/dog.mp4" poster="https://res.cloudinary.com/demo/image/upload/v1590483864/fashion_product.jpg" width="600" height="337"><track kind="captions" src="" label="English" /></video>
+       <video controls src="https://res.cloudinary.com/demo/video/upload/v1590484059/dog.mp4" poster="https://res.cloudinary.com/demo/image/upload/v1590483329/sample.jpg" width="600" height="337"><track kind="captions" src="" label="English" /></video>
     </div>
     
     <div class="thumbs" role="group" aria-label="Gallery">
@@ -138,28 +138,12 @@ body { font-family: 'Segoe UI', system-ui, sans-serif; color: #1f2937; line-heig
             <img src="https://img.icons8.com/ios-filled/50/000000/video.png" alt="Video Icon" style="padding:15px; background:#eee;">
         </button>
       
-        <button type="button" class="thumb-btn" onclick="switchMedia('image','https://res.cloudinary.com/demo/image/upload/v1590483864/fashion_product.jpg')" aria-label="View Image 1">
-            <img src="https://res.cloudinary.com/demo/image/upload/v1590483864/fashion_product.jpg" alt="Thumbnail 1" width="80" height="60" loading="lazy">
+        <button type="button" class="thumb-btn" onclick="switchMedia('image','https://res.cloudinary.com/demo/image/upload/v1590483329/sample.jpg')" aria-label="View Image 1">
+            <img src="https://res.cloudinary.com/demo/image/upload/v1590483329/sample.jpg" alt="Thumbnail 1" width="80" height="60" loading="lazy">
         </button>
     
-        <button type="button" class="thumb-btn" onclick="switchMedia('image','https://res.cloudinary.com/demo/image/upload/v1590483329/sample.jpg')" aria-label="View Image 2">
-            <img src="https://res.cloudinary.com/demo/image/upload/v1590483329/sample.jpg" alt="Thumbnail 2" width="80" height="60" loading="lazy">
-        </button>
-    
-        <button type="button" class="thumb-btn" onclick="switchMedia('image','https://res.cloudinary.com/demo/image/upload/v1312461204/sample.jpg')" aria-label="View Image 3">
-            <img src="https://res.cloudinary.com/demo/image/upload/v1312461204/sample.jpg" alt="Thumbnail 3" width="80" height="60" loading="lazy">
-        </button>
-    
-        <button type="button" class="thumb-btn" onclick="switchMedia('image','https://res.cloudinary.com/demo/image/upload/v1590483864/fashion_product.jpg')" aria-label="View Image 4">
-            <img src="https://res.cloudinary.com/demo/image/upload/v1590483864/fashion_product.jpg" alt="Thumbnail 4" width="80" height="60" loading="lazy">
-        </button>
-    
-        <button type="button" class="thumb-btn" onclick="switchMedia('image','https://res.cloudinary.com/demo/image/upload/v1590483329/sample.jpg')" aria-label="View Image 5">
-            <img src="https://res.cloudinary.com/demo/image/upload/v1590483329/sample.jpg" alt="Thumbnail 5" width="80" height="60" loading="lazy">
-        </button>
-    
-        <button type="button" class="thumb-btn" onclick="switchMedia('image','https://res.cloudinary.com/demo/image/upload/v1312461204/sample.jpg')" aria-label="View Image 6">
-            <img src="https://res.cloudinary.com/demo/image/upload/v1312461204/sample.jpg" alt="Thumbnail 6" width="80" height="60" loading="lazy">
+        <button type="button" class="thumb-btn" onclick="switchMedia('image','https://res.cloudinary.com/demo/image/upload/v1312461204/sample.jpg')" aria-label="View Image 2">
+            <img src="https://res.cloudinary.com/demo/image/upload/v1312461204/sample.jpg" alt="Thumbnail 2" width="80" height="60" loading="lazy">
         </button>
     
     </div>
@@ -213,7 +197,7 @@ let BASE_PRICE = 8;
 function switchMedia(type, url){
   const main = document.getElementById('main-media');
   if(type === 'video'){
-    main.innerHTML = '<video controls autoplay src="'+url+'" poster="https://res.cloudinary.com/demo/image/upload/v1590483864/fashion_product.jpg" style="width:100%;height:100%;object-fit:contain;"></video>';
+    main.innerHTML = '<video controls autoplay src="'+url+'" poster="https://res.cloudinary.com/demo/image/upload/v1590483329/sample.jpg" style="width:100%;height:100%;object-fit:contain;"></video>';
   } else {
     main.innerHTML = '<img src="'+url+'" alt="Main View" style="width:100%;height:100%;object-fit:contain;">';
   }
