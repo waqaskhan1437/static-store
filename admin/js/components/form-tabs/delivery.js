@@ -1,3 +1,8 @@
+/**
+ * admin/js/components/form-tabs/delivery.js
+ * FIXED: Strictly English Text
+ */
+
 export function renderDelivery(product) {
     const isInstant = product.is_instant ? 'checked' : '';
     
@@ -13,7 +18,7 @@ export function renderDelivery(product) {
                     Enable Instant Delivery (60 Minutes)
                 </label>
                 <p style="margin:5px 0 0 25px; font-size:0.85rem; color:#666;">
-                    Select this if the product is delivered immediately via Email/WhatsApp.
+                    Select this option if the product is delivered immediately via Email or WhatsApp.
                 </p>
             </div>
 
@@ -24,7 +29,7 @@ export function renderDelivery(product) {
                        placeholder="e.g. 1 or 2" 
                        style="width:100%; padding:10px; border:1px solid #ccc; border-radius:5px;">
                 <p style="font-size:0.8rem; color:#888; margin-top:5px;">
-                    Likhein <b>"1"</b> for 24 Hours, <b>"2"</b> for 2 Days.
+                    Enter <b>"1"</b> for 24 Hours Express, <b>"2"</b> for 2 Days Delivery.
                 </p>
             </div>
         </div>
@@ -32,7 +37,7 @@ export function renderDelivery(product) {
 }
 
 export function setupDeliveryEvents() {
-    // Optional: Agar Instant check ho to neechay wala input disable kar saktay hain (User experience ke liye)
+    // Logic: Dim the manual input if Instant is checked
     const chk = document.querySelector('input[name="is_instant"]');
     const inputDiv = document.getElementById('manual-delivery-input');
     
@@ -41,7 +46,7 @@ export function setupDeliveryEvents() {
             if(chk.checked) inputDiv.style.opacity = '0.5';
             else inputDiv.style.opacity = '1';
         });
-        // Initial state
+        // Initial state check
         if(chk.checked) inputDiv.style.opacity = '0.5';
     }
 }
