@@ -4,6 +4,7 @@
  * - Handles Legacy Data
  * - Smooth Sliding Animation for Conditional Fields (CSS Transitions)
  * - Improved Mobile UI
+ * - SEO Fields Added (Title, Keywords, Description)
  */
 
 export function generateProductHTML(product) {
@@ -14,12 +15,23 @@ export function generateProductHTML(product) {
         ? product.images 
         : ['https://placehold.co/600x600?text=No+Image'];
     
+    // --- SEO UPDATES START ---
+    // Page Title: Agar SEO Title diya hai to wo use karein, warna Product Title
+    const pageTitle = product.seoTitle || product.title || 'Untitled Product';
+    
+    // Keywords: Agar SEO Keywords diye hain to wo use karein
+    const keywords = product.seoKeywords || '';
+    
+    // Description: SEO Description > Product Description > Title
+    const desc = product.description || '';
+    const seoDesc = (product.seoDescription || desc || product.title || '').substring(0, 160).replace(/"/g, "'");
+    // --- SEO UPDATES END ---
+
+    // Display Title (H1 ke liye hamesha Product Title hi rahega)
     const title = product.title || 'Untitled Product';
+    
     const price = parseFloat(product.price) || 0;
     const oldPrice = parseFloat(product.old_price) || 0;
-    const desc = product.description || '';
-    
-    const seoDesc = (product.seoDescription || desc || title).substring(0, 160).replace(/"/g, "'");
 
     // Delivery Logic
     let deliveryText = "Standard Delivery";
@@ -68,8 +80,11 @@ export function generateProductHTML(product) {
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>${title}</title>
+
+<title>${pageTitle}</title>
 <meta name="description" content="${seoDesc}">
+${keywords ? `<meta name="keywords" content="${keywords.replace(/"/g, "'")}">` : ''}
+
 <link rel="stylesheet" href="../style.css">
 <link rel="stylesheet" href="../product.css">
 <style>
