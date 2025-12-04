@@ -1,10 +1,11 @@
 /**
  * admin/js/generator.js
  * FIXED: 
- * - First Image acts as Video Thumbnail (No separate video icon).
- * - Clicking 1st Image -> Plays Video (if video exists).
- * - Video Player Poster is always the 1st Image.
- * - Accessibility & Layout intact.
+ * - Thumbnail Slider (Scrollable with Arrows)
+ * - Horizontal Video Player (16:9)
+ * - Sticky Player on Desktop
+ * - Mobile Optimized Layout
+ * - Strictly English & USD
  */
 
 export function generateProductHTML(product) {
@@ -41,18 +42,16 @@ export function generateProductHTML(product) {
         }
     }
 
-    // 2. Thumbnails Logic (UPDATED)
-    // Pehli image agar video hai to video play karegi, warna normal image switch
+    // 2. Thumbnails Logic (Slider Items)
     const thumbsHtml = images.map((img, idx) => {
         let clickAction = `switchMedia('image','${img}')`;
         let ariaLabel = `View Image ${idx + 1}`;
         let playIconOverlay = '';
 
-        // Agar yeh pehli image hai AUR product me video hai -> Video Play karega
+        // First image acts as video trigger if video exists
         if (idx === 0 && product.video_url) {
             clickAction = `switchMedia('video','${product.video_url}')`;
             ariaLabel = `Play Video`;
-            // Chota sa play icon overlay taake user ko pata chale ye video hai
             playIconOverlay = `<span class="play-icon-overlay">▶</span>`;
         }
 
@@ -117,17 +116,46 @@ body { font-family: 'Segoe UI', system-ui, sans-serif; color: #1f2937; line-heig
     width: 100%; height: 100%; object-fit: contain; 
 }
 
-/* Thumbnails */
-.thumbs { display: flex; gap: 10px; overflow-x: auto; padding-bottom: 5px; }
+/* --- THUMBNAIL SLIDER --- */
+.slider-wrapper {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    position: relative;
+}
+
+.thumbs-container { 
+    display: flex; 
+    gap: 10px; 
+    overflow-x: auto; 
+    scroll-behavior: smooth;
+    scrollbar-width: none; /* Firefox */
+    -ms-overflow-style: none; /* IE */
+    padding: 4px 0;
+    width: 100%;
+}
+.thumbs-container::-webkit-scrollbar { display: none; } /* Chrome/Safari */
+
 .thumb-btn { 
-    position: relative; /* For play icon overlay */
+    position: relative; 
     background: none; border: 2px solid transparent; padding: 0; 
-    cursor: pointer; border-radius: 8px; overflow: hidden; transition: 0.2s; flex-shrink: 0;
+    cursor: pointer; border-radius: 8px; overflow: hidden; transition: 0.2s; 
+    flex-shrink: 0; /* Prevents shrinking in flex */
 }
 .thumb-btn:hover, .thumb-btn:focus { border-color: var(--primary); }
 .thumb-btn img { display: block; width: 80px; height: 60px; object-fit: cover; }
 
-/* Play Icon Overlay on Thumbnail */
+/* Slider Arrows */
+.slide-arrow {
+    background: white; border: 1px solid #ddd; border-radius: 50%;
+    width: 32px; height: 32px; display: flex; align-items: center; justify-content: center;
+    cursor: pointer; box-shadow: 0 2px 5px rgba(0,0,0,0.1); z-index: 2;
+    transition: 0.2s; color: #555; font-size: 18px; line-height: 1;
+    flex-shrink: 0;
+}
+.slide-arrow:hover { background: #f3f3f3; color: var(--primary); }
+.slide-arrow.disabled { opacity: 0.3; cursor: default; }
+
 .play-icon-overlay {
     position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%);
     background: rgba(0,0,0,0.6); color: white; border-radius: 50%;
@@ -169,9 +197,11 @@ body { font-family: 'Segoe UI', system-ui, sans-serif; color: #1f2937; line-heig
     .product-container { display: flex; flex-direction: column; gap: 1.5rem; margin: 1.5rem auto; }
     .media-col { display: contents; } 
     .media-frame { order: 1; width: 100%; aspect-ratio: 16/9; }
-    .thumbs { order: 2; }
+    .slider-wrapper { order: 2; width: 100%; }
     .form-col { order: 3; }
     .desc-box { order: 4; }
+    
+    /* On mobile, standard scroll is enough, arrows optional but kept for consistency */
 }
 </style>
 </head>
@@ -186,8 +216,12 @@ body { font-family: 'Segoe UI', system-ui, sans-serif; color: #1f2937; line-heig
        }
     </div>
     
-    <div class="thumbs" role="group" aria-label="Gallery">
-      ${thumbsHtml}
+    <div class="slider-wrapper" role="region" aria-label="Gallery Slider">
+        <button class="slide-arrow" onclick="scrollThumbs(-1)" aria-label="Previous">❮</button>
+        <div class="thumbs-container" id="thumbs-box">
+            ${thumbsHtml}
+        </div>
+        <button class="slide-arrow" onclick="scrollThumbs(1)" aria-label="Next">❯</button>
     </div>
     
     <section class="desc-box">
@@ -236,7 +270,6 @@ body { font-family: 'Segoe UI', system-ui, sans-serif; color: #1f2937; line-heig
 <script>
 let BASE_PRICE = ${price};
 
-// Media Switcher: Video poster hamesha 1st image hogi
 function switchMedia(type, url){
   const main = document.getElementById('main-media');
   if(type === 'video'){
@@ -246,10 +279,20 @@ function switchMedia(type, url){
   }
 }
 
+// --- THUMBNAIL SLIDER LOGIC ---
+function scrollThumbs(direction) {
+    const container = document.getElementById('thumbs-box');
+    const scrollAmount = 200; // Pixel amount to scroll
+    if(direction === 1) {
+        container.scrollLeft += scrollAmount;
+    } else {
+        container.scrollLeft -= scrollAmount;
+    }
+}
+
 function updatePrice(){
   let total = BASE_PRICE;
   
-  // Select Inputs
   document.querySelectorAll('select.price-ref').forEach(sel => {
     const opt = sel.options[sel.selectedIndex];
     total += parseFloat(opt.dataset.price) || 0;
@@ -273,7 +316,6 @@ function updatePrice(){
     }
   });
 
-  // Radio/Checkbox Inputs
   document.querySelectorAll('input.price-ref').forEach(inp => {
     const condId = inp.dataset.condId;
     const wrap = document.getElementById(condId);
