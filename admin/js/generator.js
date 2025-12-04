@@ -1,13 +1,13 @@
 /**
  * admin/js/generator.js
- * FIXED: PageSpeed Insights Issues (Accessibility, SEO, Best Practices)
- * - Added Meta Description
- * - Added Alt Attributes
- * - Fixed Heading Hierarchy
- * - Added Form Labels
- * - Fixed Color Contrast
- * - Added <main> Landmark
- * - Fixed Broken Video Poster (404 Error)
+ * FIXED: PageSpeed Insights Issues (Accessibility, SEO, Best Practices) 
+ * - Added Meta Description 
+ * - Added Alt Attributes for Images 
+ * - Fixed Heading Hierarchy 
+ * - Added Form Labels 
+ * - Fixed Color Contrast [cite: 421]
+ * - Added <main> Landmark 
+ * - Fixed Broken Video Poster (404 Error) 
  * - Currency: USD ($)
  * - Language: Strict English
  */
@@ -25,7 +25,7 @@ export function generateProductHTML(product) {
     const oldPrice = parseFloat(product.old_price) || 0;
     const desc = product.description || '';
     
-    // SEO: Meta Description (Truncate if too long)
+    // SEO: Meta Description (Truncate if too long) 
     const seoDesc = (product.seoDescription || desc || title).substring(0, 160).replace(/"/g, "'");
 
     // Delivery Logic (English & USD)
@@ -46,7 +46,7 @@ export function generateProductHTML(product) {
         }
     }
 
-    // 2. Thumbnails (Added ALT tags for Accessibility)
+    // 2. Thumbnails (Added ALT tags for Accessibility )
     const thumbsHtml = images.map((img, idx) => `
         <img src="${img}" 
              alt="${title} - Thumbnail ${idx + 1}"
@@ -83,7 +83,7 @@ body { font-family: 'Segoe UI', sans-serif; color: #333; }
 .bg-green { background:#10b981; }
 .bg-purple { background:#8e44ad; }
 
-/* Fix: Headings Order - Changed h4 to h3/div to maintain hierarchy */
+/* Fix: Headings Order  - Changed h4 to h3/div to maintain hierarchy */
 .delivery-card h3 { margin:0; font-size:1rem; font-weight:700; }
 .delivery-card span { font-size:0.95rem; opacity:1; margin-top:5px; font-weight:600; }
 
@@ -91,7 +91,7 @@ body { font-family: 'Segoe UI', sans-serif; color: #333; }
 .price-card2 { flex:1; background:#8b5cf6; color:white; padding:1rem; border-radius:12px; display:flex; flex-direction:column; align-items:center; justify-content:center; gap:0.25rem; }
 .price-card2 .price { font-size:1.8rem; font-weight:bold; }
 .price-card2 .old-price { text-decoration:line-through; opacity:0.7; font-size:1rem; }
-/* Fix: Contrast - Darker purple for white text is fine, checked discount color */
+/* Fix: Contrast  - Darker purple for white text is fine, checked discount color */
 .price-card2 .discount { background:white; color:#6d28d9; padding:2px 8px; border-radius:9999px; font-size:0.75rem; font-weight:700; }
 
 .form-section { border:1px solid #e5e7eb; border-radius:12px; padding:1rem; background:#f9fafb; display:flex; flex-direction:column; gap:1rem; }
@@ -108,7 +108,7 @@ body { font-family: 'Segoe UI', sans-serif; color: #333; }
 .checkout-btn { width:100%; background:#047857; color:white; border:none; padding:1rem; border-radius:12px; font-size:1.1rem; font-weight:700; cursor:pointer; margin-top:10px; display:flex; justify-content:space-between; align-items:center; }
 .checkout-btn:hover { background:#065f46; }
 
-/* Fix: Contrast for Star Rating - Darker Gold */
+/* Fix: Contrast for Star Rating  - Darker Gold */
 .rating-text { color:#b45309; font-weight: bold; font-size:0.9rem; }
 
 @media(max-width:768px){ .product-container{grid-template-columns:1fr;} }
@@ -177,7 +177,7 @@ let BASE_PRICE = ${price};
 function switchMedia(type, url){
   const main = document.getElementById('main-media');
   if(type === 'video'){
-    // Fix: Dynamic poster to avoid 404
+    // Fix: Dynamic poster to avoid 404 
     main.innerHTML = '<video controls autoplay src="'+url+'" poster="${images[0]}" style="position:absolute;width:100%;height:100%;object-fit:contain;"></video>';
   } else {
     main.innerHTML = '<img src="'+url+'" alt="Main Image" style="position:absolute;width:100%;height:100%;object-fit:contain;" />';
@@ -201,7 +201,7 @@ function updatePrice(){
         
         if(fQty > 0 || tLbl){
             let h = '';
-            // Fix: Added Labels for Accessibility
+            // Fix: Added Labels for Accessibility 
             if(fQty) for(let i=1;i<=fQty;i++) h+= '<div style="margin-top:5px"><label for="file_'+i+'">Upload File '+i+' <span style="color:red">*</span></label><input type="file" id="file_'+i+'" required class="form-control"></div>';
             if(tLbl) h+= '<div style="margin-top:5px"><label for="text_lbl">'+tLbl+' <span style="color:red">*</span></label><input type="text" id="text_lbl" required class="form-control"></div>';
             wrap.innerHTML = h;
@@ -258,7 +258,7 @@ function submitOrder(e){
 </html>`;
 }
 
-// --- HELPER FUNCTION: Fixed Accessibility Issues ---
+// --- HELPER FUNCTION: Fixed Accessibility Issues [cite: 403, 408] ---
 
 function generateDynamicForm(fields) {
     if (!fields || fields.length === 0) return '<p>No options available.</p>';
@@ -268,9 +268,9 @@ function generateDynamicForm(fields) {
         const label = f.label;
         const req = f.required ? 'required' : '';
         const star = f.required ? '<span style="color:red">*</span>' : '';
-        const fieldId = `field_${i}`; // Fix: Unique ID for Labels
+        const fieldId = `field_${i}`; // Fix: Unique ID for Labels 
 
-        // Fix: Heading Hierarchy (h3 inside section)
+        // Fix: Heading Hierarchy (h3 inside section) 
         if(type === 'header') return `<h3 style="margin:1.5rem 0 0.5rem 0; border-bottom:1px solid #ddd; padding-bottom:5px; font-size:1.1rem">${label}</h3>`;
 
         // Text / Email / Number
@@ -292,7 +292,7 @@ function generateDynamicForm(fields) {
         if(type === 'select') {
             const condTarget = `cond_sel_${i}`;
             const opts = f.options_list.map(o => `<option value="${o.label}" data-price="${o.price||0}" data-file-qty="${o.file_qty||0}" data-text-label="${o.text_label||''}">${o.label} ${o.price>0 ? '(+$'+o.price+')' : ''}</option>`).join('');
-            // Fix: Associated Label for Select
+            // Fix: Associated Label for Select [cite: 408, 417]
             return `
             <div style="margin-top:1rem">
                 <label for="${fieldId}">${label} ${star}</label>
