@@ -1610,10 +1610,8 @@
       "https://res.cloudinary.com/demo/image/upload/v1312461204/sample.jpg"
     ],
     "video_url": "https://res.cloudinary.com/demo/video/upload/v1590484059/dog.mp4",
-    "delivery_instant": false,
-    "delivery_physical": true,
-    "stock_status": "in_stock",
-    "min_photos": 0,
+    "is_instant": true,
+    "delivery_time": "",
     "customForm": [
       {
         "_type": "header",
@@ -1751,12 +1749,6 @@
         "rows": 3,
         "options_list": []
       }
-    ],
-    "photoOptions": [],
-    "tags": [
-      "demo",
-      "2025",
-      "test"
     ]
   }
 ]
