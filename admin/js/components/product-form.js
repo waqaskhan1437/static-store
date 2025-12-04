@@ -109,6 +109,7 @@ export function setupFormEvents() {
 
             const publishDate = raw.existing_date || new Date().toISOString();
 
+            // --- SAVE LOGIC UPDATED ---
             const finalProduct = {
                 slug: finalSlug, 
                 id: finalSlug,
@@ -121,8 +122,9 @@ export function setupFormEvents() {
                 images: raw.images ? raw.images.split('\n').map(s => s.trim()).filter(s => s) : [],
                 video_url: raw.video_url,
                 
-                // --- NEW SIMPLE DELIVERY FIELD ---
-                delivery_time: raw.delivery_time || 'Instant', 
+                // NEW FIELDS
+                is_instant: !!raw.is_instant, // Checkbox (true/false)
+                delivery_time: raw.delivery_time, // Text (1, 2 etc)
                 
                 stock_status: raw.stock_status,
                 customForm: customForm
