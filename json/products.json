@@ -1772,7 +1772,7 @@
       "https://res.cloudinary.com/demo/image/upload/v1312461204/sample.jpg"
     ],
     "video_url": "https://res.cloudinary.com/demo/video/upload/v1590484059/dog.mp4",
-    "is_instant": false,
+    "is_instant": true,
     "delivery_time": "1",
     "customForm": [
       {
