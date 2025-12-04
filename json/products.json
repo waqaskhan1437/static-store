@@ -1810,6 +1810,21 @@
         "required": false,
         "rows": 3,
         "options_list": []
+      },
+      {
+        "_type": "checkbox_group",
+        "label": "lsjdlfjsdlkjflsd",
+        "required": true,
+        "rows": 3,
+        "options_list": [
+          {
+            "label": "ljlkjlk",
+            "price": 5,
+            "file_qty": 1,
+            "text_label": "kljklj",
+            "text_placeholder": "jkhkjhkj"
+          }
+        ]
       }
     ],
     "tags": []
