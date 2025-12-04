@@ -6,9 +6,15 @@ import { saveData } from '../api.js';
 import { showToast } from '../utils.js';
 import { generateProductHTML } from '../generator.js';
 
+/**
+ * Main Product Form Component
+ * Handles rendering, events, demo data, and saving logic.
+ * FIXED: Date persistence, English Comments, Updated Delivery Logic
+ */
+
 export function renderProductForm(product = {}) {
     const productId = product.slug || product.id || '';
-    const createdDate = product.date || ''; 
+    const createdDate = product.date || ''; // Preserve original date
 
     const tabsHtml = `
         <div class="tabs-header">
@@ -28,10 +34,18 @@ export function renderProductForm(product = {}) {
         <div id="tab-custom" class="tab-content">${renderCustomFields(product)}</div>
     `;
 
+    // Demo Button only for New Products
+    const demoBtn = !productId ? 
+        `<button type="button" id="btn-demo" class="btn" style="background:#8e44ad; color:white; font-weight:bold;">
+            <i class="fas fa-magic"></i> Load Demo Data
+         </button>` 
+        : '';
+
     return `
         <div class="form-container">
             <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:20px;">
                 <h2 style="margin:0;">${productId ? 'Edit Product' : 'New Product'}</h2>
+                ${demoBtn}
             </div>
             
             <form id="product-form">
@@ -69,6 +83,54 @@ export function setupFormEvents() {
             document.getElementById(btn.dataset.tab).classList.add('active');
         });
     });
+
+    // Demo Loader Logic
+    const demoBtn = document.getElementById('btn-demo');
+    if (demoBtn) {
+        demoBtn.addEventListener('click', () => {
+            if(!confirm('Load demo data? This will overwrite current fields.')) return;
+            
+            const demoData = {
+                title: "Ultimate Custom Gift 2025 (Demo)",
+                price: 55,
+                old_price: 70,
+                description: "This is a comprehensive demo to showcase the Advanced Form Builder.\n\nIt features:\n- Cloudinary Integration\n- Conditional Logic\n- Complex Add-ons\n- Long Text Areas",
+                seoDescription: "A perfect demo for testing capabilities.",
+                images: [
+                    "https://placehold.co/600x600?text=Main+Image",
+                    "https://placehold.co/600x600?text=Side+View"
+                ],
+                video_url: "",
+                is_instant: false,
+                delivery_time: "2 Days",
+                stock_status: "in_stock",
+                tags: ["demo", "2025"],
+                customForm: [
+                    { _type: 'header', label: 'Step 1: Personalization' },
+                    { _type: 'text', label: 'Recipient Name', required: true },
+                    { 
+                        _type: 'select', 
+                        label: 'Material', 
+                        required: true, 
+                        options_list: [
+                            { label: 'Standard Wood', price: 0 },
+                            { label: 'Premium Metal', price: 10, file_qty: 1 },
+                            { label: 'Gold Plated', price: 25, text_label: 'Engraving Name' }
+                        ]
+                    }
+                ]
+            };
+
+            const container = document.getElementById('app-container');
+            container.innerHTML = renderProductForm(demoData);
+            setupFormEvents();
+            
+            const customTabBtn = document.querySelector('[data-tab="tab-custom"]');
+            if(customTabBtn) customTabBtn.click();
+
+            showToast('Demo Data Loaded Successfully!');
+        });
+    }
 
     form.addEventListener('submit', async (e) => {
         e.preventDefault();
@@ -109,7 +171,7 @@ export function setupFormEvents() {
 
             const publishDate = raw.existing_date || new Date().toISOString();
 
-            // --- SAVE LOGIC UPDATED ---
+            // Final Product Object
             const finalProduct = {
                 slug: finalSlug, 
                 id: finalSlug,
@@ -122,12 +184,13 @@ export function setupFormEvents() {
                 images: raw.images ? raw.images.split('\n').map(s => s.trim()).filter(s => s) : [],
                 video_url: raw.video_url,
                 
-                // NEW FIELDS
-                is_instant: !!raw.is_instant, // Checkbox (true/false)
-                delivery_time: raw.delivery_time, // Text (1, 2 etc)
+                // Delivery Logic Update
+                is_instant: !!raw.is_instant,
+                delivery_time: raw.delivery_time || 'Standard',
                 
                 stock_status: raw.stock_status,
-                customForm: customForm
+                customForm: customForm,
+                tags: raw.tags ? raw.tags.split(',').map(s => s.trim()) : []
             };
 
             const htmlContent = generateProductHTML(finalProduct);
