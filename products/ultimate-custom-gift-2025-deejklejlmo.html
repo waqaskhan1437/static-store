@@ -7,7 +7,7 @@
 <link rel="stylesheet" href="../style.css">
 <link rel="stylesheet" href="../product.css">
 <style>
-/* Thora sa inline CSS taake agar external file load na ho to bhi bura na lagay */
+/* ... (Purana Layout Style Same Rahega) ... */
 .product-container { display:grid; grid-template-columns: 1fr 1fr; gap:2rem; margin:2rem auto; max-width:1200px; padding:0 15px; }
 .media-col { flex:1 1 55%; min-width:280px; }
 .form-col { display:flex; flex-direction:column; gap:1rem; box-sizing:border-box; }
@@ -17,7 +17,16 @@
 .thumbs img { width:80px; height:60px; border-radius:6px; cursor:pointer; object-fit:cover; border:2px solid transparent; }
 .thumbs img:hover { border-color: #6366f1; }
 
-.price-card2 { background:#8b5cf6; color:white; padding:1rem; border-radius:12px; display:flex; flex-direction:column; align-items:center; justify-content:center; gap:0.25rem; }
+/* Delivery Card Dynamic Colors */
+.delivery-card { flex:1; color:white; padding:1rem; border-radius:12px; display:flex; flex-direction:column; justify-content:center; }
+.bg-green { background:#10b981; }
+.bg-purple { background:#8e44ad; }
+
+.delivery-card h4 { margin:0; font-size:1rem; font-weight:700; }
+.delivery-card span { font-size:0.95rem; opacity:1; margin-top:5px; font-weight:600; }
+
+.cards-row { display:flex; gap:1rem; margin-top:0.5rem; }
+.price-card2 { flex:1; background:#8b5cf6; color:white; padding:1rem; border-radius:12px; display:flex; flex-direction:column; align-items:center; justify-content:center; gap:0.25rem; }
 .price-card2 .price { font-size:1.8rem; font-weight:bold; }
 .price-card2 .old-price { text-decoration:line-through; opacity:0.7; font-size:1rem; }
 .price-card2 .discount { background:white; color:#8b5cf6; padding:2px 6px; border-radius:9999px; font-size:0.75rem; font-weight:700; }
@@ -26,7 +35,7 @@
 .form-section label { font-weight:600; font-size:0.9rem; display:block; margin-bottom:0.25rem; }
 .form-control { width:100%; padding:0.6rem; border:1px solid #d1d5db; border-radius:8px; font-size:0.9rem; box-sizing:border-box; }
 
-/* Custom Form Builder Styles */
+/* Custom Form Styles */
 .opt-row { display:flex; justify-content:space-between; align-items:center; padding:10px; background:white; border:1px solid #e5e7eb; border-radius:8px; margin-bottom:5px; cursor:pointer; }
 .opt-row:hover { border-color:#8b5cf6; }
 .conditional-wrap { background:#eff6ff; padding:10px; border-radius:8px; border-left:3px solid #8b5cf6; margin-top:5px; display:none; }
@@ -67,14 +76,21 @@
     <h1 style="font-size:1.8rem; margin:0">Ultimate Custom Gift 2025 (Deejklejlmo)</h1>
     <div style="color:#fbbf24; font-weight:bold; font-size:0.9rem">★ 5.0 (New Arrival)</div>
 
-    <div class="price-card2">
-      <span class="price" id="display-price">5500 PKR</span>
-      <span class="old-price">7000 PKR</span>
-      <span class="discount">Special Offer</span>
+    <div class="cards-row">
+        <div class="delivery-card bg-purple">
+            <h4>Estimated Delivery</h4>
+            <span>Instant Delivery In 60 Minutes</span>
+        </div>
+
+        <div class="price-card2">
+            <span class="price" id="display-price">5500 PKR</span>
+            <span class="old-price">7000 PKR</span>
+            <span class="discount">Special Offer</span>
+        </div>
     </div>
 
-    <div style="background:#d1fae5; padding:0.75rem; border-radius:8px; font-size:0.9rem; color:#065f46;">
-       Digital Delivery: Receive via WhatsApp/Email immediately.
+    <div style="background:#d1fae5; padding:0.75rem; border-radius:8px; font-size:0.9rem; color:#065f46; margin-top:10px;">
+       Note: <b>Instant Delivery In 60 Minutes</b> upon order confirmation.
     </div>
 
     <div class="form-section">
@@ -180,7 +196,7 @@ function updatePrice(){
     const opt = sel.options[sel.selectedIndex];
     total += parseFloat(opt.dataset.price) || 0;
     
-    // Conditionals
+    // Conditionals logic
     const target = sel.dataset.condTarget;
     if(target){
         const wrap = document.getElementById(target);
@@ -216,7 +232,6 @@ function updatePrice(){
              wrap.classList.remove('show');
              wrap.querySelectorAll('input').forEach(i => i.disabled = true);
         }
-        // Radio unchecked case
         if(inp.type === 'radio' && !inp.checked && wrap){
              wrap.classList.remove('show');
              wrap.querySelectorAll('input').forEach(i => i.disabled = true);
