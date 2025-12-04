@@ -7,14 +7,73 @@ import { showToast } from '../utils.js';
 import { generateProductHTML } from '../generator.js';
 
 /**
- * Main Product Form Component
- * Handles rendering, events, demo data, and saving logic.
- * FIXED: Date persistence, English Comments, Updated Delivery Logic
+ * Helper: Converts Old Data Types to New Form Builder Format
+ * Yeh function purane "textField" wagera ko naye "text" format mein badal deta hai.
  */
+function normalizeLegacyData(customForm) {
+    if (!Array.isArray(customForm)) return [];
 
+    return customForm.map(field => {
+        // Agar pehle se naya format hai to wapis bhej do
+        if (['header', 'text', 'textarea', 'email', 'select', 'radio', 'checkbox_group', 'file'].includes(field._type)) {
+            return field;
+        }
+
+        // Old Types Mapping
+        let newType = 'text';
+        let newOptions = [];
+
+        switch (field._type) {
+            case 'textField': newType = 'text'; break;
+            case 'textAreaField': newType = 'textarea'; break;
+            case 'selectField': newType = 'select'; break;
+            case 'radioField': newType = 'radio'; break;
+            case 'checkboxField': newType = 'checkbox_group'; break;
+            case 'fileUploadField': newType = 'file'; break;
+            default: newType = 'text';
+        }
+
+        // Convert Old Options String ("A, B, C") to Object Array
+        if (field.options && typeof field.options === 'string') {
+            newOptions = field.options.split(',').map(s => ({
+                label: s.trim(),
+                price: 0,
+                file_qty: 0,
+                text_label: ''
+            })).filter(o => o.label);
+        } else if (field.options_list) {
+            newOptions = field.options_list;
+        }
+
+        // Special Fix for Old Single Checkbox (e.g. Terms)
+        if (field._type === 'checkboxField' && newOptions.length === 0) {
+            newOptions = [{ label: field.label || 'Yes', price: 0 }];
+        }
+
+        return {
+            _type: newType,
+            label: field.label,
+            required: !!field.required,
+            placeholder: field.placeholder || '',
+            rows: field.rows || 3,
+            options_list: newOptions
+        };
+    });
+}
+
+/**
+ * Main Product Form Component
+ */
 export function renderProductForm(product = {}) {
     const productId = product.slug || product.id || '';
-    const createdDate = product.date || ''; // Preserve original date
+    const createdDate = product.date || '';
+
+    // 🔥 FIX: Normalize Data before rendering
+    // Purana data naye format mein convert ho kar form builder mein jayega
+    const normalizedForm = normalizeLegacyData(product.customForm || []);
+    
+    // Create a temporary product object with fixed form data
+    const productForRender = { ...product, id: productId, customForm: normalizedForm };
 
     const tabsHtml = `
         <div class="tabs-header">
@@ -25,16 +84,13 @@ export function renderProductForm(product = {}) {
         </div>
     `;
 
-    const productWithId = { ...product, id: productId };
-
     const contentHtml = `
-        <div id="tab-basic" class="tab-content active">${renderBasicInfo(productWithId)}</div>
+        <div id="tab-basic" class="tab-content active">${renderBasicInfo(productForRender)}</div>
         <div id="tab-media" class="tab-content">${renderMedia(product)}</div>
         <div id="tab-delivery" class="tab-content">${renderDelivery(product)}</div>
-        <div id="tab-custom" class="tab-content">${renderCustomFields(product)}</div>
+        <div id="tab-custom" class="tab-content">${renderCustomFields(productForRender)}</div>
     `;
 
-    // Demo Button only for New Products
     const demoBtn = !productId ? 
         `<button type="button" id="btn-demo" class="btn" style="background:#8e44ad; color:white; font-weight:bold;">
             <i class="fas fa-magic"></i> Load Demo Data
@@ -94,17 +150,8 @@ export function setupFormEvents() {
                 title: "Ultimate Custom Gift 2025 (Demo)",
                 price: 55,
                 old_price: 70,
-                description: "This is a comprehensive demo to showcase the Advanced Form Builder.\n\nIt features:\n- Cloudinary Integration\n- Conditional Logic\n- Complex Add-ons\n- Long Text Areas",
-                seoDescription: "A perfect demo for testing capabilities.",
-                images: [
-                    "https://placehold.co/600x600?text=Main+Image",
-                    "https://placehold.co/600x600?text=Side+View"
-                ],
-                video_url: "",
-                is_instant: false,
-                delivery_time: "2 Days",
-                stock_status: "in_stock",
-                tags: ["demo", "2025"],
+                description: "This is a comprehensive demo.",
+                images: ["https://placehold.co/600x600?text=Main+Image"],
                 customForm: [
                     { _type: 'header', label: 'Step 1: Personalization' },
                     { _type: 'text', label: 'Recipient Name', required: true },
@@ -114,8 +161,7 @@ export function setupFormEvents() {
                         required: true, 
                         options_list: [
                             { label: 'Standard Wood', price: 0 },
-                            { label: 'Premium Metal', price: 10, file_qty: 1 },
-                            { label: 'Gold Plated', price: 25, text_label: 'Engraving Name' }
+                            { label: 'Premium Metal', price: 10, file_qty: 1 }
                         ]
                     }
                 ]
@@ -141,7 +187,7 @@ export function setupFormEvents() {
             const formData = new FormData(form);
             const raw = Object.fromEntries(formData.entries());
 
-            // Process Custom Fields
+            // Process Custom Fields from DOM
             const cardElements = document.querySelectorAll('.field-card');
             const customForm = Array.from(cardElements).map(card => {
                 const type = card.dataset.type;
@@ -169,13 +215,10 @@ export function setupFormEvents() {
                 finalSlug = raw.title.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '');
             }
 
-            const publishDate = raw.existing_date || new Date().toISOString();
-
-            // Final Product Object
             const finalProduct = {
                 slug: finalSlug, 
                 id: finalSlug,
-                date: publishDate,
+                date: raw.existing_date || new Date().toISOString(),
                 title: raw.title,
                 price: parseFloat(raw.price) || 0,
                 old_price: parseFloat(raw.old_price) || 0,
@@ -183,16 +226,14 @@ export function setupFormEvents() {
                 seoDescription: raw.seoDescription,
                 images: raw.images ? raw.images.split('\n').map(s => s.trim()).filter(s => s) : [],
                 video_url: raw.video_url,
-                
-                // Delivery Logic Update
                 is_instant: !!raw.is_instant,
                 delivery_time: raw.delivery_time || 'Standard',
-                
                 stock_status: raw.stock_status,
-                customForm: customForm,
+                customForm: customForm, // New Normalized Form Data
                 tags: raw.tags ? raw.tags.split(',').map(s => s.trim()) : []
             };
 
+            // Generate HTML using the FIXED data structure
             const htmlContent = generateProductHTML(finalProduct);
 
             await saveData({
