@@ -1,18 +1,17 @@
 /**
  * admin/js/generator.js
- * FIXED: 100% PageSpeed & Accessibility Score
- * - Thumbnails wrapped in Buttons (Interactive)
- * - High Contrast Colors
- * - Explicit Image Dimensions (No Layout Shift)
- * - Strict Labels & ARIA attributes
- * - Currency: USD
- * - Language: English
+ * FINAL ULTIMATE VERSION
+ * Features:
+ * 1. Player is always Horizontal (16:9 Aspect Ratio)
+ * 2. Sticky Player on Desktop (Scrolls with page)
+ * 3. Mobile Layout: Player > Form > Description
+ * 4. Accessibility, USD Currency, English Language
  */
 
 export function generateProductHTML(product) {
     if (!product) return '';
 
-    // 1. Data Setup & Fallbacks
+    // 1. Data Setup
     const images = (product.images && product.images.length > 0) 
         ? product.images 
         : ['https://placehold.co/600x600?text=No+Image'];
@@ -22,10 +21,10 @@ export function generateProductHTML(product) {
     const oldPrice = parseFloat(product.old_price) || 0;
     const desc = product.description || '';
     
-    // SEO: Meta Description (Max 160 chars)
+    // SEO & Meta
     const seoDesc = (product.seoDescription || desc || title).substring(0, 160).replace(/"/g, "'");
 
-    // Delivery Logic (Strict English & USD context)
+    // Delivery Logic
     let deliveryText = "Standard Delivery";
     let deliveryClass = "bg-green";
 
@@ -43,20 +42,17 @@ export function generateProductHTML(product) {
         }
     }
 
-    // 2. Thumbnails (Fixed: Wrapped in BUTTON for Accessibility)
+    // 2. Thumbnails
     const thumbsHtml = images.map((img, idx) => `
         <button type="button" class="thumb-btn" onclick="switchMedia('image','${img}')" aria-label="View Image ${idx + 1}">
-            <img src="${img}" 
-                 alt="${title} thumbnail ${idx + 1}"
-                 width="80" height="60"
-                 loading="lazy">
+            <img src="${img}" alt="Thumbnail ${idx + 1}" width="80" height="60" loading="lazy">
         </button>
     `).join('');
 
-    // 3. Form Fields
+    // 3. Form
     const formHtml = generateDynamicForm(product.customForm || []);
 
-    // 4. Final HTML Structure
+    // 4. Final HTML
     return `<!DOCTYPE html>
 <html lang="en">
 <head>
@@ -67,74 +63,138 @@ export function generateProductHTML(product) {
 <link rel="stylesheet" href="../style.css">
 <link rel="stylesheet" href="../product.css">
 <style>
-/* Core Layout */
-body { font-family: 'Segoe UI', system-ui, sans-serif; color: #111; line-height: 1.5; }
-.product-container { display:grid; grid-template-columns: 1fr 1fr; gap:3rem; margin:3rem auto; max-width:1200px; padding:0 20px; }
-.media-col { flex:1 1 50%; min-width:300px; }
-.form-col { display:flex; flex-direction:column; gap:1.5rem; }
+/* --- CORE VARIABLES & RESET --- */
+:root { --primary: #4f46e5; --dark: #111; --light: #f9fafb; }
+body { font-family: 'Segoe UI', system-ui, sans-serif; color: #1f2937; line-height: 1.5; margin:0; }
 
-/* Media Section */
-.media-frame { position:relative; width:100%; aspect-ratio:1/1; background:#f5f5f5; border-radius:12px; overflow:hidden; border:1px solid #eee; }
-.media-frame img, .media-frame video { width:100%; height:100%; object-fit:contain; display:block; }
+/* --- MAIN LAYOUT (DESKTOP) --- */
+.product-container { 
+    display: grid; 
+    grid-template-columns: 1.2fr 1fr; /* Player side wider */
+    gap: 3rem; 
+    margin: 3rem auto; 
+    max-width: 1200px; 
+    padding: 0 20px; 
+    align-items: start; /* Crucial for Sticky */
+}
 
-.thumbs { display:flex; gap:10px; margin-top:15px; flex-wrap:wrap; }
-/* Fix: Reset Button Styles for Thumbs */
-.thumb-btn { background:none; border:2px solid transparent; padding:0; cursor:pointer; border-radius:6px; overflow:hidden; transition:0.2s; }
-.thumb-btn:hover, .thumb-btn:focus { border-color:#4f46e5; outline:none; }
-.thumb-btn img { display:block; width:80px; height:60px; object-fit:cover; }
+/* --- LEFT COLUMN (Sticky Player) --- */
+.media-col { 
+    position: sticky; 
+    top: 20px; /* Sticks to top when scrolling */
+    display: flex; 
+    flex-direction: column; 
+    gap: 15px; 
+}
 
-/* Delivery Card */
-.cards-row { display:flex; gap:15px; margin-top:5px; }
-.delivery-card { flex:1; padding:15px; border-radius:10px; color:white; display:flex; flex-direction:column; justify-content:center; }
-.bg-green { background:#059669; }
-.bg-purple { background:#7c3aed; }
-.delivery-card h3 { margin:0; font-size:1rem; font-weight:700; }
-.delivery-card span { font-size:0.95rem; font-weight:600; margin-top:4px; display:block; }
+/* Fixed Horizontal Player (16:9) */
+.media-frame { 
+    width: 100%; 
+    aspect-ratio: 16/9; /* Always Horizontal */
+    background: #000; /* Black bars for vertical content */
+    border-radius: 12px; 
+    overflow: hidden; 
+    border: 1px solid #e5e7eb; 
+    display: flex; 
+    align-items: center; 
+    justify-content: center;
+}
 
-/* Price Card */
-.price-card2 { flex:1; background:#6366f1; color:white; padding:15px; border-radius:10px; text-align:center; display:flex; flex-direction:column; justify-content:center; }
-.price-card2 .price { font-size:1.8rem; font-weight:800; }
-.price-card2 .old-price { font-size:1rem; opacity:0.8; text-decoration:line-through; display:block; }
-.price-card2 .discount { background:white; color:#6366f1; font-size:0.75rem; font-weight:bold; padding:2px 8px; border-radius:12px; margin-top:4px; display:inline-block; }
+.media-frame img, .media-frame video { 
+    width: 100%; 
+    height: 100%; 
+    object-fit: contain; /* Ensures content fits inside 16:9 without stretching */
+}
 
-/* Form Elements */
-.form-section { background:#f9fafb; padding:20px; border-radius:12px; border:1px solid #e5e7eb; }
-.form-group { margin-bottom:15px; }
-.form-label { display:block; font-weight:600; font-size:0.95rem; margin-bottom:6px; color:#1f2937; }
-.form-control { width:100%; padding:10px; border:1px solid #d1d5db; border-radius:6px; font-size:1rem; color:#111; box-sizing:border-box; }
-.form-control:focus { border-color:#6366f1; outline:2px solid #c7d2fe; }
+/* Thumbnails */
+.thumbs { display: flex; gap: 10px; overflow-x: auto; padding-bottom: 5px; }
+.thumb-btn { 
+    background: none; border: 2px solid transparent; padding: 0; 
+    cursor: pointer; border-radius: 8px; overflow: hidden; transition: 0.2s; flex-shrink: 0;
+}
+.thumb-btn:hover, .thumb-btn:focus { border-color: var(--primary); }
+.thumb-btn img { display: block; width: 80px; height: 60px; object-fit: cover; }
 
-/* Accessibility Contrast Fix */
-.rating-row { color:#374151; font-weight:bold; font-size:0.95rem; display:flex; align-items:center; gap:5px; }
-.star-icon { color:#d97706; } /* Dark Gold */
+/* Description Box */
+.desc-box { 
+    background: white; padding: 20px; border-radius: 12px; border: 1px solid #e5e7eb; 
+}
 
-/* Button */
-.checkout-btn { width:100%; background:#047857; color:white; padding:16px; font-size:1.1rem; font-weight:700; border:none; border-radius:8px; cursor:pointer; margin-top:10px; display:flex; justify-content:space-between; transition:0.2s; }
-.checkout-btn:hover { background:#064e3b; }
+/* --- RIGHT COLUMN (Form) --- */
+.form-col { display: flex; flex-direction: column; gap: 1.5rem; }
 
-@media(max-width:768px){ .product-container{grid-template-columns:1fr; gap:2rem; margin:1.5rem auto;} }
+/* Cards & Form Styling */
+.cards-row { display: flex; gap: 15px; }
+.delivery-card { flex: 1; padding: 15px; border-radius: 10px; color: white; display: flex; flex-direction: column; justify-content: center; }
+.bg-green { background: #059669; }
+.bg-purple { background: #7c3aed; }
+.delivery-card h3 { margin: 0; font-size: 1rem; font-weight: 700; }
+.delivery-card span { font-size: 0.95rem; font-weight: 600; margin-top: 4px; }
+
+.price-card2 { flex: 1; background: var(--primary); color: white; padding: 15px; border-radius: 10px; text-align: center; }
+.price-card2 .price { font-size: 1.8rem; font-weight: 800; display: block; }
+.price-card2 .old-price { font-size: 1rem; opacity: 0.8; text-decoration: line-through; }
+.price-card2 .discount { background: white; color: var(--primary); font-size: 0.75rem; font-weight: bold; padding: 2px 8px; border-radius: 12px; }
+
+.form-section { background: #f9fafb; padding: 20px; border-radius: 12px; border: 1px solid #e5e7eb; }
+.form-group { margin-bottom: 15px; }
+.form-label { display: block; font-weight: 600; font-size: 0.95rem; margin-bottom: 6px; color: #374151; }
+.form-control { width: 100%; padding: 12px; border: 1px solid #d1d5db; border-radius: 8px; font-size: 1rem; box-sizing: border-box; }
+.form-control:focus { border-color: var(--primary); outline: 2px solid #c7d2fe; }
+
+.checkout-btn { width: 100%; background: #047857; color: white; padding: 16px; font-size: 1.1rem; font-weight: 700; border: none; border-radius: 8px; cursor: pointer; display: flex; justify-content: space-between; transition: 0.2s; }
+.checkout-btn:hover { background: #064e3b; }
+
+.rating-text { color: #b45309; font-weight: bold; font-size: 0.9rem; margin-top: 5px; }
+
+/* --- MOBILE RESPONSIVE MAGIC --- */
+@media (max-width: 768px) {
+    .product-container { 
+        display: flex; 
+        flex-direction: column; 
+        gap: 1.5rem; 
+        margin: 1.5rem auto;
+    }
+
+    /* Unwrap the media column to reorder children */
+    .media-col { display: contents; } 
+
+    /* ORDERING: 
+       1. Player
+       2. Thumbnails
+       3. Form (Right Panel)
+       4. Description 
+    */
+    .media-frame { order: 1; width: 100%; }
+    .thumbs { order: 2; }
+    .form-col { order: 3; }
+    .desc-box { order: 4; }
+    
+    /* On mobile, player aspect ratio can be 1:1 if desired, but keeping 16:9 as requested */
+    .media-frame { aspect-ratio: 16/9; }
+}
 </style>
 </head>
 <body>
 
 <main class="product-container">
   <div class="media-col">
-    <div class="media-frame" id="main-media" role="region" aria-label="Product Media">
+    <div class="media-frame" id="main-media" role="region" aria-label="Media Player">
        ${product.video_url 
-         ? `<video controls src="${product.video_url}" poster="${images[0]}" width="600" height="600"><track kind="captions" src="" label="English" /></video>` 
-         : `<img src="${images[0]}" alt="${title} - Main View" width="600" height="600">`
+         ? `<video controls src="${product.video_url}" poster="${images[0]}" width="600" height="337"><track kind="captions" src="" label="English" /></video>` 
+         : `<img src="${images[0]}" alt="${title} - Main View" width="600" height="337">`
        }
     </div>
     
-    <div class="thumbs" role="group" aria-label="Product Thumbnails">
+    <div class="thumbs" role="group" aria-label="Gallery">
       ${product.video_url ? `
         <button type="button" class="thumb-btn" onclick="switchMedia('video','${product.video_url}')" aria-label="Play Video">
-            <img src="https://img.icons8.com/ios-filled/50/000000/video.png" alt="Video Thumbnail" style="padding:15px; background:#eee;">
+            <img src="https://img.icons8.com/ios-filled/50/000000/video.png" alt="Video Icon" style="padding:15px; background:#eee;">
         </button>` : ''}
       ${thumbsHtml}
     </div>
     
-    <section style="margin-top:25px; padding:20px; background:white; border:1px solid #e5e7eb; border-radius:12px;">
+    <section class="desc-box">
       <h2 style="margin-top:0; font-size:1.3rem; border-bottom:1px solid #eee; padding-bottom:10px;">Description</h2>
       <p style="color:#4b5563; line-height:1.7; margin-top:15px;">${desc.replace(/\n/g, '<br>')}</p>
     </section>
@@ -142,8 +202,8 @@ body { font-family: 'Segoe UI', system-ui, sans-serif; color: #111; line-height:
 
   <div class="form-col">
     <div>
-        <h1 style="font-size:2rem; margin:0 0 5px 0; line-height:1.2;">${title}</h1>
-        <div class="rating-row"><span class="star-icon">★</span> 5.0 (New Arrival)</div>
+        <h1 style="font-size:1.8rem; margin:0; line-height:1.2;">${title}</h1>
+        <div class="rating-text">★ 5.0 (New Arrival)</div>
     </div>
 
     <div class="cards-row">
@@ -183,9 +243,9 @@ let BASE_PRICE = ${price};
 function switchMedia(type, url){
   const main = document.getElementById('main-media');
   if(type === 'video'){
-    main.innerHTML = '<video controls autoplay src="'+url+'" poster="${images[0]}" width="600" height="600" style="width:100%;height:100%;object-fit:contain;"></video>';
+    main.innerHTML = '<video controls autoplay src="'+url+'" poster="${images[0]}" style="width:100%;height:100%;object-fit:contain;"></video>';
   } else {
-    main.innerHTML = '<img src="'+url+'" alt="Main View" width="600" height="600" style="width:100%;height:100%;object-fit:contain;">';
+    main.innerHTML = '<img src="'+url+'" alt="Main View" style="width:100%;height:100%;object-fit:contain;">';
   }
 }
 
@@ -264,7 +324,7 @@ function submitOrder(e){
 </html>`;
 }
 
-// --- HELPER FUNCTION: Accessible Form Fields ---
+// --- HELPER FUNCTION: Same as before ---
 
 function generateDynamicForm(fields) {
     if (!fields || fields.length === 0) return '<p>No options available.</p>';
@@ -274,42 +334,28 @@ function generateDynamicForm(fields) {
         const label = f.label;
         const req = f.required ? 'required' : '';
         const star = f.required ? '<span style="color:red">*</span>' : '';
-        const fieldId = `f_${i}`; // Unique ID for Label association
+        const fieldId = `f_${i}`;
 
-        // Header
         if(type === 'header') return `<h3 style="margin:20px 0 10px 0; border-bottom:1px solid #ddd; padding-bottom:5px; font-size:1.1rem; color:#111;">${label}</h3>`;
 
-        // Text / Email / Date
         if(['text','email','number','date'].includes(type)) {
             return `<div class="form-group"><label class="form-label" for="${fieldId}">${label} ${star}</label><input type="${type}" id="${fieldId}" class="form-control" ${req}></div>`;
         }
 
-        // Textarea
         if(type === 'textarea') {
             return `<div class="form-group"><label class="form-label" for="${fieldId}">${label} ${star}</label><textarea id="${fieldId}" class="form-control" rows="${f.rows||3}" ${req}></textarea></div>`;
         }
 
-        // File
         if(type === 'file') {
             return `<div class="form-group"><label class="form-label" for="${fieldId}">${label} ${star}</label><input type="file" id="${fieldId}" class="form-control" ${req}></div>`;
         }
 
-        // Select
         if(type === 'select') {
             const condTarget = `cond_sel_${i}`;
             const opts = f.options_list.map(o => `<option value="${o.label}" data-price="${o.price||0}" data-file-qty="${o.file_qty||0}" data-text-label="${o.text_label||''}">${o.label} ${o.price>0 ? '(+$'+o.price+')' : ''}</option>`).join('');
-            return `
-            <div class="form-group">
-                <label class="form-label" for="${fieldId}">${label} ${star}</label>
-                <select id="${fieldId}" class="form-control price-ref" data-cond-target="${condTarget}" ${req}>
-                    <option value="" data-price="0">Select Option</option>
-                    ${opts}
-                </select>
-                <div id="${condTarget}" class="conditional-wrap"></div>
-            </div>`;
+            return `<div class="form-group"><label class="form-label" for="${fieldId}">${label} ${star}</label><select id="${fieldId}" class="form-control price-ref" data-cond-target="${condTarget}" ${req}><option value="" data-price="0">Select Option</option>${opts}</select><div id="${condTarget}" class="conditional-wrap"></div></div>`;
         }
 
-        // Radio / Checkbox
         if(type === 'radio' || type === 'checkbox_group') {
             const isRadio = type === 'radio';
             const opts = f.options_list.map((o, idx) => {
@@ -325,17 +371,7 @@ function generateDynamicForm(fields) {
                     condHtml += `</div>`;
                 }
 
-                return `
-                <div style="margin-bottom:8px">
-                    <label class="opt-row" for="${optId}" style="display:flex; justify-content:space-between; align-items:center; padding:10px; background:white; border:1px solid #e5e7eb; border-radius:8px; cursor:pointer;">
-                        <span style="display:flex; align-items:center; gap:10px; color:#374151;">
-                            <input type="${isRadio?'radio':'checkbox'}" id="${optId}" name="${label}${isRadio?'':'[]'}" class="price-ref" data-price="${o.price||0}" data-cond-id="${hasCond?condId:''}" ${isRadio&&f.required?'required':''}>
-                            ${o.label}
-                        </span>
-                        <span style="font-weight:bold; color:#4f46e5;">${o.price>0 ? '+$'+o.price : ''}</span>
-                    </label>
-                    ${condHtml}
-                </div>`;
+                return `<div style="margin-bottom:8px"><label class="opt-row" for="${optId}" style="display:flex; justify-content:space-between; align-items:center; padding:10px; background:white; border:1px solid #e5e7eb; border-radius:8px; cursor:pointer;"><span style="display:flex; align-items:center; gap:10px; color:#374151;"><input type="${isRadio?'radio':'checkbox'}" id="${optId}" name="${label}${isRadio?'':'[]'}" class="price-ref" data-price="${o.price||0}" data-cond-id="${hasCond?condId:''}" ${isRadio&&f.required?'required':''}>${o.label}</span><span style="font-weight:bold; color:#4f46e5;">${o.price>0 ? '+$'+o.price : ''}</span></label>${condHtml}</div>`;
             }).join('');
             
             return `<div class="form-group"><label class="form-label" style="margin-bottom:10px;">${label} ${star}</label>${opts}</div>`;
