@@ -1,6 +1,6 @@
 /**
- * Professional Form Builder (Globo Style 2025)
- * Features: Groups, Options with Price, File/Text Logic, and Textarea Sizing
+ * admin/js/components/form-tabs/custom-fields.js
+ * FIXED: Strictly English & USD Currency Labels
  */
 
 export function renderCustomFields(data = {}) {
@@ -12,7 +12,6 @@ export function renderCustomFields(data = {}) {
                 <i class="fas fa-layer-group"></i> Advanced Field Editor
             </label>
 
-            <!-- Toolbar -->
             <div class="toolbar" style="display:flex; gap:8px; flex-wrap:wrap; margin-bottom:20px; padding:10px; background:#f8f9fa; border:1px solid #e9ecef; border-radius:8px;">
                 <button type="button" class="btn-tool" data-type="header"><i class="fas fa-heading"></i> Heading</button>
                 <button type="button" class="btn-tool" data-type="text"><i class="fas fa-font"></i> Short Text</button>
@@ -104,7 +103,7 @@ function renderFieldCard(field = {}, index = Date.now()) {
             return `
             <div class="opt-row" style="display:flex; gap:5px; margin-bottom:5px; align-items:center;">
                 <input type="text" class="form-control" name="opt_label" placeholder="Option Name" value="${o.label}" style="flex:1.5;">
-                <input type="number" class="form-control" name="opt_price" placeholder="Price" value="${o.price}" style="flex:0.8;">
+                <input type="number" class="form-control" name="opt_price" placeholder="Price ($)" value="${o.price}" style="flex:0.8;">
                 ${fileLogicUI}
                 ${textLogicUI}
                 <button type="button" onclick="this.closest('.opt-row').remove()" style="color:#e74c3c; border:none; background:none; cursor:pointer; padding:0 8px;"><i class="fas fa-times"></i></button>
@@ -240,7 +239,7 @@ function addOptionRow(container) {
     div.style.cssText = 'display:flex; gap:5px; margin-bottom:5px; align-items:center; animation:fadeIn 0.2s;';
     div.innerHTML = `
         <input type="text" class="form-control" name="opt_label" placeholder="Option Name" style="flex:1.5;">
-        <input type="number" class="form-control" name="opt_price" placeholder="Price" style="flex:0.8;">
+        <input type="number" class="form-control" name="opt_price" placeholder="Price ($)" style="flex:0.8;">
         ${logicHTML}
         <button type="button" onclick="this.closest('.opt-row').remove()" style="color:#e74c3c; border:none; background:none; cursor:pointer; padding:0 8px;"><i class="fas fa-times"></i></button>
     `;
