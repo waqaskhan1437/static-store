@@ -1758,7 +1758,7 @@
     "date": "2025-12-04T00:14:22.026Z",
     "title": "Ultimate Custom Gift 2025 (Deejklejlmo)nn",
     "price": 17,
-    "old_price": 9,
+    "old_price": 70,
     "description": "This is a comprehensive demo to showcase the Advanced Form Builder 2025.\n\nIt features:\n- Cloudinary Integration (Video + Images)\n- Conditional Logic (File/Text requirements)\n- Complex Add-ons & Pricing\n- Long Text Areas",
     "seoDescription": "",
     "images": [
@@ -1823,6 +1823,21 @@
             "file_qty": 1,
             "text_label": "",
             "text_placeholder": ""
+          }
+        ]
+      },
+      {
+        "_type": "checkbox_group",
+        "label": "kldsjlkfjdsl",
+        "required": false,
+        "rows": 3,
+        "options_list": [
+          {
+            "label": "odsjlkfjsdl",
+            "price": 33,
+            "file_qty": 1,
+            "text_label": "sdfds",
+            "text_placeholder": "dfsd"
           }
         ]
       }
