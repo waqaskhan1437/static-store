@@ -3,7 +3,7 @@ import { generateSlug } from '../../utils.js';
 /**
  * Tab 1: Basic Information
  * Handles HTML Template and Events.
- * FIXED: Currency USD, English Comments
+ * FIXED: Slug is now Editable for SEO
  */
 
 export function renderBasicInfo(data = {}) {
@@ -15,10 +15,15 @@ export function renderBasicInfo(data = {}) {
         </div>
 
         <div class="form-group">
-            <label>URL Slug (Auto-generated)</label>
-            <input type="text" id="inp_slug" name="id" class="form-control" 
-                   value="${data.id || ''}" readonly style="background: #eee;">
-            <p class="helper-text">Unique ID used in URL.</p>
+            <label>URL Slug (Permalink) *</label>
+            <div style="display:flex; gap:10px;">
+                <span style="padding:10px; background:#eee; border:1px solid #ddd; border-right:0; border-radius:4px 0 0 4px;">/products/</span>
+                <input type="text" id="inp_slug" name="slug" class="form-control" 
+                       value="${data.slug || data.id || ''}" 
+                       placeholder="custom-product-url"
+                       style="border-radius:0 4px 4px 0;">
+            </div>
+            <p class="helper-text">Edit this to optimize your URL for SEO (e.g. 'best-custom-gift-2025').</p>
         </div>
 
         <div class="row" style="display: flex; gap: 20px;">
@@ -40,6 +45,7 @@ export function renderBasicInfo(data = {}) {
                 <option value="general" ${data.category === 'general' ? 'selected' : ''}>General</option>
                 <option value="clothing" ${data.category === 'clothing' ? 'selected' : ''}>Clothing</option>
                 <option value="accessories" ${data.category === 'accessories' ? 'selected' : ''}>Accessories</option>
+                <option value="digital" ${data.category === 'digital' ? 'selected' : ''}>Digital Product</option>
             </select>
         </div>
 
@@ -52,7 +58,7 @@ export function renderBasicInfo(data = {}) {
 }
 
 /**
- * Attach Events (Title change -> Slug update)
+ * Attach Events (Title change -> Slug update ONLY if slug is empty)
  */
 export function setupBasicInfoEvents() {
     const titleInput = document.getElementById('inp_title');
@@ -60,9 +66,16 @@ export function setupBasicInfoEvents() {
 
     if (titleInput && slugInput) {
         titleInput.addEventListener('input', (e) => {
-            // Update slug on title change
-            const newSlug = generateSlug(e.target.value);
-            slugInput.value = newSlug;
+            // Sirf tab auto-fill karein agar slug khali hai, warn user ka likha hua overwrite na ho
+            if (!slugInput.value) {
+                const newSlug = generateSlug(e.target.value);
+                slugInput.value = newSlug;
+            }
+        });
+        
+        // Slug ko clean rakhne ke liye (spaces ko dash mein badalna)
+        slugInput.addEventListener('blur', (e) => {
+            slugInput.value = generateSlug(e.target.value);
         });
     }
 }
