@@ -12,127 +12,191 @@ It features:
 <link rel="stylesheet" href="../style.css">
 <link rel="stylesheet" href="../product.css">
 <style>
-/* Core Layout */
-body { font-family: 'Segoe UI', system-ui, sans-serif; color: #111; line-height: 1.5; }
-.product-container { display:grid; grid-template-columns: 1fr 1fr; gap:3rem; margin:3rem auto; max-width:1200px; padding:0 20px; }
-.media-col { flex:1 1 50%; min-width:300px; }
-.form-col { display:flex; flex-direction:column; gap:1.5rem; }
+/* --- CORE STYLES --- */
+:root { --primary: #4f46e5; --dark: #111; }
+body { font-family: 'Segoe UI', system-ui, sans-serif; color: #1f2937; line-height: 1.5; margin:0; }
 
-/* Media Section */
-.media-frame { position:relative; width:100%; aspect-ratio:1/1; background:#f5f5f5; border-radius:12px; overflow:hidden; border:1px solid #eee; }
-.media-frame img, .media-frame video { width:100%; height:100%; object-fit:contain; display:block; }
+/* Layout: Desktop Sticky Player */
+.product-container { 
+    display: grid; 
+    grid-template-columns: 1.2fr 1fr; 
+    gap: 3rem; 
+    margin: 3rem auto; 
+    max-width: 1200px; 
+    padding: 0 20px; 
+    align-items: start;
+}
 
-.thumbs { display:flex; gap:10px; margin-top:15px; flex-wrap:wrap; }
-/* Fix: Reset Button Styles for Thumbs */
-.thumb-btn { background:none; border:2px solid transparent; padding:0; cursor:pointer; border-radius:6px; overflow:hidden; transition:0.2s; }
-.thumb-btn:hover, .thumb-btn:focus { border-color:#4f46e5; outline:none; }
-.thumb-btn img { display:block; width:80px; height:60px; object-fit:cover; }
+.media-col { 
+    position: sticky; 
+    top: 20px; 
+    display: flex; 
+    flex-direction: column; 
+    gap: 15px; 
+}
 
-/* Delivery Card */
-.cards-row { display:flex; gap:15px; margin-top:5px; }
-.delivery-card { flex:1; padding:15px; border-radius:10px; color:white; display:flex; flex-direction:column; justify-content:center; }
-.bg-green { background:#059669; }
-.bg-purple { background:#7c3aed; }
-.delivery-card h3 { margin:0; font-size:1rem; font-weight:700; }
-.delivery-card span { font-size:0.95rem; font-weight:600; margin-top:4px; display:block; }
+/* Horizontal Player (16:9) */
+.media-frame { 
+    width: 100%; 
+    aspect-ratio: 16/9; 
+    background: #000; 
+    border-radius: 12px; 
+    overflow: hidden; 
+    border: 1px solid #e5e7eb; 
+    display: flex; 
+    align-items: center; 
+    justify-content: center;
+}
+.media-frame img, .media-frame video { 
+    width: 100%; height: 100%; object-fit: contain; 
+}
 
-/* Price Card */
-.price-card2 { flex:1; background:#6366f1; color:white; padding:15px; border-radius:10px; text-align:center; display:flex; flex-direction:column; justify-content:center; }
-.price-card2 .price { font-size:1.8rem; font-weight:800; }
-.price-card2 .old-price { font-size:1rem; opacity:0.8; text-decoration:line-through; display:block; }
-.price-card2 .discount { background:white; color:#6366f1; font-size:0.75rem; font-weight:bold; padding:2px 8px; border-radius:12px; margin-top:4px; display:inline-block; }
+/* --- THUMBNAIL SLIDER --- */
+.slider-wrapper {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    position: relative;
+}
 
-/* Form Elements */
-.form-section { background:#f9fafb; padding:20px; border-radius:12px; border:1px solid #e5e7eb; }
-.form-group { margin-bottom:15px; }
-.form-label { display:block; font-weight:600; font-size:0.95rem; margin-bottom:6px; color:#1f2937; }
-.form-control { width:100%; padding:10px; border:1px solid #d1d5db; border-radius:6px; font-size:1rem; color:#111; box-sizing:border-box; }
-.form-control:focus { border-color:#6366f1; outline:2px solid #c7d2fe; }
+.thumbs-container { 
+    display: flex; 
+    gap: 10px; 
+    overflow-x: auto; 
+    scroll-behavior: smooth;
+    scrollbar-width: none; /* Firefox */
+    -ms-overflow-style: none; /* IE */
+    padding: 4px 0;
+    width: 100%;
+}
+.thumbs-container::-webkit-scrollbar { display: none; } /* Chrome/Safari */
 
-/* Accessibility Contrast Fix */
-.rating-row { color:#374151; font-weight:bold; font-size:0.95rem; display:flex; align-items:center; gap:5px; }
-.star-icon { color:#d97706; } /* Dark Gold */
+.thumb-btn { 
+    position: relative; 
+    background: none; border: 2px solid transparent; padding: 0; 
+    cursor: pointer; border-radius: 8px; overflow: hidden; transition: 0.2s; 
+    flex-shrink: 0; /* Prevents shrinking in flex */
+}
+.thumb-btn:hover, .thumb-btn:focus { border-color: var(--primary); }
+.thumb-btn img { display: block; width: 80px; height: 60px; object-fit: cover; }
 
-/* Button */
-.checkout-btn { width:100%; background:#047857; color:white; padding:16px; font-size:1.1rem; font-weight:700; border:none; border-radius:8px; cursor:pointer; margin-top:10px; display:flex; justify-content:space-between; transition:0.2s; }
-.checkout-btn:hover { background:#064e3b; }
+/* Slider Arrows */
+.slide-arrow {
+    background: white; border: 1px solid #ddd; border-radius: 50%;
+    width: 32px; height: 32px; display: flex; align-items: center; justify-content: center;
+    cursor: pointer; box-shadow: 0 2px 5px rgba(0,0,0,0.1); z-index: 2;
+    transition: 0.2s; color: #555; font-size: 18px; line-height: 1;
+    flex-shrink: 0;
+}
+.slide-arrow:hover { background: #f3f3f3; color: var(--primary); }
+.slide-arrow.disabled { opacity: 0.3; cursor: default; }
 
-@media(max-width:768px){ .product-container{grid-template-columns:1fr; gap:2rem; margin:1.5rem auto;} }
+.play-icon-overlay {
+    position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%);
+    background: rgba(0,0,0,0.6); color: white; border-radius: 50%;
+    width: 24px; height: 24px; display: flex; align-items: center; justify-content: center;
+    font-size: 12px; pointer-events: none;
+}
+
+/* Right Column */
+.form-col { display: flex; flex-direction: column; gap: 1.5rem; }
+
+/* Cards */
+.cards-row { display: flex; gap: 15px; }
+.delivery-card { flex: 1; padding: 15px; border-radius: 10px; color: white; display: flex; flex-direction: column; justify-content: center; }
+.bg-green { background: #059669; }
+.bg-purple { background: #7c3aed; }
+.delivery-card h3 { margin: 0; font-size: 1rem; font-weight: 700; }
+.delivery-card span { font-size: 0.95rem; font-weight: 600; margin-top: 4px; }
+
+.price-card2 { flex: 1; background: var(--primary); color: white; padding: 15px; border-radius: 10px; text-align: center; }
+.price-card2 .price { font-size: 1.8rem; font-weight: 800; display: block; }
+.price-card2 .old-price { font-size: 1rem; opacity: 0.8; text-decoration: line-through; }
+.price-card2 .discount { background: white; color: var(--primary); font-size: 0.75rem; font-weight: bold; padding: 2px 8px; border-radius: 12px; }
+
+/* Forms */
+.form-section { background: #f9fafb; padding: 20px; border-radius: 12px; border: 1px solid #e5e7eb; }
+.form-group { margin-bottom: 15px; }
+.form-label { display: block; font-weight: 600; font-size: 0.95rem; margin-bottom: 6px; color: #374151; }
+.form-control { width: 100%; padding: 12px; border: 1px solid #d1d5db; border-radius: 8px; font-size: 1rem; box-sizing: border-box; }
+.form-control:focus { border-color: var(--primary); outline: 2px solid #c7d2fe; }
+
+.checkout-btn { width: 100%; background: #047857; color: white; padding: 16px; font-size: 1.1rem; font-weight: 700; border: none; border-radius: 8px; cursor: pointer; display: flex; justify-content: space-between; transition: 0.2s; }
+.checkout-btn:hover { background: #064e3b; }
+
+.rating-text { color: #b45309; font-weight: bold; font-size: 0.9rem; margin-top: 5px; }
+.desc-box { background: white; padding: 20px; border-radius: 12px; border: 1px solid #e5e7eb; }
+
+/* Mobile Logic */
+@media (max-width: 768px) {
+    .product-container { display: flex; flex-direction: column; gap: 1.5rem; margin: 1.5rem auto; }
+    .media-col { display: contents; } 
+    .media-frame { order: 1; width: 100%; aspect-ratio: 16/9; }
+    .slider-wrapper { order: 2; width: 100%; }
+    .form-col { order: 3; }
+    .desc-box { order: 4; }
+    
+    /* On mobile, standard scroll is enough, arrows optional but kept for consistency */
+}
 </style>
 </head>
 <body>
 
 <main class="product-container">
   <div class="media-col">
-    <div class="media-frame" id="main-media" role="region" aria-label="Product Media">
-       <video controls src="https://res.cloudinary.com/demo/video/upload/v1590484059/dog.mp4" poster="https://res.cloudinary.com/demo/image/upload/v1590483329/sample.jpg" width="600" height="600"><track kind="captions" src="" label="English" /></video>
+    <div class="media-frame" id="main-media" role="region" aria-label="Media Player">
+       <video controls src="https://res.cloudinary.com/demo/video/upload/v1590484059/dog.mp4" poster="https://res.cloudinary.com/demo/image/upload/v1590483329/sample.jpg" width="600" height="337"><track kind="captions" src="" label="English" /></video>
     </div>
     
-    <div class="thumbs" role="group" aria-label="Product Thumbnails">
-      
+    <div class="slider-wrapper" role="region" aria-label="Gallery Slider">
+        <button class="slide-arrow" onclick="scrollThumbs(-1)" aria-label="Previous">❮</button>
+        <div class="thumbs-container" id="thumbs-box">
+            
         <button type="button" class="thumb-btn" onclick="switchMedia('video','https://res.cloudinary.com/demo/video/upload/v1590484059/dog.mp4')" aria-label="Play Video">
-            <img src="https://img.icons8.com/ios-filled/50/000000/video.png" alt="Video Thumbnail" style="padding:15px; background:#eee;">
+            <img src="https://res.cloudinary.com/demo/image/upload/v1590483329/sample.jpg" alt="Thumbnail 1" width="80" height="60" loading="lazy">
+            <span class="play-icon-overlay">▶</span>
         </button>
-      
-        <button type="button" class="thumb-btn" onclick="switchMedia('image','https://res.cloudinary.com/demo/image/upload/v1590483329/sample.jpg')" aria-label="View Image 1">
-            <img src="https://res.cloudinary.com/demo/image/upload/v1590483329/sample.jpg" 
-                 alt="Ultimate Custom Gift 2025 (Deejklejlmo)nnjkkjlknmn,mnm, thumbnail 1"
-                 width="80" height="60"
-                 loading="lazy">
-        </button>
-    
+        
         <button type="button" class="thumb-btn" onclick="switchMedia('image','https://res.cloudinary.com/demo/image/upload/v1312461204/sample.jpg')" aria-label="View Image 2">
-            <img src="https://res.cloudinary.com/demo/image/upload/v1312461204/sample.jpg" 
-                 alt="Ultimate Custom Gift 2025 (Deejklejlmo)nnjkkjlknmn,mnm, thumbnail 2"
-                 width="80" height="60"
-                 loading="lazy">
+            <img src="https://res.cloudinary.com/demo/image/upload/v1312461204/sample.jpg" alt="Thumbnail 2" width="80" height="60" loading="lazy">
+            
         </button>
-    
+        
         <button type="button" class="thumb-btn" onclick="switchMedia('image','https://res.cloudinary.com/demo/image/upload/v1590483329/sample.jpg')" aria-label="View Image 3">
-            <img src="https://res.cloudinary.com/demo/image/upload/v1590483329/sample.jpg" 
-                 alt="Ultimate Custom Gift 2025 (Deejklejlmo)nnjkkjlknmn,mnm, thumbnail 3"
-                 width="80" height="60"
-                 loading="lazy">
+            <img src="https://res.cloudinary.com/demo/image/upload/v1590483329/sample.jpg" alt="Thumbnail 3" width="80" height="60" loading="lazy">
+            
         </button>
-    
+        
         <button type="button" class="thumb-btn" onclick="switchMedia('image','https://res.cloudinary.com/demo/image/upload/v1312461204/sample.jpg')" aria-label="View Image 4">
-            <img src="https://res.cloudinary.com/demo/image/upload/v1312461204/sample.jpg" 
-                 alt="Ultimate Custom Gift 2025 (Deejklejlmo)nnjkkjlknmn,mnm, thumbnail 4"
-                 width="80" height="60"
-                 loading="lazy">
+            <img src="https://res.cloudinary.com/demo/image/upload/v1312461204/sample.jpg" alt="Thumbnail 4" width="80" height="60" loading="lazy">
+            
         </button>
-    
+        
         <button type="button" class="thumb-btn" onclick="switchMedia('image','https://res.cloudinary.com/demo/image/upload/v1590483329/sample.jpg')" aria-label="View Image 5">
-            <img src="https://res.cloudinary.com/demo/image/upload/v1590483329/sample.jpg" 
-                 alt="Ultimate Custom Gift 2025 (Deejklejlmo)nnjkkjlknmn,mnm, thumbnail 5"
-                 width="80" height="60"
-                 loading="lazy">
+            <img src="https://res.cloudinary.com/demo/image/upload/v1590483329/sample.jpg" alt="Thumbnail 5" width="80" height="60" loading="lazy">
+            
         </button>
-    
+        
         <button type="button" class="thumb-btn" onclick="switchMedia('image','https://res.cloudinary.com/demo/image/upload/v1312461204/sample.jpg')" aria-label="View Image 6">
-            <img src="https://res.cloudinary.com/demo/image/upload/v1312461204/sample.jpg" 
-                 alt="Ultimate Custom Gift 2025 (Deejklejlmo)nnjkkjlknmn,mnm, thumbnail 6"
-                 width="80" height="60"
-                 loading="lazy">
+            <img src="https://res.cloudinary.com/demo/image/upload/v1312461204/sample.jpg" alt="Thumbnail 6" width="80" height="60" loading="lazy">
+            
         </button>
-    
+        
         <button type="button" class="thumb-btn" onclick="switchMedia('image','https://res.cloudinary.com/demo/image/upload/v1590483329/sample.jpg')" aria-label="View Image 7">
-            <img src="https://res.cloudinary.com/demo/image/upload/v1590483329/sample.jpg" 
-                 alt="Ultimate Custom Gift 2025 (Deejklejlmo)nnjkkjlknmn,mnm, thumbnail 7"
-                 width="80" height="60"
-                 loading="lazy">
+            <img src="https://res.cloudinary.com/demo/image/upload/v1590483329/sample.jpg" alt="Thumbnail 7" width="80" height="60" loading="lazy">
+            
         </button>
-    
+        
         <button type="button" class="thumb-btn" onclick="switchMedia('image','https://res.cloudinary.com/demo/image/upload/v1312461204/sample.jpg')" aria-label="View Image 8">
-            <img src="https://res.cloudinary.com/demo/image/upload/v1312461204/sample.jpg" 
-                 alt="Ultimate Custom Gift 2025 (Deejklejlmo)nnjkkjlknmn,mnm, thumbnail 8"
-                 width="80" height="60"
-                 loading="lazy">
+            <img src="https://res.cloudinary.com/demo/image/upload/v1312461204/sample.jpg" alt="Thumbnail 8" width="80" height="60" loading="lazy">
+            
         </button>
-    
+        
+        </div>
+        <button class="slide-arrow" onclick="scrollThumbs(1)" aria-label="Next">❯</button>
     </div>
     
-    <section style="margin-top:25px; padding:20px; background:white; border:1px solid #e5e7eb; border-radius:12px;">
+    <section class="desc-box">
       <h2 style="margin-top:0; font-size:1.3rem; border-bottom:1px solid #eee; padding-bottom:10px;">Description</h2>
       <p style="color:#4b5563; line-height:1.7; margin-top:15px;">This is a comprehensive demo to showcase the Advanced Form Builder 2025.<br><br>It features:<br>- Cloudinary Integration (Video + Images)<br>- Conditional Logic (File/Text requirements)<br>- Complex Add-ons & Pricing<br>- Long Text Areas</p>
     </section>
@@ -140,8 +204,8 @@ body { font-family: 'Segoe UI', system-ui, sans-serif; color: #111; line-height:
 
   <div class="form-col">
     <div>
-        <h1 style="font-size:2rem; margin:0 0 5px 0; line-height:1.2;">Ultimate Custom Gift 2025 (Deejklejlmo)nnjkkjlknmn,mnm,</h1>
-        <div class="rating-row"><span class="star-icon">★</span> 5.0 (New Arrival)</div>
+        <h1 style="font-size:1.8rem; margin:0; line-height:1.2;">Ultimate Custom Gift 2025 (Deejklejlmo)nnjkkjlknmn,mnm,</h1>
+        <div class="rating-text">★ 5.0 (New Arrival)</div>
     </div>
 
     <div class="cards-row">
@@ -164,15 +228,7 @@ body { font-family: 'Segoe UI', system-ui, sans-serif; color: #111; line-height:
       <h2 style="color:#4f46e5; margin:0 0 15px 0; font-size:1.3rem;">Customize Your Order</h2>
       
       <form id="orderForm" onsubmit="submitOrder(event)">
-        
-            <div class="form-group">
-                <label class="form-label" for="f_0">Choose Photo <span style="color:red">*</span></label>
-                <select id="f_0" class="form-control price-ref" data-cond-target="cond_sel_0" required>
-                    <option value="" data-price="0">Select Option</option>
-                    <option value="1 Photo Free" data-price="0" data-file-qty="1" data-text-label="">1 Photo Free </option><option value="2 Photo " data-price="3" data-file-qty="2" data-text-label="">2 Photo  (+$3)</option><option value="3 Photo" data-price="6" data-file-qty="4" data-text-label="">3 Photo (+$6)</option>
-                </select>
-                <div id="cond_sel_0" class="conditional-wrap"></div>
-            </div><div class="form-group"><label class="form-label" for="f_1">Happy birthday  </label><textarea id="f_1" class="form-control" rows="3" ></textarea></div>
+        <div class="form-group"><label class="form-label" for="f_0">Choose Photo <span style="color:red">*</span></label><select id="f_0" class="form-control price-ref" data-cond-target="cond_sel_0" required><option value="" data-price="0">Select Option</option><option value="1 Photo Free" data-price="0" data-file-qty="1" data-text-label="">1 Photo Free </option><option value="2 Photo " data-price="3" data-file-qty="2" data-text-label="">2 Photo  (+$3)</option><option value="3 Photo" data-price="6" data-file-qty="4" data-text-label="">3 Photo (+$6)</option></select><div id="cond_sel_0" class="conditional-wrap"></div></div><div class="form-group"><label class="form-label" for="f_1">Happy birthday  </label><textarea id="f_1" class="form-control" rows="3" ></textarea></div>
 
         <button type="submit" class="checkout-btn">
             <span>Checkout</span>
@@ -189,21 +245,30 @@ let BASE_PRICE = 8;
 function switchMedia(type, url){
   const main = document.getElementById('main-media');
   if(type === 'video'){
-    main.innerHTML = '<video controls autoplay src="'+url+'" poster="https://res.cloudinary.com/demo/image/upload/v1590483329/sample.jpg" width="600" height="600" style="width:100%;height:100%;object-fit:contain;"></video>';
+    main.innerHTML = '<video controls autoplay src="'+url+'" poster="https://res.cloudinary.com/demo/image/upload/v1590483329/sample.jpg" style="width:100%;height:100%;object-fit:contain;"></video>';
   } else {
-    main.innerHTML = '<img src="'+url+'" alt="Main View" width="600" height="600" style="width:100%;height:100%;object-fit:contain;">';
+    main.innerHTML = '<img src="'+url+'" alt="Main View" style="width:100%;height:100%;object-fit:contain;">';
   }
+}
+
+// --- THUMBNAIL SLIDER LOGIC ---
+function scrollThumbs(direction) {
+    const container = document.getElementById('thumbs-box');
+    const scrollAmount = 200; // Pixel amount to scroll
+    if(direction === 1) {
+        container.scrollLeft += scrollAmount;
+    } else {
+        container.scrollLeft -= scrollAmount;
+    }
 }
 
 function updatePrice(){
   let total = BASE_PRICE;
   
-  // Select Inputs
   document.querySelectorAll('select.price-ref').forEach(sel => {
     const opt = sel.options[sel.selectedIndex];
     total += parseFloat(opt.dataset.price) || 0;
     
-    // Conditionals
     const target = sel.dataset.condTarget;
     if(target){
         const wrap = document.getElementById(target);
@@ -223,7 +288,6 @@ function updatePrice(){
     }
   });
 
-  // Radio/Checkbox Inputs
   document.querySelectorAll('input.price-ref').forEach(inp => {
     const condId = inp.dataset.condId;
     const wrap = document.getElementById(condId);
