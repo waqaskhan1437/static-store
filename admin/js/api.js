@@ -1,27 +1,28 @@
 /**
  * admin/js/api.js
  * Connects Admin Panel to Cloudflare Worker
- * FIXED: Uses Worker API for instant updates (No GitHub delay)
+ * FIXED: Uses Live Worker API for instant updates
  */
 
-// ⚠️ Yahan apna Cloudflare Worker URL dalein (e.g., https://store-api.user.workers.dev)
-// Last mein slash (/) mat lagayen.
-const WORKER_URL = https://old-mountain-402astore-api.waqaskhan1437.workers.dev/
+// ✅ AAPKA LIVE WORKER LINK (Trailing slash removed)
+const WORKER_URL = "https://old-mountain-402astore-api.waqaskhan1437.workers.dev";
 
 export async function getData(type) {
     try {
         // Decide endpoint based on type
         const endpoint = type === 'orders' ? '/api/orders' : '/api/products';
         
-        // Fetch fresh data from Worker
-        const res = await fetch(`${WORKER_URL}${endpoint}`);
+        // Fetch fresh data from Worker (No caching)
+        const res = await fetch(`${WORKER_URL}${endpoint}`, {
+            cache: 'no-store'
+        });
         
         if (!res.ok) throw new Error(`API Error: ${res.statusText}`);
         
         return await res.json();
     } catch (error) {
         console.error("Fetch Error:", error);
-        alert("Failed to load data. Check Worker URL in api.js");
+        // Fallback: Agar worker fail ho jaye to local file try karo (Optional)
         return [];
     }
 }
