@@ -1,39 +1,47 @@
 /**
  * admin/js/api.js
- * Connects Admin Panel to Cloudflare Worker
- * FIXED: Uses Live Worker API for instant updates
+ * FIXED: Export names matched & Fetching from JSON directly
  */
 
-// ✅ AAPKA LIVE WORKER LINK (Trailing slash removed)
+// Worker URL sirf SAVE karne (POST) ke liye use hoga
 const WORKER_URL = "https://old-mountain-402astore-api.waqaskhan1437.workers.dev";
 
+// Common helper to fetch data
 export async function getData(type) {
     try {
-        // Decide endpoint based on type
-        const endpoint = type === 'orders' ? '/api/orders' : '/api/products';
+        // Worker ki bajaye direct JSON files se data lein
+        // admin/admin.html ke relative path se: ../json/products.json
+        const endpoint = type === 'orders' ? '../json/orders.json' : '../json/products.json';
         
-        // Fetch fresh data from Worker (No caching)
-        const res = await fetch(`${WORKER_URL}${endpoint}`, {
-            cache: 'no-store'
-        });
+        // Cache bust karne ke liye timestamp lagaya taake naya data mile
+        const res = await fetch(`${endpoint}?v=${Date.now()}`);
         
-        if (!res.ok) throw new Error(`API Error: ${res.statusText}`);
+        if (!res.ok) throw new Error(`Failed to load ${type}`);
         
         return await res.json();
     } catch (error) {
         console.error("Fetch Error:", error);
-        // Fallback: Agar worker fail ho jaye to local file try karo (Optional)
-        return [];
+        return []; // Agar error aaye to empty list return karein
     }
 }
 
+// Wrapper Functions (Jo components dhoondh rahe hain)
+export async function fetchProducts() {
+    return await getData('products');
+}
+
+export async function fetchOrders() {
+    return await getData('orders');
+}
+
+// Save Data (Yeh Worker pe hi jayega)
 export async function saveData(payload, password) {
     try {
         const res = await fetch(`${WORKER_URL}/api/publish`, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
-                'X-Admin-Pass': password // Optional security header
+                'X-Admin-Pass': password
             },
             body: JSON.stringify(payload)
         });
