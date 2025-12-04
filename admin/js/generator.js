@@ -1,10 +1,10 @@
 /**
  * admin/js/generator.js
  * FIXED: 
- * - Bulletproof Thumbnail Slider (Renamed classes to avoid conflicts)
- * - Forced Single Line Layout using !important
- * - 16:9 Sticky Player
- * - Mobile Optimized
+ * - Mobile Player is Strictly Edge-to-Edge (0 Margin Left/Right)
+ * - Fixed "Shifted Left" Issue on Mobile
+ * - Slider & Form have proper spacing on Mobile
+ * - Desktop Layout Sticky & 16:9 Preserved
  */
 
 export function generateProductHTML(product) {
@@ -76,9 +76,10 @@ export function generateProductHTML(product) {
 <style>
 /* --- CORE --- */
 :root { --primary: #4f46e5; --dark: #111; }
+* { box-sizing: border-box; } /* CRITICAL FIX */
 body { font-family: 'Segoe UI', system-ui, sans-serif; color: #1f2937; line-height: 1.5; margin:0; background:#f9fafb; }
 
-/* --- LAYOUT --- */
+/* --- DESKTOP LAYOUT --- */
 .product-container { 
     display: grid; 
     grid-template-columns: 1.2fr 1fr; 
@@ -96,7 +97,7 @@ body { font-family: 'Segoe UI', system-ui, sans-serif; color: #1f2937; line-heig
     height: fit-content; min-width: 0;
 }
 
-/* --- PLAYER --- */
+/* --- PLAYER (16:9) --- */
 .media-frame { 
     width: 100%; aspect-ratio: 16/9 !important; background: #000; 
     border-radius: 12px; overflow: hidden; border: 1px solid #e5e7eb; 
@@ -105,38 +106,21 @@ body { font-family: 'Segoe UI', system-ui, sans-serif; color: #1f2937; line-heig
 }
 .media-frame img, .media-frame video { width: 100%; height: 100%; object-fit: contain; }
 
-/* --- NEW BULLETPROOF SLIDER --- */
+/* --- SLIDER --- */
 .t-wrapper {
-    display: flex !important;
-    align-items: center !important;
-    gap: 10px !important;
-    width: 100% !important;
-    background: white;
-    padding: 10px;
-    border-radius: 12px;
-    border: 1px solid #e5e7eb;
-    box-sizing: border-box;
+    display: flex !important; align-items: center !important; gap: 10px !important; width: 100% !important;
+    background: white; padding: 10px; border-radius: 12px; border: 1px solid #e5e7eb; box-sizing: border-box;
 }
 
 .t-box { 
-    display: flex !important;
-    flex-direction: row !important;
-    flex-wrap: nowrap !important; /* FORCE SINGLE LINE */
-    gap: 12px !important;
-    overflow-x: auto !important;
-    scroll-behavior: smooth;
-    width: 100%;
-    white-space: nowrap !important;
-    scrollbar-width: none;
+    display: flex !important; flex-direction: row !important; flex-wrap: nowrap !important;
+    gap: 12px !important; overflow-x: auto !important; scroll-behavior: smooth;
+    width: 100%; white-space: nowrap !important; scrollbar-width: none;
 }
 .t-box::-webkit-scrollbar { display: none; }
 
 .t-btn { 
-    flex: 0 0 80px !important; /* FORCE WIDTH */
-    width: 80px !important;
-    height: 60px !important;
-    min-width: 80px !important;
-    
+    flex: 0 0 80px !important; width: 80px !important; height: 60px !important; min-width: 80px !important;
     position: relative; background: white; border: 2px solid transparent; 
     padding: 0; cursor: pointer; border-radius: 6px; overflow: hidden; transition: 0.2s;
 }
@@ -188,14 +172,46 @@ body { font-family: 'Segoe UI', system-ui, sans-serif; color: #1f2937; line-heig
 
 .rating-text { color: #b45309; font-weight: bold; font-size: 0.9rem; margin-top: 5px; }
 
-/* --- MOBILE --- */
+/* --- MOBILE OPTIMIZED (EDGE-TO-EDGE PLAYER) --- */
 @media (max-width: 768px) {
-    .product-container { display: flex; flex-direction: column; gap: 20px; margin: 20px auto; padding: 0 15px; }
+    /* 1. Reset Container Padding */
+    .product-container { 
+        display: flex; flex-direction: column; gap: 20px; 
+        margin: 0; padding: 0; /* Full Width Container */
+        width: 100%; max-width: 100%;
+    }
+    
     .media-col { display: contents; } 
-    .media-frame { order: 1; width: 100%; margin: 0 -15px; width: calc(100% + 30px); border-radius: 0; }
-    .t-wrapper { order: 2; width: 100%; }
-    .form-col { order: 3; padding: 20px; }
-    .desc-box { order: 4; margin-bottom: 30px; }
+
+    /* 2. Edge-to-Edge Player */
+    .media-frame { 
+        order: 1; 
+        width: 100%; 
+        border-radius: 0; 
+        border-left: none; border-right: none; 
+        margin: 0; 
+        box-shadow: none;
+    }
+    
+    /* 3. Slider with Margin */
+    .t-wrapper { 
+        order: 2; 
+        width: auto !important; /* Allow margin */
+        margin: 0 15px; /* Spacing from sides */
+    }
+    
+    /* 4. Form with Margin */
+    .form-col { 
+        order: 3; 
+        margin: 0 15px; 
+        padding: 20px; 
+    }
+    
+    /* 5. Desc with Margin */
+    .desc-box { 
+        order: 4; 
+        margin: 0 15px 40px 15px; 
+    }
 }
 </style>
 </head>
@@ -352,7 +368,8 @@ function submitOrder(e){
 </html>`;
 }
 
-// --- HELPER FUNCTION ---
+// --- HELPER FUNCTION: Same as before ---
+
 function generateDynamicForm(fields) {
     if (!fields || fields.length === 0) return '<p>No options available.</p>';
     return fields.map((f, i) => {
