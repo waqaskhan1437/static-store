@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Ultimate Custom Gift 2025 (Deejklejlmo)nnjkkjlknmn,mnm,</title>
+<title>Ultimate Custom Gift 2025 (Deejklejlmo)nnjkkjlknmn,mnm,bbb</title>
 <meta name="description" content="This is a comprehensive demo to showcase the Advanced Form Builder 2025.
 
 It features:
@@ -14,9 +14,18 @@ It features:
 <style>
 /* --- CORE --- */
 :root { --primary: #4f46e5; --dark: #111; }
-body { font-family: 'Segoe UI', system-ui, sans-serif; color: #1f2937; line-height: 1.5; margin:0; background:#f9fafb; }
+* { box-sizing: border-box; } 
+body { 
+    font-family: 'Segoe UI', system-ui, sans-serif; 
+    color: #1f2937; 
+    line-height: 1.5; 
+    margin: 0; 
+    background: #f9fafb;
+    overflow-x: hidden; /* Prevent horizontal scroll causing layout shift */
+    width: 100%;
+}
 
-/* --- LAYOUT --- */
+/* --- DESKTOP LAYOUT --- */
 .product-container { 
     display: grid; 
     grid-template-columns: 1.2fr 1fr; 
@@ -34,7 +43,7 @@ body { font-family: 'Segoe UI', system-ui, sans-serif; color: #1f2937; line-heig
     height: fit-content; min-width: 0;
 }
 
-/* --- PLAYER --- */
+/* --- PLAYER (16:9) --- */
 .media-frame { 
     width: 100%; aspect-ratio: 16/9 !important; background: #000; 
     border-radius: 12px; overflow: hidden; border: 1px solid #e5e7eb; 
@@ -43,38 +52,21 @@ body { font-family: 'Segoe UI', system-ui, sans-serif; color: #1f2937; line-heig
 }
 .media-frame img, .media-frame video { width: 100%; height: 100%; object-fit: contain; }
 
-/* --- NEW BULLETPROOF SLIDER --- */
+/* --- SLIDER --- */
 .t-wrapper {
-    display: flex !important;
-    align-items: center !important;
-    gap: 10px !important;
-    width: 100% !important;
-    background: white;
-    padding: 10px;
-    border-radius: 12px;
-    border: 1px solid #e5e7eb;
-    box-sizing: border-box;
+    display: flex !important; align-items: center !important; gap: 10px !important; width: 100% !important;
+    background: white; padding: 10px; border-radius: 12px; border: 1px solid #e5e7eb; box-sizing: border-box;
 }
 
 .t-box { 
-    display: flex !important;
-    flex-direction: row !important;
-    flex-wrap: nowrap !important; /* FORCE SINGLE LINE */
-    gap: 12px !important;
-    overflow-x: auto !important;
-    scroll-behavior: smooth;
-    width: 100%;
-    white-space: nowrap !important;
-    scrollbar-width: none;
+    display: flex !important; flex-direction: row !important; flex-wrap: nowrap !important;
+    gap: 12px !important; overflow-x: auto !important; scroll-behavior: smooth;
+    width: 100%; white-space: nowrap !important; scrollbar-width: none;
 }
 .t-box::-webkit-scrollbar { display: none; }
 
 .t-btn { 
-    flex: 0 0 80px !important; /* FORCE WIDTH */
-    width: 80px !important;
-    height: 60px !important;
-    min-width: 80px !important;
-    
+    flex: 0 0 80px !important; width: 80px !important; height: 60px !important; min-width: 80px !important;
     position: relative; background: white; border: 2px solid transparent; 
     padding: 0; cursor: pointer; border-radius: 6px; overflow: hidden; transition: 0.2s;
 }
@@ -126,14 +118,50 @@ body { font-family: 'Segoe UI', system-ui, sans-serif; color: #1f2937; line-heig
 
 .rating-text { color: #b45309; font-weight: bold; font-size: 0.9rem; margin-top: 5px; }
 
-/* --- MOBILE --- */
+/* --- MOBILE OPTIMIZED (ZERO MARGIN PLAYER) --- */
 @media (max-width: 768px) {
-    .product-container { display: flex; flex-direction: column; gap: 20px; margin: 20px auto; padding: 0 15px; }
+    /* Main container is full width with no padding */
+    .product-container { 
+        display: flex; flex-direction: column; gap: 20px; 
+        margin: 0; padding: 0; 
+        width: 100%; max-width: 100%;
+        overflow-x: hidden;
+    }
+    
     .media-col { display: contents; } 
-    .media-frame { order: 1; width: 100%; margin: 0 -15px; width: calc(100% + 30px); border-radius: 0; }
-    .t-wrapper { order: 2; width: 100%; }
-    .form-col { order: 3; padding: 20px; }
-    .desc-box { order: 4; margin-bottom: 30px; }
+
+    /* 1. Player: Edge to Edge (0 Margin) */
+    .media-frame { 
+        order: 1; 
+        width: 100% !important;
+        margin: 0 !important;
+        border-radius: 0 !important;
+        border-left: none; border-right: none;
+        box-shadow: none;
+    }
+    
+    /* 2. Slider: Centered with gap from edges */
+    .t-wrapper { 
+        order: 2; 
+        /* Use CALC to ensure it fits with margin */
+        width: calc(100% - 30px) !important;
+        margin: 0 auto !important; 
+    }
+    
+    /* 3. Form: Centered with gap */
+    .form-col { 
+        order: 3; 
+        width: calc(100% - 30px) !important;
+        margin: 0 auto !important; 
+        padding: 20px; 
+    }
+    
+    /* 4. Desc: Centered with gap */
+    .desc-box { 
+        order: 4; 
+        width: calc(100% - 30px) !important;
+        margin: 0 auto 40px auto !important; 
+    }
 }
 </style>
 </head>
@@ -201,7 +229,7 @@ body { font-family: 'Segoe UI', system-ui, sans-serif; color: #1f2937; line-heig
 
   <div class="form-col">
     <div>
-        <h1 style="font-size:1.8rem; margin:0; line-height:1.3;">Ultimate Custom Gift 2025 (Deejklejlmo)nnjkkjlknmn,mnm,</h1>
+        <h1 style="font-size:1.8rem; margin:0; line-height:1.3;">Ultimate Custom Gift 2025 (Deejklejlmo)nnjkkjlknmn,mnm,bbb</h1>
         <div class="rating-text">★ 5.0 (Best Seller)</div>
     </div>
 
