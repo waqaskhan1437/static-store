@@ -1,11 +1,9 @@
 /**
  * admin/js/generator.js
- * FIXED: 
- * - Thumbnail Slider (Scrollable with Arrows)
- * - Horizontal Video Player (16:9)
- * - Sticky Player on Desktop
- * - Mobile Optimized Layout
- * - Strictly English & USD
+ * FINAL VERSION: 
+ * - Strictly 16:9 Player (Never changes size)
+ * - Desktop: Sticky Left Panel
+ * - Mobile Order: Player -> Thumbnails -> Form -> Description
  */
 
 export function generateProductHTML(product) {
@@ -21,7 +19,6 @@ export function generateProductHTML(product) {
     const oldPrice = parseFloat(product.old_price) || 0;
     const desc = product.description || '';
     
-    // SEO & Meta
     const seoDesc = (product.seoDescription || desc || title).substring(0, 160).replace(/"/g, "'");
 
     // Delivery Logic
@@ -42,13 +39,12 @@ export function generateProductHTML(product) {
         }
     }
 
-    // 2. Thumbnails Logic (Slider Items)
+    // 2. Thumbnails Logic (First Image = Video Trigger)
     const thumbsHtml = images.map((img, idx) => {
         let clickAction = `switchMedia('image','${img}')`;
         let ariaLabel = `View Image ${idx + 1}`;
         let playIconOverlay = '';
 
-        // First image acts as video trigger if video exists
         if (idx === 0 && product.video_url) {
             clickAction = `switchMedia('video','${product.video_url}')`;
             ariaLabel = `Play Video`;
@@ -77,33 +73,34 @@ export function generateProductHTML(product) {
 <link rel="stylesheet" href="../style.css">
 <link rel="stylesheet" href="../product.css">
 <style>
-/* --- CORE STYLES --- */
+/* --- CORE --- */
 :root { --primary: #4f46e5; --dark: #111; }
-body { font-family: 'Segoe UI', system-ui, sans-serif; color: #1f2937; line-height: 1.5; margin:0; }
+body { font-family: 'Segoe UI', system-ui, sans-serif; color: #1f2937; line-height: 1.5; margin:0; background:#f9fafb; }
 
-/* Layout: Desktop Sticky Player */
+/* --- DESKTOP LAYOUT --- */
 .product-container { 
     display: grid; 
-    grid-template-columns: 1.2fr 1fr; 
-    gap: 3rem; 
-    margin: 3rem auto; 
+    grid-template-columns: 1.2fr 1fr; /* Player side wider */
+    gap: 40px; 
+    margin: 40px auto; 
     max-width: 1200px; 
     padding: 0 20px; 
-    align-items: start;
+    align-items: start; /* Required for sticky to work */
 }
 
+/* Sticky Left Panel (Player + Thumbs + Desc) */
 .media-col { 
     position: sticky; 
     top: 20px; 
     display: flex; 
     flex-direction: column; 
-    gap: 15px; 
+    gap: 20px; 
 }
 
-/* Horizontal Player (16:9) */
+/* --- STRICT 16:9 PLAYER --- */
 .media-frame { 
     width: 100%; 
-    aspect-ratio: 16/9; 
+    aspect-ratio: 16/9 !important; /* Force 16:9 Ratio */
     background: #000; 
     border-radius: 12px; 
     overflow: hidden; 
@@ -111,97 +108,111 @@ body { font-family: 'Segoe UI', system-ui, sans-serif; color: #1f2937; line-heig
     display: flex; 
     align-items: center; 
     justify-content: center;
+    box-shadow: 0 4px 6px rgba(0,0,0,0.05);
 }
+
+/* Content fits inside without changing player size */
 .media-frame img, .media-frame video { 
-    width: 100%; height: 100%; object-fit: contain; 
+    width: 100%; 
+    height: 100%; 
+    object-fit: contain; /* Black bars if aspect ratio differs */
 }
 
-/* --- THUMBNAIL SLIDER --- */
-.slider-wrapper {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-    position: relative;
-}
-
+/* Thumbnails Slider */
+.slider-wrapper { display: flex; align-items: center; gap: 10px; position: relative; }
 .thumbs-container { 
-    display: flex; 
-    gap: 10px; 
-    overflow-x: auto; 
-    scroll-behavior: smooth;
-    scrollbar-width: none; /* Firefox */
-    -ms-overflow-style: none; /* IE */
-    padding: 4px 0;
-    width: 100%;
+    display: flex; gap: 10px; overflow-x: auto; scroll-behavior: smooth;
+    scrollbar-width: none; padding: 4px 0; width: 100%;
 }
-.thumbs-container::-webkit-scrollbar { display: none; } /* Chrome/Safari */
+.thumbs-container::-webkit-scrollbar { display: none; }
 
 .thumb-btn { 
-    position: relative; 
-    background: none; border: 2px solid transparent; padding: 0; 
-    cursor: pointer; border-radius: 8px; overflow: hidden; transition: 0.2s; 
-    flex-shrink: 0; /* Prevents shrinking in flex */
+    position: relative; background: white; border: 2px solid transparent; padding: 0; 
+    cursor: pointer; border-radius: 8px; overflow: hidden; transition: 0.2s; flex-shrink: 0;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.05);
 }
-.thumb-btn:hover, .thumb-btn:focus { border-color: var(--primary); }
+.thumb-btn:hover, .thumb-btn:focus { border-color: var(--primary); transform: translateY(-2px); }
 .thumb-btn img { display: block; width: 80px; height: 60px; object-fit: cover; }
 
-/* Slider Arrows */
 .slide-arrow {
     background: white; border: 1px solid #ddd; border-radius: 50%;
     width: 32px; height: 32px; display: flex; align-items: center; justify-content: center;
-    cursor: pointer; box-shadow: 0 2px 5px rgba(0,0,0,0.1); z-index: 2;
-    transition: 0.2s; color: #555; font-size: 18px; line-height: 1;
-    flex-shrink: 0;
+    cursor: pointer; box-shadow: 0 2px 5px rgba(0,0,0,0.1); flex-shrink: 0;
+    font-size: 14px;
 }
-.slide-arrow:hover { background: #f3f3f3; color: var(--primary); }
-.slide-arrow.disabled { opacity: 0.3; cursor: default; }
 
 .play-icon-overlay {
     position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%);
     background: rgba(0,0,0,0.6); color: white; border-radius: 50%;
     width: 24px; height: 24px; display: flex; align-items: center; justify-content: center;
-    font-size: 12px; pointer-events: none;
+    font-size: 10px; pointer-events: none;
 }
 
-/* Right Column */
-.form-col { display: flex; flex-direction: column; gap: 1.5rem; }
+/* --- RIGHT PANEL (FORM) --- */
+.form-col { 
+    background: white; 
+    padding: 30px; 
+    border-radius: 16px; 
+    border: 1px solid #e5e7eb; 
+    box-shadow: 0 10px 25px rgba(0,0,0,0.05);
+    display: flex; flex-direction: column; gap: 1.5rem; 
+}
 
-/* Cards */
+/* Info Cards */
 .cards-row { display: flex; gap: 15px; }
 .delivery-card { flex: 1; padding: 15px; border-radius: 10px; color: white; display: flex; flex-direction: column; justify-content: center; }
 .bg-green { background: #059669; }
 .bg-purple { background: #7c3aed; }
-.delivery-card h3 { margin: 0; font-size: 1rem; font-weight: 700; }
-.delivery-card span { font-size: 0.95rem; font-weight: 600; margin-top: 4px; }
+.delivery-card h3 { margin: 0; font-size: 0.9rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px; }
+.delivery-card span { font-size: 1rem; font-weight: 700; margin-top: 5px; }
 
-.price-card2 { flex: 1; background: var(--primary); color: white; padding: 15px; border-radius: 10px; text-align: center; }
-.price-card2 .price { font-size: 1.8rem; font-weight: 800; display: block; }
-.price-card2 .old-price { font-size: 1rem; opacity: 0.8; text-decoration: line-through; }
-.price-card2 .discount { background: white; color: var(--primary); font-size: 0.75rem; font-weight: bold; padding: 2px 8px; border-radius: 12px; }
+.price-card2 { flex: 1; background: var(--primary); color: white; padding: 15px; border-radius: 10px; text-align: center; display: flex; flex-direction: column; justify-content: center; }
+.price-card2 .price { font-size: 1.6rem; font-weight: 800; line-height: 1; }
+.price-card2 .old-price { font-size: 0.9rem; opacity: 0.8; text-decoration: line-through; }
+.price-card2 .discount { background: white; color: var(--primary); font-size: 0.7rem; font-weight: 800; padding: 2px 8px; border-radius: 12px; margin-top: 5px; display: inline-block; align-self: center; }
 
-/* Forms */
-.form-section { background: #f9fafb; padding: 20px; border-radius: 12px; border: 1px solid #e5e7eb; }
+/* Description Box */
+.desc-box { 
+    background: white; padding: 25px; border-radius: 12px; border: 1px solid #e5e7eb; 
+    box-shadow: 0 2px 5px rgba(0,0,0,0.02);
+}
+
+/* Form Styling */
 .form-group { margin-bottom: 15px; }
-.form-label { display: block; font-weight: 600; font-size: 0.95rem; margin-bottom: 6px; color: #374151; }
-.form-control { width: 100%; padding: 12px; border: 1px solid #d1d5db; border-radius: 8px; font-size: 1rem; box-sizing: border-box; }
-.form-control:focus { border-color: var(--primary); outline: 2px solid #c7d2fe; }
+.form-label { display: block; font-weight: 700; font-size: 0.9rem; margin-bottom: 8px; color: #374151; }
+.form-control { width: 100%; padding: 12px; border: 1px solid #d1d5db; border-radius: 8px; font-size: 1rem; box-sizing: border-box; transition: 0.2s; }
+.form-control:focus { border-color: var(--primary); outline: 4px solid #e0e7ff; }
 
-.checkout-btn { width: 100%; background: #047857; color: white; padding: 16px; font-size: 1.1rem; font-weight: 700; border: none; border-radius: 8px; cursor: pointer; display: flex; justify-content: space-between; transition: 0.2s; }
-.checkout-btn:hover { background: #064e3b; }
+.checkout-btn { width: 100%; background: #047857; color: white; padding: 18px; font-size: 1.1rem; font-weight: 800; border: none; border-radius: 10px; cursor: pointer; display: flex; justify-content: space-between; transition: 0.2s; box-shadow: 0 4px 6px rgba(4, 120, 87, 0.2); }
+.checkout-btn:hover { background: #065f46; transform: translateY(-2px); }
 
-.rating-text { color: #b45309; font-weight: bold; font-size: 0.9rem; margin-top: 5px; }
-.desc-box { background: white; padding: 20px; border-radius: 12px; border: 1px solid #e5e7eb; }
-
-/* Mobile Logic */
+/* --- MOBILE RESPONSIVE (THE MAGIC) --- */
 @media (max-width: 768px) {
-    .product-container { display: flex; flex-direction: column; gap: 1.5rem; margin: 1.5rem auto; }
+    .product-container { 
+        display: flex; 
+        flex-direction: column; 
+        gap: 20px; 
+        margin: 20px auto; 
+        padding: 0 15px;
+    }
+
+    /* Unwrap media-col to control order individually */
     .media-col { display: contents; } 
-    .media-frame { order: 1; width: 100%; aspect-ratio: 16/9; }
-    .slider-wrapper { order: 2; width: 100%; }
-    .form-col { order: 3; }
-    .desc-box { order: 4; }
+
+    /* ORDERING RULES */
+    .media-frame { order: 1; width: 100%; box-shadow: none; border:none; border-radius: 0; margin: 0 -15px; width: calc(100% + 30px); } /* Edge to edge player */
     
-    /* On mobile, standard scroll is enough, arrows optional but kept for consistency */
+    .slider-wrapper { order: 2; width: 100%; }
+    
+    .form-col { 
+        order: 3; /* Form comes BEFORE Description */
+        padding: 20px; 
+    }
+    
+    .desc-box { 
+        order: 4; /* Description comes LAST */
+        margin-bottom: 30px;
+    }
 }
 </style>
 </head>
@@ -212,7 +223,7 @@ body { font-family: 'Segoe UI', system-ui, sans-serif; color: #1f2937; line-heig
     <div class="media-frame" id="main-media" role="region" aria-label="Media Player">
        ${product.video_url 
          ? `<video controls src="${product.video_url}" poster="${images[0]}" width="600" height="337"><track kind="captions" src="" label="English" /></video>` 
-         : `<img src="${images[0]}" alt="${title} - Main View" width="600" height="337">`
+         : `<img src="${images[0]}" alt="${title}" width="600" height="337">`
        }
     </div>
     
@@ -225,41 +236,41 @@ body { font-family: 'Segoe UI', system-ui, sans-serif; color: #1f2937; line-heig
     </div>
     
     <section class="desc-box">
-      <h2 style="margin-top:0; font-size:1.3rem; border-bottom:1px solid #eee; padding-bottom:10px;">Description</h2>
+      <h2 style="margin-top:0; font-size:1.2rem; border-bottom:1px solid #eee; padding-bottom:10px;">Product Description</h2>
       <p style="color:#4b5563; line-height:1.7; margin-top:15px;">${desc.replace(/\n/g, '<br>')}</p>
     </section>
   </div>
 
   <div class="form-col">
     <div>
-        <h1 style="font-size:1.8rem; margin:0; line-height:1.2;">${title}</h1>
-        <div class="rating-text">★ 5.0 (New Arrival)</div>
+        <h1 style="font-size:1.8rem; margin:0; line-height:1.3;">${title}</h1>
+        <div style="color:#b45309; font-weight:bold; margin-top:5px;">★ 5.0 (Best Seller)</div>
     </div>
 
     <div class="cards-row">
         <div class="delivery-card ${deliveryClass}">
-            <h3>Estimated Delivery</h3>
+            <h3>Delivery Time</h3>
             <span>${deliveryText}</span>
         </div>
         <div class="price-card2">
             <span class="price" id="display-price">$${price}</span>
             ${oldPrice > 0 ? `<span class="old-price">$${oldPrice}</span>` : ''}
-            <span class="discount">Special Offer</span>
+            <span class="discount">Special</span>
         </div>
     </div>
 
     <div style="background:#ecfdf5; padding:12px; border-radius:8px; font-size:0.9rem; color:#065f46; border:1px solid #a7f3d0;">
-       <strong>Note:</strong> ${deliveryText} upon order confirmation.
+       <strong>Delivery:</strong> ${deliveryText} directly to your inbox/phone.
     </div>
 
     <div class="form-section">
-      <h2 style="color:#4f46e5; margin:0 0 15px 0; font-size:1.3rem;">Customize Your Order</h2>
+      <h2 style="color:#4f46e5; margin:0 0 20px 0; font-size:1.2rem; border-bottom: 2px solid #e0e7ff; padding-bottom: 10px; display:inline-block;">Customize Order</h2>
       
       <form id="orderForm" onsubmit="submitOrder(event)">
         ${formHtml}
 
         <button type="submit" class="checkout-btn">
-            <span>Checkout</span>
+            <span>Place Order</span>
             <span id="btn-price">$${price}</span>
         </button>
       </form>
@@ -279,15 +290,11 @@ function switchMedia(type, url){
   }
 }
 
-// --- THUMBNAIL SLIDER LOGIC ---
 function scrollThumbs(direction) {
     const container = document.getElementById('thumbs-box');
-    const scrollAmount = 200; // Pixel amount to scroll
-    if(direction === 1) {
-        container.scrollLeft += scrollAmount;
-    } else {
-        container.scrollLeft -= scrollAmount;
-    }
+    const scrollAmount = 200;
+    if(direction === 1) container.scrollLeft += scrollAmount;
+    else container.scrollLeft -= scrollAmount;
 }
 
 function updatePrice(){
@@ -305,8 +312,8 @@ function updatePrice(){
         
         if(fQty > 0 || tLbl){
             let h = '';
-            if(fQty) for(let i=1;i<=fQty;i++) h+= '<div style="margin-top:8px"><label class="form-label" for="file_'+i+'">Upload File '+i+' <span style="color:red">*</span></label><input type="file" id="file_'+i+'" required class="form-control"></div>';
-            if(tLbl) h+= '<div style="margin-top:8px"><label class="form-label" for="text_lbl">'+tLbl+' <span style="color:red">*</span></label><input type="text" id="text_lbl" required class="form-control"></div>';
+            if(fQty) for(let i=1;i<=fQty;i++) h+= '<div class="form-group"><label class="form-label" for="file_'+i+'">Upload File '+i+' <span style="color:red">*</span></label><input type="file" id="file_'+i+'" required class="form-control"></div>';
+            if(tLbl) h+= '<div class="form-group"><label class="form-label" for="text_lbl">'+tLbl+' <span style="color:red">*</span></label><input type="text" id="text_lbl" required class="form-control"></div>';
             wrap.innerHTML = h;
             wrap.classList.add('show');
         } else {
@@ -374,7 +381,7 @@ function generateDynamicForm(fields) {
         const star = f.required ? '<span style="color:red">*</span>' : '';
         const fieldId = `f_${i}`;
 
-        if(type === 'header') return `<h3 style="margin:20px 0 10px 0; border-bottom:1px solid #ddd; padding-bottom:5px; font-size:1.1rem; color:#111;">${label}</h3>`;
+        if(type === 'header') return `<h3 style="margin:25px 0 15px 0; border-bottom:1px solid #ddd; padding-bottom:5px; font-size:1.1rem; color:#111;">${label}</h3>`;
 
         if(['text','email','number','date'].includes(type)) {
             return `<div class="form-group"><label class="form-label" for="${fieldId}">${label} ${star}</label><input type="${type}" id="${fieldId}" class="form-control" ${req}></div>`;
@@ -409,7 +416,7 @@ function generateDynamicForm(fields) {
                     condHtml += `</div>`;
                 }
 
-                return `<div style="margin-bottom:8px"><label class="opt-row" for="${optId}" style="display:flex; justify-content:space-between; align-items:center; padding:10px; background:white; border:1px solid #e5e7eb; border-radius:8px; cursor:pointer;"><span style="display:flex; align-items:center; gap:10px; color:#374151;"><input type="${isRadio?'radio':'checkbox'}" id="${optId}" name="${label}${isRadio?'':'[]'}" class="price-ref" data-price="${o.price||0}" data-cond-id="${hasCond?condId:''}" ${isRadio&&f.required?'required':''}>${o.label}</span><span style="font-weight:bold; color:#4f46e5;">${o.price>0 ? '+$'+o.price : ''}</span></label>${condHtml}</div>`;
+                return `<div style="margin-bottom:8px"><label class="opt-row" for="${optId}" style="display:flex; justify-content:space-between; align-items:center; padding:12px; background:white; border:1px solid #e5e7eb; border-radius:8px; cursor:pointer; transition:0.1s;"><span style="display:flex; align-items:center; gap:10px; color:#374151;"><input type="${isRadio?'radio':'checkbox'}" id="${optId}" name="${label}${isRadio?'':'[]'}" class="price-ref" data-price="${o.price||0}" data-cond-id="${hasCond?condId:''}" ${isRadio&&f.required?'required':''}>${o.label}</span><span style="font-weight:bold; color:#4f46e5;">${o.price>0 ? '+$'+o.price : ''}</span></label>${condHtml}</div>`;
             }).join('');
             
             return `<div class="form-group"><label class="form-label" style="margin-bottom:10px;">${label} ${star}</label>${opts}</div>`;
