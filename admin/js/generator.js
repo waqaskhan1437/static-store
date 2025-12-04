@@ -1,11 +1,10 @@
 /**
  * admin/js/generator.js
- * FINAL ULTIMATE VERSION
- * Features:
- * 1. Player is always Horizontal (16:9 Aspect Ratio)
- * 2. Sticky Player on Desktop (Scrolls with page)
- * 3. Mobile Layout: Player > Form > Description
- * 4. Accessibility, USD Currency, English Language
+ * FIXED: 
+ * - First Image acts as Video Thumbnail (No separate video icon).
+ * - Clicking 1st Image -> Plays Video (if video exists).
+ * - Video Player Poster is always the 1st Image.
+ * - Accessibility & Layout intact.
  */
 
 export function generateProductHTML(product) {
@@ -42,14 +41,30 @@ export function generateProductHTML(product) {
         }
     }
 
-    // 2. Thumbnails
-    const thumbsHtml = images.map((img, idx) => `
-        <button type="button" class="thumb-btn" onclick="switchMedia('image','${img}')" aria-label="View Image ${idx + 1}">
-            <img src="${img}" alt="Thumbnail ${idx + 1}" width="80" height="60" loading="lazy">
-        </button>
-    `).join('');
+    // 2. Thumbnails Logic (UPDATED)
+    // Pehli image agar video hai to video play karegi, warna normal image switch
+    const thumbsHtml = images.map((img, idx) => {
+        let clickAction = `switchMedia('image','${img}')`;
+        let ariaLabel = `View Image ${idx + 1}`;
+        let playIconOverlay = '';
 
-    // 3. Form
+        // Agar yeh pehli image hai AUR product me video hai -> Video Play karega
+        if (idx === 0 && product.video_url) {
+            clickAction = `switchMedia('video','${product.video_url}')`;
+            ariaLabel = `Play Video`;
+            // Chota sa play icon overlay taake user ko pata chale ye video hai
+            playIconOverlay = `<span class="play-icon-overlay">▶</span>`;
+        }
+
+        return `
+        <button type="button" class="thumb-btn" onclick="${clickAction}" aria-label="${ariaLabel}">
+            <img src="${img}" alt="Thumbnail ${idx + 1}" width="80" height="60" loading="lazy">
+            ${playIconOverlay}
+        </button>
+        `;
+    }).join('');
+
+    // 3. Form Logic
     const formHtml = generateDynamicForm(product.customForm || []);
 
     // 4. Final HTML
@@ -63,35 +78,34 @@ export function generateProductHTML(product) {
 <link rel="stylesheet" href="../style.css">
 <link rel="stylesheet" href="../product.css">
 <style>
-/* --- CORE VARIABLES & RESET --- */
-:root { --primary: #4f46e5; --dark: #111; --light: #f9fafb; }
+/* --- CORE STYLES --- */
+:root { --primary: #4f46e5; --dark: #111; }
 body { font-family: 'Segoe UI', system-ui, sans-serif; color: #1f2937; line-height: 1.5; margin:0; }
 
-/* --- MAIN LAYOUT (DESKTOP) --- */
+/* Layout: Desktop Sticky Player */
 .product-container { 
     display: grid; 
-    grid-template-columns: 1.2fr 1fr; /* Player side wider */
+    grid-template-columns: 1.2fr 1fr; 
     gap: 3rem; 
     margin: 3rem auto; 
     max-width: 1200px; 
     padding: 0 20px; 
-    align-items: start; /* Crucial for Sticky */
+    align-items: start;
 }
 
-/* --- LEFT COLUMN (Sticky Player) --- */
 .media-col { 
     position: sticky; 
-    top: 20px; /* Sticks to top when scrolling */
+    top: 20px; 
     display: flex; 
     flex-direction: column; 
     gap: 15px; 
 }
 
-/* Fixed Horizontal Player (16:9) */
+/* Horizontal Player (16:9) */
 .media-frame { 
     width: 100%; 
-    aspect-ratio: 16/9; /* Always Horizontal */
-    background: #000; /* Black bars for vertical content */
+    aspect-ratio: 16/9; 
+    background: #000; 
     border-radius: 12px; 
     overflow: hidden; 
     border: 1px solid #e5e7eb; 
@@ -99,31 +113,32 @@ body { font-family: 'Segoe UI', system-ui, sans-serif; color: #1f2937; line-heig
     align-items: center; 
     justify-content: center;
 }
-
 .media-frame img, .media-frame video { 
-    width: 100%; 
-    height: 100%; 
-    object-fit: contain; /* Ensures content fits inside 16:9 without stretching */
+    width: 100%; height: 100%; object-fit: contain; 
 }
 
 /* Thumbnails */
 .thumbs { display: flex; gap: 10px; overflow-x: auto; padding-bottom: 5px; }
 .thumb-btn { 
+    position: relative; /* For play icon overlay */
     background: none; border: 2px solid transparent; padding: 0; 
     cursor: pointer; border-radius: 8px; overflow: hidden; transition: 0.2s; flex-shrink: 0;
 }
 .thumb-btn:hover, .thumb-btn:focus { border-color: var(--primary); }
 .thumb-btn img { display: block; width: 80px; height: 60px; object-fit: cover; }
 
-/* Description Box */
-.desc-box { 
-    background: white; padding: 20px; border-radius: 12px; border: 1px solid #e5e7eb; 
+/* Play Icon Overlay on Thumbnail */
+.play-icon-overlay {
+    position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%);
+    background: rgba(0,0,0,0.6); color: white; border-radius: 50%;
+    width: 24px; height: 24px; display: flex; align-items: center; justify-content: center;
+    font-size: 12px; pointer-events: none;
 }
 
-/* --- RIGHT COLUMN (Form) --- */
+/* Right Column */
 .form-col { display: flex; flex-direction: column; gap: 1.5rem; }
 
-/* Cards & Form Styling */
+/* Cards */
 .cards-row { display: flex; gap: 15px; }
 .delivery-card { flex: 1; padding: 15px; border-radius: 10px; color: white; display: flex; flex-direction: column; justify-content: center; }
 .bg-green { background: #059669; }
@@ -136,6 +151,7 @@ body { font-family: 'Segoe UI', system-ui, sans-serif; color: #1f2937; line-heig
 .price-card2 .old-price { font-size: 1rem; opacity: 0.8; text-decoration: line-through; }
 .price-card2 .discount { background: white; color: var(--primary); font-size: 0.75rem; font-weight: bold; padding: 2px 8px; border-radius: 12px; }
 
+/* Forms */
 .form-section { background: #f9fafb; padding: 20px; border-radius: 12px; border: 1px solid #e5e7eb; }
 .form-group { margin-bottom: 15px; }
 .form-label { display: block; font-weight: 600; font-size: 0.95rem; margin-bottom: 6px; color: #374151; }
@@ -146,32 +162,16 @@ body { font-family: 'Segoe UI', system-ui, sans-serif; color: #1f2937; line-heig
 .checkout-btn:hover { background: #064e3b; }
 
 .rating-text { color: #b45309; font-weight: bold; font-size: 0.9rem; margin-top: 5px; }
+.desc-box { background: white; padding: 20px; border-radius: 12px; border: 1px solid #e5e7eb; }
 
-/* --- MOBILE RESPONSIVE MAGIC --- */
+/* Mobile Logic */
 @media (max-width: 768px) {
-    .product-container { 
-        display: flex; 
-        flex-direction: column; 
-        gap: 1.5rem; 
-        margin: 1.5rem auto;
-    }
-
-    /* Unwrap the media column to reorder children */
+    .product-container { display: flex; flex-direction: column; gap: 1.5rem; margin: 1.5rem auto; }
     .media-col { display: contents; } 
-
-    /* ORDERING: 
-       1. Player
-       2. Thumbnails
-       3. Form (Right Panel)
-       4. Description 
-    */
-    .media-frame { order: 1; width: 100%; }
+    .media-frame { order: 1; width: 100%; aspect-ratio: 16/9; }
     .thumbs { order: 2; }
     .form-col { order: 3; }
     .desc-box { order: 4; }
-    
-    /* On mobile, player aspect ratio can be 1:1 if desired, but keeping 16:9 as requested */
-    .media-frame { aspect-ratio: 16/9; }
 }
 </style>
 </head>
@@ -187,10 +187,6 @@ body { font-family: 'Segoe UI', system-ui, sans-serif; color: #1f2937; line-heig
     </div>
     
     <div class="thumbs" role="group" aria-label="Gallery">
-      ${product.video_url ? `
-        <button type="button" class="thumb-btn" onclick="switchMedia('video','${product.video_url}')" aria-label="Play Video">
-            <img src="https://img.icons8.com/ios-filled/50/000000/video.png" alt="Video Icon" style="padding:15px; background:#eee;">
-        </button>` : ''}
       ${thumbsHtml}
     </div>
     
@@ -240,6 +236,7 @@ body { font-family: 'Segoe UI', system-ui, sans-serif; color: #1f2937; line-heig
 <script>
 let BASE_PRICE = ${price};
 
+// Media Switcher: Video poster hamesha 1st image hogi
 function switchMedia(type, url){
   const main = document.getElementById('main-media');
   if(type === 'video'){
@@ -257,7 +254,6 @@ function updatePrice(){
     const opt = sel.options[sel.selectedIndex];
     total += parseFloat(opt.dataset.price) || 0;
     
-    // Conditionals
     const target = sel.dataset.condTarget;
     if(target){
         const wrap = document.getElementById(target);
