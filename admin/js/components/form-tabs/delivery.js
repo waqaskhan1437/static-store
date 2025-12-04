@@ -1,22 +1,47 @@
 export function renderDelivery(product) {
+    const isInstant = product.is_instant ? 'checked' : '';
+    
     return `
         <div class="form-group">
-            <label style="font-size:1.1rem; font-weight:bold; margin-bottom:10px; display:block;">
-                <i class="fas fa-truck"></i> Delivery Time
+            <label style="font-size:1.1rem; font-weight:bold; margin-bottom:15px; display:block;">
+                <i class="fas fa-truck"></i> Delivery Settings
             </label>
             
-            <p style="color:#666; font-size:0.9rem; margin-bottom:10px;">
-                Enter the estimated delivery time (e.g. "1 Day", "Instant", "2-3 Working Days").
-            </p>
+            <div style="background:#e8f5e9; padding:15px; border-radius:8px; border:1px solid #c8e6c9; margin-bottom:15px;">
+                <label style="display:flex; align-items:center; cursor:pointer; gap:10px; font-weight:bold; color:#2e7d32;">
+                    <input type="checkbox" name="is_instant" ${isInstant} style="transform:scale(1.5);">
+                    Enable Instant Delivery (60 Minutes)
+                </label>
+                <p style="margin:5px 0 0 25px; font-size:0.85rem; color:#666;">
+                    Select this if the product is delivered immediately via Email/WhatsApp.
+                </p>
+            </div>
 
-            <input type="text" name="delivery_time" class="form-control" 
-                   value="${product.delivery_time || ''}" 
-                   placeholder="e.g. 1 Day" 
-                   style="width:100%; padding:10px; font-size:1rem; border:1px solid #ccc; border-radius:5px;">
+            <div id="manual-delivery-input">
+                <label style="font-weight:600; margin-bottom:5px; display:block;">Standard Delivery Time (Days):</label>
+                <input type="text" name="delivery_time" class="form-control" 
+                       value="${product.delivery_time || ''}" 
+                       placeholder="e.g. 1 or 2" 
+                       style="width:100%; padding:10px; border:1px solid #ccc; border-radius:5px;">
+                <p style="font-size:0.8rem; color:#888; margin-top:5px;">
+                    Likhein <b>"1"</b> for 24 Hours, <b>"2"</b> for 2 Days.
+                </p>
+            </div>
         </div>
     `;
 }
 
 export function setupDeliveryEvents() {
-    // Ab yahan kisi event listener ki zaroorat nahi hai kyunke simple text field hai.
+    // Optional: Agar Instant check ho to neechay wala input disable kar saktay hain (User experience ke liye)
+    const chk = document.querySelector('input[name="is_instant"]');
+    const inputDiv = document.getElementById('manual-delivery-input');
+    
+    if(chk && inputDiv) {
+        chk.addEventListener('change', () => {
+            if(chk.checked) inputDiv.style.opacity = '0.5';
+            else inputDiv.style.opacity = '1';
+        });
+        // Initial state
+        if(chk.checked) inputDiv.style.opacity = '0.5';
+    }
 }
