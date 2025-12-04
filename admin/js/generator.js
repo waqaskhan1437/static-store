@@ -1,10 +1,10 @@
 /**
  * admin/js/generator.js
  * FIXED: 
- * - Mobile Player is Strictly Edge-to-Edge (0 Margin Left/Right)
- * - Fixed "Shifted Left" Issue on Mobile
- * - Slider & Form have proper spacing on Mobile
- * - Desktop Layout Sticky & 16:9 Preserved
+ * - Mobile Layout "Left Shift" Issue Fixed (Prevented Horizontal Overflow)
+ * - Slider & Form Width Calculated Properly (100% - 30px)
+ * - Player stays 100% Edge-to-Edge
+ * - Body Overflow Hidden to stop shaking
  */
 
 export function generateProductHTML(product) {
@@ -76,8 +76,16 @@ export function generateProductHTML(product) {
 <style>
 /* --- CORE --- */
 :root { --primary: #4f46e5; --dark: #111; }
-* { box-sizing: border-box; } /* CRITICAL FIX */
-body { font-family: 'Segoe UI', system-ui, sans-serif; color: #1f2937; line-height: 1.5; margin:0; background:#f9fafb; }
+* { box-sizing: border-box; } 
+body { 
+    font-family: 'Segoe UI', system-ui, sans-serif; 
+    color: #1f2937; 
+    line-height: 1.5; 
+    margin: 0; 
+    background: #f9fafb;
+    overflow-x: hidden; /* Prevent horizontal scroll causing layout shift */
+    width: 100%;
+}
 
 /* --- DESKTOP LAYOUT --- */
 .product-container { 
@@ -172,45 +180,49 @@ body { font-family: 'Segoe UI', system-ui, sans-serif; color: #1f2937; line-heig
 
 .rating-text { color: #b45309; font-weight: bold; font-size: 0.9rem; margin-top: 5px; }
 
-/* --- MOBILE OPTIMIZED (EDGE-TO-EDGE PLAYER) --- */
+/* --- MOBILE OPTIMIZED (ZERO MARGIN PLAYER) --- */
 @media (max-width: 768px) {
-    /* 1. Reset Container Padding */
+    /* Main container is full width with no padding */
     .product-container { 
         display: flex; flex-direction: column; gap: 20px; 
-        margin: 0; padding: 0; /* Full Width Container */
+        margin: 0; padding: 0; 
         width: 100%; max-width: 100%;
+        overflow-x: hidden;
     }
     
     .media-col { display: contents; } 
 
-    /* 2. Edge-to-Edge Player */
+    /* 1. Player: Edge to Edge (0 Margin) */
     .media-frame { 
         order: 1; 
-        width: 100%; 
-        border-radius: 0; 
-        border-left: none; border-right: none; 
-        margin: 0; 
+        width: 100% !important;
+        margin: 0 !important;
+        border-radius: 0 !important;
+        border-left: none; border-right: none;
         box-shadow: none;
     }
     
-    /* 3. Slider with Margin */
+    /* 2. Slider: Centered with gap from edges */
     .t-wrapper { 
         order: 2; 
-        width: auto !important; /* Allow margin */
-        margin: 0 15px; /* Spacing from sides */
+        /* Use CALC to ensure it fits with margin */
+        width: calc(100% - 30px) !important;
+        margin: 0 auto !important; 
     }
     
-    /* 4. Form with Margin */
+    /* 3. Form: Centered with gap */
     .form-col { 
         order: 3; 
-        margin: 0 15px; 
+        width: calc(100% - 30px) !important;
+        margin: 0 auto !important; 
         padding: 20px; 
     }
     
-    /* 5. Desc with Margin */
+    /* 4. Desc: Centered with gap */
     .desc-box { 
         order: 4; 
-        margin: 0 15px 40px 15px; 
+        width: calc(100% - 30px) !important;
+        margin: 0 auto 40px auto !important; 
     }
 }
 </style>
