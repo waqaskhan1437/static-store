@@ -2,7 +2,8 @@ import { generateSlug } from '../../utils.js';
 
 /**
  * Tab 1: Basic Information
- * HTML Template aur Events handle karta hai.
+ * Handles HTML Template and Events.
+ * FIXED: Currency USD, English Comments
  */
 
 export function renderBasicInfo(data = {}) {
@@ -22,7 +23,7 @@ export function renderBasicInfo(data = {}) {
 
         <div class="row" style="display: flex; gap: 20px;">
             <div class="form-group" style="flex: 1;">
-                <label>Price (PKR) *</label>
+                <label>Price (USD) *</label>
                 <input type="number" name="price" class="form-control" 
                        value="${data.price || ''}" required>
             </div>
@@ -51,7 +52,7 @@ export function renderBasicInfo(data = {}) {
 }
 
 /**
- * Events attach karein (Title change -> Slug update)
+ * Attach Events (Title change -> Slug update)
  */
 export function setupBasicInfoEvents() {
     const titleInput = document.getElementById('inp_title');
@@ -59,9 +60,7 @@ export function setupBasicInfoEvents() {
 
     if (titleInput && slugInput) {
         titleInput.addEventListener('input', (e) => {
-            // Sirf tab slug update karein agar naya product ho (slug khali ho) 
-            // ya user ne abhi edit shuru kiya ho.
-            // (Filhal hum hamesha update kar rahe hain simplicity ke liye)
+            // Update slug on title change
             const newSlug = generateSlug(e.target.value);
             slugInput.value = newSlug;
         });
