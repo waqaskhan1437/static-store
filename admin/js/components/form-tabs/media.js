@@ -1,41 +1,43 @@
 /**
  * Tab 2: Media & Description
- * Description editor aur Images/Video links handle karta hai.
+ * Handles Description editor and Image/Video links.
+ * FIXED: Strictly English Text & Comments
  */
 
 export function renderMedia(data = {}) {
-    // Agar images array hai to string bana lo, warna empty
+    // Convert images array to string (one URL per line)
     const imagesVal = data.images ? data.images.join('\n') : '';
 
     return `
         <div class="form-group">
-            <label>Product Description</label>
-            <textarea name="description" class="form-control" placeholder="Product details...">${data.description || ''}</textarea>
+            <label style="font-weight:600; margin-bottom:5px; display:block;">Product Description</label>
+            <textarea name="description" class="form-control" rows="5" placeholder="Enter full product details here...">${data.description || ''}</textarea>
         </div>
 
         <div class="form-group">
-            <label>SEO Description (Short)</label>
+            <label style="font-weight:600; margin-bottom:5px; display:block;">SEO Description (Short)</label>
             <input type="text" name="seoDescription" class="form-control" 
-                   value="${data.seoDescription || ''}" placeholder="For search engines...">
+                   value="${data.seoDescription || ''}" placeholder="Summary for search engines (Google)...">
         </div>
 
         <div class="form-group">
-            <label>Image URLs (One per line) *</label>
-            <textarea name="images" class="form-control" style="font-family: monospace;" 
-                      placeholder="https://example.com/img1.jpg\nhttps://example.com/img2.jpg" required>${imagesVal}</textarea>
-            <p class="helper-text">Enter direct image links. First one will be main image.</p>
+            <label style="font-weight:600; margin-bottom:5px; display:block;">Image URLs (One per line) *</label>
+            <textarea name="images" class="form-control" style="font-family: monospace; white-space: pre; height:120px;" 
+                      placeholder="https://example.com/image1.jpg&#10;https://example.com/image2.jpg" required>${imagesVal}</textarea>
+            <p class="helper-text" style="color:#666; font-size:0.85rem; margin-top:5px;">
+                Enter direct image links. The first image will be the main product image.
+            </p>
         </div>
 
         <div class="form-group">
-            <label>Video URL (Optional)</label>
+            <label style="font-weight:600; margin-bottom:5px; display:block;">Video URL (Optional)</label>
             <input type="url" name="video_url" class="form-control" 
-                   value="${data.video_url || ''}" placeholder="YouTube or MP4 link">
+                   value="${data.video_url || ''}" placeholder="https://example.com/video.mp4">
         </div>
     `;
 }
 
-// Filhal is tab ke liye koi khaas event listener zaroori nahi hai
-// lekin hum function bana dete hain consistency ke liye.
+// Event listener function (Placeholder for future logic)
 export function setupMediaEvents() {
-    // Future: Image preview logic yahan aa sakti hai
+    // Future: Image preview logic can be implemented here
 }
