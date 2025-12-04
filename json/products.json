@@ -1821,8 +1821,8 @@
             "label": "ljlkjlk",
             "price": 5,
             "file_qty": 1,
-            "text_label": "kljklj",
-            "text_placeholder": "jkhkjhkj"
+            "text_label": "",
+            "text_placeholder": ""
           }
         ]
       }
